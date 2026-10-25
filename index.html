@@ -8,6 +8,67 @@
 <meta name="description" content="PanBill Nigerian VTU and bill payment services">
 <title>PanBill - All Your Bills</title>
 
+  <style>
+  /* PanBill sign-up background */
+.signup-page {
+  background-image: linear-gradient(
+    rgba(0, 0, 0, 0.45),
+    rgba(0, 0, 0, 0.45)
+  ), url("file_000000003c4071f5aa2421d75ff2164e.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+  padding: 24px 16px;
+}
+
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f8f6;color:#183128}
+header{background:#fff;padding:16px 5%;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e0ebe5}
+.logo{display:flex;align-items:center;gap:10px;font-size:25px;font-weight:bold;color:#087f5b}
+.logo-icon{background:#087f5b;color:white;border-radius:12px;padding:10px}
+button,a{cursor:pointer}
+button{font-family:inherit}
+.btn{background:#087f5b;color:#fff;border:0;border-radius:10px;padding:12px 17px;font-weight:bold}
+.hero{margin:22px auto;padding:32px 24px;width:92%;max-width:1100px;border-radius:22px;color:white;background:linear-gradient(125deg,#07563f,#0a9b6b)}
+.hero small{background:#ffffff20;padding:8px 12px;border-radius:30px}
+.hero h1{font-size:clamp(34px,7vw,56px);line-height:1.08;margin:25px 0 14px}
+.hero p{line-height:1.7;color:#e5fff2;max-width:570px}
+.hero .btn{background:white;color:#087f5b;margin-top:10px}
+main{max-width:1100px;margin:auto;padding:10px 4% 35px}
+h2{font-size:24px;margin-bottom:6px}
+.sub{color:#687970;margin-top:0;margin-bottom:22px}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.service{background:#fff;border:1px solid #e0ebe5;border-radius:17px;padding:18px 14px;text-align:left;color:#183128;box-shadow:0 3px 12px #123b2608}
+.service:active{transform:scale(.98)}
+.ico{display:grid;place-items:center;width:45px;height:45px;border-radius:13px;background:#e5f7ed;color:#087f5b;font-size:24px;margin-bottom:13px}
+.service h3{font-size:16px;margin:0 0 8px}
+.service p{font-size:13px;color:#687970;line-height:1.5;margin:0}
+.arrow{display:block;color:#087f5b;font-weight:bold;font-size:13px;margin-top:15px}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:20px}
+.step{background:white;border:1px solid #e0ebe5;border-radius:15px;padding:17px}
+.step b{color:#087f5b}
+.step p{color:#687970;font-size:14px;line-height:1.6}
+.notice{background:#fff4d9;border:1px solid #f0dca7;color:#6e5115;padding:15px;border-radius:12px;line-height:1.6;font-size:13px;margin-top:26px}
+footer{text-align:center;padding:22px;color:#687970;font-size:13px;background:white;border-top:1px solid #e0ebe5}
+
+.modal-bg{display:none;position:fixed;inset:0;background:#0009;z-index:5;padding:16px;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:#fff;padding:23px;border-radius:18px;width:100%;max-width:430px;max-height:90vh;overflow:auto}
+.modal h2{margin-top:0}
+.modal label{display:block;font-size:14px;font-weight:bold;margin:14px 0 6px}
+.modal input,.modal select{width:100%;padding:12px;border:1px solid #cedbd3;border-radius:9px;background:white;font-size:16px}
+.modal .btn{width:100%;margin-top:18px}
+.close{float:right;background:#edf4ef;border:0;border-radius:8px;padding:8px 12px;font-size:20px}
+#message{font-size:13px;line-height:1.6;color:#76510b;background:#fff4d9;padding:12px;border-radius:9px;margin-top:12px;display:none}
+@media(max-width:650px){
+.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.service{padding:14px 11px}
+.steps{grid-template-columns:1fr}
+.hero{padding:28px 20px}
+.hero h1{font-size:38px}
+}
+
 /* PanBill account screen */
 #panbill-auth-gate {
   position: fixed;
@@ -84,68 +145,8 @@
   z-index: 100000;
   background: #e7f4ee;
   color: #087f5b;
-}
-  <style>
-  /* PanBill sign-up background */
-.signup-page {
-  background-image: linear-gradient(
-    rgba(0, 0, 0, 0.45),
-    rgba(0, 0, 0, 0.45)
-  ), url("file_000000003c4071f5aa2421d75ff2164e.png");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  min-height: 100vh;
-  padding: 24px 16px;
-}
-
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f8f6;color:#183128}
-header{background:#fff;padding:16px 5%;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e0ebe5}
-.logo{display:flex;align-items:center;gap:10px;font-size:25px;font-weight:bold;color:#087f5b}
-.logo-icon{background:#087f5b;color:white;border-radius:12px;padding:10px}
-button,a{cursor:pointer}
-button{font-family:inherit}
-.btn{background:#087f5b;color:#fff;border:0;border-radius:10px;padding:12px 17px;font-weight:bold}
-.hero{margin:22px auto;padding:32px 24px;width:92%;max-width:1100px;border-radius:22px;color:white;background:linear-gradient(125deg,#07563f,#0a9b6b)}
-.hero small{background:#ffffff20;padding:8px 12px;border-radius:30px}
-.hero h1{font-size:clamp(34px,7vw,56px);line-height:1.08;margin:25px 0 14px}
-.hero p{line-height:1.7;color:#e5fff2;max-width:570px}
-.hero .btn{background:white;color:#087f5b;margin-top:10px}
-main{max-width:1100px;margin:auto;padding:10px 4% 35px}
-h2{font-size:24px;margin-bottom:6px}
-.sub{color:#687970;margin-top:0;margin-bottom:22px}
-.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
-.service{background:#fff;border:1px solid #e0ebe5;border-radius:17px;padding:18px 14px;text-align:left;color:#183128;box-shadow:0 3px 12px #123b2608}
-.service:active{transform:scale(.98)}
-.ico{display:grid;place-items:center;width:45px;height:45px;border-radius:13px;background:#e5f7ed;color:#087f5b;font-size:24px;margin-bottom:13px}
-.service h3{font-size:16px;margin:0 0 8px}
-.service p{font-size:13px;color:#687970;line-height:1.5;margin:0}
-.arrow{display:block;color:#087f5b;font-weight:bold;font-size:13px;margin-top:15px}
-.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:20px}
-.step{background:white;border:1px solid #e0ebe5;border-radius:15px;padding:17px}
-.step b{color:#087f5b}
-.step p{color:#687970;font-size:14px;line-height:1.6}
-.notice{background:#fff4d9;border:1px solid #f0dca7;color:#6e5115;padding:15px;border-radius:12px;line-height:1.6;font-size:13px;margin-top:26px}
-footer{text-align:center;padding:22px;color:#687970;font-size:13px;background:white;border-top:1px solid #e0ebe5}
-
-.modal-bg{display:none;position:fixed;inset:0;background:#0009;z-index:5;padding:16px;align-items:center;justify-content:center}
-.modal-bg.open{display:flex}
-.modal{background:#fff;padding:23px;border-radius:18px;width:100%;max-width:430px;max-height:90vh;overflow:auto}
-.modal h2{margin-top:0}
-.modal label{display:block;font-size:14px;font-weight:bold;margin:14px 0 6px}
-.modal input,.modal select{width:100%;padding:12px;border:1px solid #cedbd3;border-radius:9px;background:white;font-size:16px}
-.modal .btn{width:100%;margin-top:18px}
-.close{float:right;background:#edf4ef;border:0;border-radius:8px;padding:8px 12px;font-size:20px}
-#message{font-size:13px;line-height:1.6;color:#76510b;background:#fff4d9;padding:12px;border-radius:9px;margin-top:12px;display:none}
-@media(max-width:650px){
-.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.service{padding:14px 11px}
-.steps{grid-template-columns:1fr}
-.hero{padding:28px 20px}
-.hero h1{font-size:38px}
-}
-</style>
+        }
+         </style>
 </head>
 <body>
 <header>
@@ -348,6 +349,186 @@ document.getElementById("serviceForm").addEventListener("submit",function(e){
 
 document.getElementById("year").textContent=new Date().getFullYear();
 </script>
-</body>
+
+<div id="panbill-auth-gate">
+  <div class="auth-card">
+    <h1 style="color:#087f5b;text-align:center">PanBill</h1>
+    <p style="text-align:center">
+      Your payments, made simple.
+    </p>
+
+    <div style="text-align:center">
+      <button type="button" class="switch"
+        id="panbill-show-signup">Create account</button>
+      <button type="button" class="switch"
+        id="panbill-show-login">Log in</button>
+    </div>
+
+    <form id="panbill-signup-form">
+      <h2>Create your account</h2>
+      <input id="panbill-name" type="text"
+        placeholder="Full name" autocomplete="name" required>
+      <input id="panbill-signup-email" type="email"
+        placeholder="Email address" autocomplete="email" required>
+      <input id="panbill-signup-password" type="password"
+        placeholder="Password (at least 8 characters)"
+        minlength="8" autocomplete="new-password" required>
+      <button class="primary" type="submit">Create account</button>
+    </form>
+
+    <form id="panbill-login-form" hidden>
+      <h2>Welcome back</h2>
+      <input id="panbill-login-email" type="email"
+        placeholder="Email address" autocomplete="email" required>
+      <input id="panbill-login-password" type="password"
+        placeholder="Password" autocomplete="current-password" required>
+      <button class="primary" type="submit">Log in</button>
+    </form>
+
+    <p id="panbill-auth-message" role="status" aria-live="polite"></p>
+  </div>
+</div>
+
+<button id="panbill-logout" type="button" hidden>
+  Log out
+                                        </button>
+    </body>
 </html>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+(() => {
+  // Replace these two placeholders with your real project details.
+  const SUPABASE_URL = "PASTE_YOUR_PROJECT_URL_HERE";
+  const SUPABASE_PUBLISHABLE_KEY = "PASTE_YOUR_PUBLISHABLE_KEY_HERE";
+
+  const gate = document.getElementById("panbill-auth-gate");
+  const signup = document.getElementById("panbill-signup-form");
+  const login = document.getElementById("panbill-login-form");
+  const message = document.getElementById("panbill-auth-message");
+  const logout = document.getElementById("panbill-logout");
+
+  if (!window.supabase ||
+      SUPABASE_URL.includes("PASTE_") ||
+      SUPABASE_PUBLISHABLE_KEY.includes("PASTE_")) {
+    message.textContent =
+      "Setup incomplete. Add your Supabase URL and publishable key.";
+    return;
+  }
+
+  const authClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
+
+  function showMessage(text) {
+    message.textContent = text;
+  }
+
+  function showSignedIn(signedIn) {
+    gate.hidden = signedIn;
+    logout.hidden = !signedIn;
+  }
+
+  document.getElementById("panbill-show-signup")
+    .addEventListener("click", () => {
+      signup.hidden = false;
+      login.hidden = true;
+      showMessage("");
+    });
+
+  document.getElementById("panbill-show-login")
+    .addEventListener("click", () => {
+      signup.hidden = true;
+      login.hidden = false;
+      showMessage("");
+    });
+
+  signup.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const button = signup.querySelector('button[type="submit"]');
+    button.disabled = true;
+    showMessage("Creating your account...");
+
+    try {
+      const { data, error } = await authClient.auth.signUp({
+        email: document.getElementById("panbill-signup-email").value.trim(),
+        password: document.getElementById("panbill-signup-password").value,
+        options: {
+          data: {
+            full_name: document.getElementById("panbill-name").value.trim()
+          },
+          emailRedirectTo: location.origin + location.pathname
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.session) {
+        showSignedIn(true);
+        showMessage("");
+      } else {
+        showMessage(
+          "Account created. Check your email to confirm, then log in."
+        );
+        signup.reset();
+      }
+    } catch (error) {
+      showMessage(error.message || "Registration failed.");
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  login.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const button = login.querySelector('button[type="submit"]');
+    button.disabled = true;
+    showMessage("Logging in...");
+
+    try {
+      const { error } = await authClient.auth.signInWithPassword({
+        email: document.getElementById("panbill-login-email").value.trim(),
+        password: document.getElementById("panbill-login-password").value
+      });
+
+      if (error) throw error;
+      showSignedIn(true);
+      showMessage("");
+      login.reset();
+    } catch (error) {
+      showMessage(error.message || "Login failed.");
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  logout.addEventListener("click", async () => {
+    logout.disabled = true;
+    const { error } = await authClient.auth.signOut();
+    logout.disabled = false;
+
+    if (error) {
+      showMessage(error.message);
+      return;
+    }
+
+    showSignedIn(false);
+    signup.hidden = true;
+    login.hidden = false;
+    showMessage("You have logged out.");
+  });
+
+  authClient.auth.onAuthStateChange((_event, session) => {
+    showSignedIn(Boolean(session));
+  });
+
+  authClient.auth.getSession().then(({ data, error }) => {
+    if (error) showMessage(error.message);
+    showSignedIn(Boolean(data.session));
+  });
+})();
+</script>
+</body>
+  </html>
+
 
