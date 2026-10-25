@@ -7,7 +7,85 @@
 <meta name="theme-color" content="#087f5b">
 <meta name="description" content="PanBill Nigerian VTU and bill payment services">
 <title>PanBill - All Your Bills</title>
-<style>
+
+/* PanBill account screen */
+#panbill-auth-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
+  background: linear-gradient(
+    rgba(5, 30, 25, 0.65),
+    rgba(5, 30, 25, 0.8)
+  ), url("file_000000003c4071f5aa2421d75ff2164e.png")
+       center / cover no-repeat;
+  font-family: Arial, sans-serif;
+}
+
+#panbill-auth-gate[hidden] {
+  display: none !important;
+}
+
+#panbill-auth-gate .auth-card {
+  background: white;
+  color: #18332b;
+  width: 100%;
+  max-width: 390px;
+  padding: 25px;
+  border-radius: 18px;
+  box-sizing: border-box;
+  box-shadow: 0 10px 35px rgba(0,0,0,.25);
+}
+
+#panbill-auth-gate input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px;
+  margin: 10px 0;
+  border: 1px solid #ccd5d0;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+#panbill-auth-gate button,
+#panbill-logout {
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#panbill-auth-gate .primary {
+  width: 100%;
+  background: #087f5b;
+  color: white;
+  margin-top: 10px;
+}
+
+#panbill-auth-gate .switch {
+  background: #e7f4ee;
+  color: #087f5b;
+  margin: 4px;
+}
+
+#panbill-auth-message {
+  overflow-wrap: anywhere;
+  font-size: 14px;
+}
+
+#panbill-logout {
+  position: relative;
+  z-index: 100000;
+  background: #e7f4ee;
+  color: #087f5b;
+}
+  <style>
   /* PanBill sign-up background */
 .signup-page {
   background-image: linear-gradient(
