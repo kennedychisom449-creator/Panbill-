@@ -1,1 +1,262 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#087f5b">
+<meta name="description" content="PanBill Nigerian VTU and bill payment services">
+<title>PanBill - All Your Bills</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f8f6;color:#183128}
+header{background:#fff;padding:16px 5%;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e0ebe5}
+.logo{display:flex;align-items:center;gap:10px;font-size:25px;font-weight:bold;color:#087f5b}
+.logo-icon{background:#087f5b;color:white;border-radius:12px;padding:10px}
+button,a{cursor:pointer}
+button{font-family:inherit}
+.btn{background:#087f5b;color:#fff;border:0;border-radius:10px;padding:12px 17px;font-weight:bold}
+.hero{margin:22px auto;padding:32px 24px;width:92%;max-width:1100px;border-radius:22px;color:white;background:linear-gradient(125deg,#07563f,#0a9b6b)}
+.hero small{background:#ffffff20;padding:8px 12px;border-radius:30px}
+.hero h1{font-size:clamp(34px,7vw,56px);line-height:1.08;margin:25px 0 14px}
+.hero p{line-height:1.7;color:#e5fff2;max-width:570px}
+.hero .btn{background:white;color:#087f5b;margin-top:10px}
+main{max-width:1100px;margin:auto;padding:10px 4% 35px}
+h2{font-size:24px;margin-bottom:6px}
+.sub{color:#687970;margin-top:0;margin-bottom:22px}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.service{background:#fff;border:1px solid #e0ebe5;border-radius:17px;padding:18px 14px;text-align:left;color:#183128;box-shadow:0 3px 12px #123b2608}
+.service:active{transform:scale(.98)}
+.ico{display:grid;place-items:center;width:45px;height:45px;border-radius:13px;background:#e5f7ed;color:#087f5b;font-size:24px;margin-bottom:13px}
+.service h3{font-size:16px;margin:0 0 8px}
+.service p{font-size:13px;color:#687970;line-height:1.5;margin:0}
+.arrow{display:block;color:#087f5b;font-weight:bold;font-size:13px;margin-top:15px}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:20px}
+.step{background:white;border:1px solid #e0ebe5;border-radius:15px;padding:17px}
+.step b{color:#087f5b}
+.step p{color:#687970;font-size:14px;line-height:1.6}
+.notice{background:#fff4d9;border:1px solid #f0dca7;color:#6e5115;padding:15px;border-radius:12px;line-height:1.6;font-size:13px;margin-top:26px}
+footer{text-align:center;padding:22px;color:#687970;font-size:13px;background:white;border-top:1px solid #e0ebe5}
+
+.modal-bg{display:none;position:fixed;inset:0;background:#0009;z-index:5;padding:16px;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:#fff;padding:23px;border-radius:18px;width:100%;max-width:430px;max-height:90vh;overflow:auto}
+.modal h2{margin-top:0}
+.modal label{display:block;font-size:14px;font-weight:bold;margin:14px 0 6px}
+.modal input,.modal select{width:100%;padding:12px;border:1px solid #cedbd3;border-radius:9px;background:white;font-size:16px}
+.modal .btn{width:100%;margin-top:18px}
+.close{float:right;background:#edf4ef;border:0;border-radius:8px;padding:8px 12px;font-size:20px}
+#message{font-size:13px;line-height:1.6;color:#76510b;background:#fff4d9;padding:12px;border-radius:9px;margin-top:12px;display:none}
+@media(max-width:650px){
+.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.service{padding:14px 11px}
+.steps{grid-template-columns:1fr}
+.hero{padding:28px 20px}
+.hero h1{font-size:38px}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><span class="logo-icon">₦</span> PanBill</div>
+  <button class="btn" onclick="goServices()">Get Started</button>
+</header>
+
+<section class="hero">
+  <small>🇳🇬 Made for Nigeria</small>
+  <h1>One app.<br>All your bills.</h1>
+  <p>Buy data and airtime, renew your TV subscription, pay electricity bills, get exam pins and explore internet services — all in one place.</p>
+  <button class="btn" onclick="goServices()">Explore Services →</button>
+</section>
+
+<main>
+  <h2 id="services">What would you like to pay for?</h2>
+  <p class="sub">Choose a service to get started.</p>
+
+  <div class="grid">
+    <button class="service" onclick="openService('data')">
+      <span class="ico">📶</span><h3>Buy Data</h3>
+      <p>Data bundles for your mobile line.</p><span class="arrow">Buy data →</span>
+    </button>
+    <button class="service" onclick="openService('airtime')">
+      <span class="ico">📱</span><h3>Airtime</h3>
+      <p>Recharge your number or another line.</p><span class="arrow">Recharge →</span>
+    </button>
+    <button class="service" onclick="openService('tv')">
+      <span class="ico">📺</span><h3>TV Subscription</h3>
+      <p>Renew supported decoder packages.</p><span class="arrow">Pay TV →</span>
+    </button>
+    <button class="service" onclick="openService('electricity')">
+      <span class="ico">⚡</span><h3>Electricity</h3>
+      <p>Pay supported electricity bills.</p><span class="arrow">Pay bill →</span>
+    </button>
+    <button class="service" onclick="openService('exam')">
+      <span class="ico">🎓</span><h3>Exam Pins</h3>
+      <p>Get supported exam vouchers.</p><span class="arrow">Get pins →</span>
+    </button>
+    <button class="service" onclick="openService('internet')">
+      <span class="ico">🌐</span><h3>Internet Services</h3>
+      <p>Explore internet plans.</p><span class="arrow">Explore →</span>
+    </button>
+  </div>
+
+  <h2 style="margin-top:35px">How PanBill works</h2>
+  <p class="sub">Three simple steps.</p>
+  <div class="steps">
+    <div class="step"><b>01 · Choose</b><p>Select the service you need.</p></div>
+    <div class="step"><b>02 · Enter details</b><p>Provide the phone, meter or account details requested.</p></div>
+    <div class="step"><b>03 · Confirm</b><p>Review your order before paying when live payments are enabled.</p></div>
+  </div>
+
+  <div class="notice"><b>Demo notice:</b> PanBill is not yet connected to a live VTU provider or payment service. This demo cannot deliver data, airtime, TV subscriptions, electricity tokens or exam pins. Do not enter passwords, bank details or payment PINs.</div>
+</main>
+
+<footer>© <span id="year"></span> PanBill · One app. All your bills.</footer>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <button class="close" onclick="closeService()" aria-label="Close">×</button>
+    <h2 id="modalTitle">Service</h2>
+    <p class="sub" id="modalSub">Enter your details.</p>
+    <form id="serviceForm">
+      <div id="fields"></div>
+      <button class="btn" type="submit">Continue →</button>
+      <div id="message" role="status"></div>
+    </form>
+  </div>
+</div>
+
+<script>
+const configs = {
+ data:{
+  title:"Buy Data",
+  fields:[
+   ["Network","network",["MTN","Airtel","Glo","9mobile"]],
+   ["Phone number","phone","tel"],
+   ["Data bundle","bundle",["500 MB","1 GB","2 GB","5 GB","10 GB"]]
+  ]
+ },
+ airtime:{
+  title:"Buy Airtime",
+  fields:[
+   ["Network","network",["MTN","Airtel","Glo","9mobile"]],
+   ["Phone number","phone","tel"],
+   ["Amount in naira","amount","number"]
+  ]
+ },
+ tv:{
+  title:"TV Subscription",
+  fields:[
+   ["TV provider","provider",["DStv","GOtv","StarTimes"]],
+   ["Smartcard / IUC number","account","text"],
+   ["Package","package",["Basic","Family","Compact / Classic","Premium"]]
+  ]
+ },
+ electricity:{
+  title:"Electricity Bill",
+  fields:[
+   ["Electricity company","disco",["AEDC","EKEDC","IKEDC","IBEDC","JED","KAEDCO","KEDCO","PHED","EEDC","BEDC"]],
+   ["Meter type","meterType",["Prepaid","Postpaid"]],
+   ["Meter number","meter","text"],
+   ["Amount in naira","amount","number"]
+  ]
+ },
+ exam:{
+  title:"Exam Pins",
+  fields:[
+   ["Exam / voucher","exam",["WAEC","NECO","JAMB / UTME"]],
+   ["Quantity","quantity","number"]
+  ]
+ },
+ internet:{
+  title:"Internet Services",
+  fields:[
+   ["Provider","provider",["Spectranet","Smile","Swift","Other supported service"]],
+   ["Account / device number","account","text"],
+   ["Internet plan","plan",["Starter","Standard","Premium"]]
+  ]
+ }
+};
+
+function goServices(){
+ document.getElementById("services").scrollIntoView({behavior:"smooth"});
+}
+
+function openService(type){
+ const config=configs[type];
+ if(!config)return;
+ document.getElementById("modalTitle").textContent=config.title;
+ document.getElementById("modalSub").textContent="Enter the details for your request.";
+ const fields=document.getElementById("fields");
+ fields.replaceChildren();
+ document.getElementById("message").style.display="none";
+
+ config.fields.forEach(([label,name,options])=>{
+  const wrap=document.createElement("div");
+  const lab=document.createElement("label");
+  lab.textContent=label;
+  lab.htmlFor="field-"+name;
+  wrap.appendChild(lab);
+
+  let input;
+  if(Array.isArray(options)){
+   input=document.createElement("select");
+   const first=document.createElement("option");
+   first.value="";
+   first.textContent="Select "+label.toLowerCase();
+   input.appendChild(first);
+   options.forEach(value=>{
+    const option=document.createElement("option");
+    option.value=value;
+    option.textContent=value;
+    input.appendChild(option);
+   });
+  }else{
+   input=document.createElement("input");
+   input.type=options;
+   input.placeholder=label;
+   if(options==="number"){
+    input.min=name==="quantity"?"1":"50";
+    input.max="500000";
+    input.step="1";
+   }
+   if(options==="tel")input.inputMode="tel";
+   if(name==="phone")input.pattern="0[789][01][0-9]{8}";
+  }
+
+  input.id="field-"+name;
+  input.name=name;
+  input.required=true;
+  wrap.appendChild(input);
+  fields.appendChild(wrap);
+ });
+
+ document.getElementById("modalBg").classList.add("open");
+}
+
+function closeService(){
+ document.getElementById("modalBg").classList.remove("open");
+}
+
+document.getElementById("modalBg").addEventListener("click",function(e){
+ if(e.target===this)closeService();
+});
+
+document.addEventListener("keydown",function(e){
+ if(e.key==="Escape")closeService();
+});
+
+document.getElementById("serviceForm").addEventListener("submit",function(e){
+ e.preventDefault();
+ if(!this.reportValidity())return;
+
+ const message=document.getElementById("message");
+ message.textContent="Demo only: your request has not been sent and no payment has been made. Live transactions will be enabled after PanBill is connected to a secure backend, payment provider and VTU service.";
+ message.style.display="block";
+});
+
+document.getElementById("year").textContent=new Date().getFullYear();
+</script>
+</body>
+</html>
+
