@@ -1,533 +1,937 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#087f5b">
-<meta name="description" content="PanBill Nigerian VTU and bill payment services">
-<title>PanBill - All Your Bills</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#087f5b">
+  <meta name="description" content="PanBill Nigerian airtime, data and bill payment services">
+  <title>PanBill - All Your Bills</title>
 
   <style>
-  /* PanBill sign-up background */
-.signup-page {
-  background-image: linear-gradient(
-    rgba(0, 0, 0, 0.45),
-    rgba(0, 0, 0, 0.45)
-  ), url("file_000000003c4071f5aa2421d75ff2164e.png");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  min-height: 100vh;
-  padding: 24px 16px;
-}
+    * { box-sizing: border-box; }
 
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f8f6;color:#183128}
-header{background:#fff;padding:16px 5%;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e0ebe5}
-.logo{display:flex;align-items:center;gap:10px;font-size:25px;font-weight:bold;color:#087f5b}
-.logo-icon{background:#087f5b;color:white;border-radius:12px;padding:10px}
-button,a{cursor:pointer}
-button{font-family:inherit}
-.btn{background:#087f5b;color:#fff;border:0;border-radius:10px;padding:12px 17px;font-weight:bold}
-.hero{margin:22px auto;padding:32px 24px;width:92%;max-width:1100px;border-radius:22px;color:white;background:linear-gradient(125deg,#07563f,#0a9b6b)}
-.hero small{background:#ffffff20;padding:8px 12px;border-radius:30px}
-.hero h1{font-size:clamp(34px,7vw,56px);line-height:1.08;margin:25px 0 14px}
-.hero p{line-height:1.7;color:#e5fff2;max-width:570px}
-.hero .btn{background:white;color:#087f5b;margin-top:10px}
-main{max-width:1100px;margin:auto;padding:10px 4% 35px}
-h2{font-size:24px;margin-bottom:6px}
-.sub{color:#687970;margin-top:0;margin-bottom:22px}
-.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
-.service{background:#fff;border:1px solid #e0ebe5;border-radius:17px;padding:18px 14px;text-align:left;color:#183128;box-shadow:0 3px 12px #123b2608}
-.service:active{transform:scale(.98)}
-.ico{display:grid;place-items:center;width:45px;height:45px;border-radius:13px;background:#e5f7ed;color:#087f5b;font-size:24px;margin-bottom:13px}
-.service h3{font-size:16px;margin:0 0 8px}
-.service p{font-size:13px;color:#687970;line-height:1.5;margin:0}
-.arrow{display:block;color:#087f5b;font-weight:bold;font-size:13px;margin-top:15px}
-.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:20px}
-.step{background:white;border:1px solid #e0ebe5;border-radius:15px;padding:17px}
-.step b{color:#087f5b}
-.step p{color:#687970;font-size:14px;line-height:1.6}
-.notice{background:#fff4d9;border:1px solid #f0dca7;color:#6e5115;padding:15px;border-radius:12px;line-height:1.6;font-size:13px;margin-top:26px}
-footer{text-align:center;padding:22px;color:#687970;font-size:13px;background:white;border-top:1px solid #e0ebe5}
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f3f8f5;
+      color: #183128;
+    }
 
-.modal-bg{display:none;position:fixed;inset:0;background:#0009;z-index:5;padding:16px;align-items:center;justify-content:center}
-.modal-bg.open{display:flex}
-.modal{background:#fff;padding:23px;border-radius:18px;width:100%;max-width:430px;max-height:90vh;overflow:auto}
-.modal h2{margin-top:0}
-.modal label{display:block;font-size:14px;font-weight:bold;margin:14px 0 6px}
-.modal input,.modal select{width:100%;padding:12px;border:1px solid #cedbd3;border-radius:9px;background:white;font-size:16px}
-.modal .btn{width:100%;margin-top:18px}
-.close{float:right;background:#edf4ef;border:0;border-radius:8px;padding:8px 12px;font-size:20px}
-#message{font-size:13px;line-height:1.6;color:#76510b;background:#fff4d9;padding:12px;border-radius:9px;margin-top:12px;display:none}
-@media(max-width:650px){
-.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.service{padding:14px 11px}
-.steps{grid-template-columns:1fr}
-.hero{padding:28px 20px}
-.hero h1{font-size:38px}
-}
+    header {
+      background: #087f5b;
+      color: white;
+      padding: 18px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
 
-/* PanBill account screen */
-#panbill-auth-gate {
-  position: fixed;
-  inset: 0;
-  z-index: 99999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  overflow-y: auto;
-  background: linear-gradient(
-    rgba(5, 30, 25, 0.65),
-    rgba(5, 30, 25, 0.8)
-  ), url("file_000000003c4071f5aa2421d75ff2164e.png")
-       center / cover no-repeat;
-  font-family: Arial, sans-serif;
-}
+    .logo {
+      font-size: 26px;
+      font-weight: bold;
+    }
 
-#panbill-auth-gate[hidden] {
-  display: none !important;
-}
+    header button {
+      background: white;
+      color: #087f5b;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
 
-#panbill-auth-gate .auth-card {
-  background: white;
-  color: #18332b;
-  width: 100%;
-  max-width: 390px;
-  padding: 25px;
-  border-radius: 18px;
-  box-sizing: border-box;
-  box-shadow: 0 10px 35px rgba(0,0,0,.25);
-}
+    .hero {
+      background: linear-gradient(135deg, #087f5b, #10a777);
+      color: white;
+      text-align: center;
+      padding: 38px 18px;
+    }
 
-#panbill-auth-gate input {
-  display: block;
-  width: 100%;
-  box-sizing: border-box;
-  padding: 13px;
-  margin: 10px 0;
-  border: 1px solid #ccd5d0;
-  border-radius: 8px;
-  font-size: 16px;
-}
+    .hero h1 {
+      font-size: 30px;
+      margin: 0 0 12px;
+    }
 
-#panbill-auth-gate button,
-#panbill-logout {
-  padding: 12px 16px;
-  border: 0;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-}
+    .hero p {
+      line-height: 1.6;
+      max-width: 550px;
+      margin: auto;
+    }
 
-#panbill-auth-gate .primary {
-  width: 100%;
-  background: #087f5b;
-  color: white;
-  margin-top: 10px;
-}
+    .container {
+      max-width: 950px;
+      margin: auto;
+      padding: 22px 15px;
+    }
 
-#panbill-auth-gate .switch {
-  background: #e7f4ee;
-  color: #087f5b;
-  margin: 4px;
-}
+    .section-title {
+      text-align: center;
+      margin: 10px 0 20px;
+    }
 
-#panbill-auth-message {
-  overflow-wrap: anywhere;
-  font-size: 14px;
-}
+    .services {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
 
-#panbill-logout {
-  position: relative;
-  z-index: 100000;
-  background: #e7f4ee;
-  color: #087f5b;
-        }
-         </style>
+    .service {
+      background: white;
+      border-radius: 14px;
+      padding: 20px 12px;
+      text-align: center;
+      box-shadow: 0 3px 12px #0000000c;
+      border: 1px solid #e1eee7;
+    }
+
+    .service .emoji {
+      font-size: 34px;
+    }
+
+    .service h3 {
+      margin: 10px 0 7px;
+      font-size: 17px;
+    }
+
+    .service p {
+      font-size: 13px;
+      color: #61746b;
+      line-height: 1.5;
+    }
+
+    .service button, .primary {
+      background: #087f5b;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 11px 15px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    button:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+
+    .panel {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      margin-top: 22px;
+      box-shadow: 0 3px 12px #0000000c;
+    }
+
+    .panel h2 {
+      margin-top: 0;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      font-size: 14px;
+      margin: 14px 0 6px;
+    }
+
+    input, select {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccdcd3;
+      border-radius: 8px;
+      background: white;
+      font-size: 16px;
+    }
+
+    .notice {
+      background: #fff7df;
+      border: 1px solid #f1d88a;
+      color: #725300;
+      border-radius: 8px;
+      padding: 12px;
+      line-height: 1.5;
+      font-size: 13px;
+      margin-top: 14px;
+    }
+
+    .status {
+      display: none;
+      background: #e4f6ed;
+      color: #075d40;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 14px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .status.visible {
+      display: block;
+    }
+
+    .auth-overlay {
+      position: fixed;
+      inset: 0;
+      background: #071d16d9;
+      z-index: 10;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 18px;
+      overflow-y: auto;
+    }
+
+    .auth-box {
+      background: white;
+      width: 100%;
+      max-width: 420px;
+      border-radius: 16px;
+      padding: 24px;
+      margin: auto;
+    }
+
+    .auth-box h2 {
+      text-align: center;
+      color: #087f5b;
+      margin-top: 0;
+    }
+
+    .auth-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+
+    .auth-tabs button {
+      border: 1px solid #087f5b;
+      padding: 11px;
+      border-radius: 8px;
+      background: white;
+      color: #087f5b;
+      font-weight: bold;
+    }
+
+    .auth-tabs button.active {
+      background: #087f5b;
+      color: white;
+    }
+
+    .auth-message {
+      color: #b42318;
+      font-size: 14px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .auth-help {
+      text-align: center;
+      color: #61746b;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    footer {
+      text-align: center;
+      padding: 24px 15px;
+      background: #e6f1eb;
+      color: #61746b;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    @media (min-width: 600px) {
+      .services {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .hero h1 {
+        font-size: 38px;
+      }
+    }
+  </style>
 </head>
+
 <body>
+
 <header>
-  <div class="logo"><span class="logo-icon">₦</span> PanBill</div>
-  <button class="btn" onclick="goServices()">Get Started</button>
+  <div class="logo">🌿 PanBill</div>
+  <button id="logout-button" type="button" hidden>Log Out</button>
 </header>
 
 <section class="hero">
-  <small>🇳🇬 Made for Nigeria</small>
-  <h1>One app.<br>All your bills.</h1>
-  <p>Buy data and airtime, renew your TV subscription, pay electricity bills, get exam pins and explore internet services — all in one place.</p>
-  <button class="btn" onclick="goServices()">Explore Services →</button>
+  <h1>Welcome to PanBill</h1>
+  <p>Your convenient destination for airtime, data, TV subscriptions, electricity and other bill services.</p>
 </section>
 
-<main>
-  <h2 id="services">What would you like to pay for?</h2>
-  <p class="sub">Choose a service to get started.</p>
+<main class="container">
+  <h2 class="section-title">Our Services</h2>
 
-  <div class="grid">
-    <button class="service" onclick="openService('data')">
-      <span class="ico">📶</span><h3>Buy Data</h3>
-      <p>Data bundles for your mobile line.</p><span class="arrow">Buy data →</span>
-    </button>
-    <button class="service" onclick="openService('airtime')">
-      <span class="ico">📱</span><h3>Airtime</h3>
-      <p>Recharge your number or another line.</p><span class="arrow">Recharge →</span>
-    </button>
-    <button class="service" onclick="openService('tv')">
-      <span class="ico">📺</span><h3>TV Subscription</h3>
-      <p>Renew supported decoder packages.</p><span class="arrow">Pay TV →</span>
-    </button>
-    <button class="service" onclick="openService('electricity')">
-      <span class="ico">⚡</span><h3>Electricity</h3>
-      <p>Pay supported electricity bills.</p><span class="arrow">Pay bill →</span>
-    </button>
-    <button class="service" onclick="openService('exam')">
-      <span class="ico">🎓</span><h3>Exam Pins</h3>
-      <p>Get supported exam vouchers.</p><span class="arrow">Get pins →</span>
-    </button>
-    <button class="service" onclick="openService('internet')">
-      <span class="ico">🌐</span><h3>Internet Services</h3>
-      <p>Explore internet plans.</p><span class="arrow">Explore →</span>
-    </button>
+  <div class="services">
+    <article class="service">
+      <div class="emoji">📱</div>
+      <h3>Buy Airtime</h3>
+      <p>Recharge your mobile line.</p>
+      <button type="button" data-service="airtime">Get Started</button>
+    </article>
+
+    <article class="service">
+      <div class="emoji">🌐</div>
+      <h3>Buy Data</h3>
+      <p>Choose a data plan for your network.</p>
+      <button type="button" data-service="data">Get Started</button>
+    </article>
+
+    <article class="service">
+      <div class="emoji">📺</div>
+      <h3>TV Subscription</h3>
+      <p>Manage your TV subscription.</p>
+      <button type="button" data-service="tv">Get Started</button>
+    </article>
+
+    <article class="service">
+      <div class="emoji">💡</div>
+      <h3>Electricity</h3>
+      <p>Prepare your electricity payment details.</p>
+      <button type="button" data-service="electricity">Get Started</button>
+    </article>
+
+    <article class="service">
+      <div class="emoji">🎓</div>
+      <h3>Exam Pins</h3>
+      <p>Prepare your examination PIN request.</p>
+      <button type="button" data-service="exam">Get Started</button>
+    </article>
+
+    <article class="service">
+      <div class="emoji">📡</div>
+      <h3>Internet Bills</h3>
+      <p>Prepare your internet subscription details.</p>
+      <button type="button" data-service="internet">Get Started</button>
+    </article>
   </div>
 
-  <h2 style="margin-top:35px">How PanBill works</h2>
-  <p class="sub">Three simple steps.</p>
-  <div class="steps">
-    <div class="step"><b>01 · Choose</b><p>Select the service you need.</p></div>
-    <div class="step"><b>02 · Enter details</b><p>Provide the phone, meter or account details requested.</p></div>
-    <div class="step"><b>03 · Confirm</b><p>Review your order before paying when live payments are enabled.</p></div>
-  </div>
+  <div id="service-panel" class="panel" hidden>
+    <h2 id="service-title">Service Request</h2>
 
-  <div class="notice"><b>Demo notice:</b> PanBill is not yet connected to a live VTU provider or payment service. This demo cannot deliver data, airtime, TV subscriptions, electricity tokens or exam pins. Do not enter passwords, bank details or payment PINs.</div>
-</main>
-
-<footer>© <span id="year"></span> PanBill · One app. All your bills.</footer>
-
-<div class="modal-bg" id="modalBg">
-  <div class="modal">
-    <button class="close" onclick="closeService()" aria-label="Close">×</button>
-    <h2 id="modalTitle">Service</h2>
-    <p class="sub" id="modalSub">Enter your details.</p>
-    <form id="serviceForm">
-      <div id="fields"></div>
-      <button class="btn" type="submit">Continue →</button>
-      <div id="message" role="status"></div>
+    <form id="service-form">
+      <div id="service-fields"></div>
+      <button class="primary" type="submit" style="margin-top:18px">
+        Continue
+      </button>
     </form>
-  </div>
-</div>
 
-<script>
-const configs = {
- data:{
-  title:"Buy Data",
-  fields:[
-   ["Network","network",["MTN","Airtel","Glo","9mobile"]],
-   ["Phone number","phone","tel"],
-   ["Data bundle","bundle",["500 MB","1 GB","2 GB","5 GB","10 GB"]]
-  ]
- },
- airtime:{
-  title:"Buy Airtime",
-  fields:[
-   ["Network","network",["MTN","Airtel","Glo","9mobile"]],
-   ["Phone number","phone","tel"],
-   ["Amount in naira","amount","number"]
-  ]
- },
- tv:{
-  title:"TV Subscription",
-  fields:[
-   ["TV provider","provider",["DStv","GOtv","StarTimes"]],
-   ["Smartcard / IUC number","account","text"],
-   ["Package","package",["Basic","Family","Compact / Classic","Premium"]]
-  ]
- },
- electricity:{
-  title:"Electricity Bill",
-  fields:[
-   ["Electricity company","disco",["AEDC","EKEDC","IKEDC","IBEDC","JED","KAEDCO","KEDCO","PHED","EEDC","BEDC"]],
-   ["Meter type","meterType",["Prepaid","Postpaid"]],
-   ["Meter number","meter","text"],
-   ["Amount in naira","amount","number"]
-  ]
- },
- exam:{
-  title:"Exam Pins",
-  fields:[
-   ["Exam / voucher","exam",["WAEC","NECO","JAMB / UTME"]],
-   ["Quantity","quantity","number"]
-  ]
- },
- internet:{
-  title:"Internet Services",
-  fields:[
-   ["Provider","provider",["Spectranet","Smile","Swift","Other supported service"]],
-   ["Account / device number","account","text"],
-   ["Internet plan","plan",["Starter","Standard","Premium"]]
-  ]
- }
-};
-
-function goServices(){
- document.getElementById("services").scrollIntoView({behavior:"smooth"});
-}
-
-function openService(type){
- const config=configs[type];
- if(!config)return;
- document.getElementById("modalTitle").textContent=config.title;
- document.getElementById("modalSub").textContent="Enter the details for your request.";
- const fields=document.getElementById("fields");
- fields.replaceChildren();
- document.getElementById("message").style.display="none";
-
- config.fields.forEach(([label,name,options])=>{
-  const wrap=document.createElement("div");
-  const lab=document.createElement("label");
-  lab.textContent=label;
-  lab.htmlFor="field-"+name;
-  wrap.appendChild(lab);
-
-  let input;
-  if(Array.isArray(options)){
-   input=document.createElement("select");
-   const first=document.createElement("option");
-   first.value="";
-   first.textContent="Select "+label.toLowerCase();
-   input.appendChild(first);
-   options.forEach(value=>{
-    const option=document.createElement("option");
-    option.value=value;
-    option.textContent=value;
-    input.appendChild(option);
-   });
-  }else{
-   input=document.createElement("input");
-   input.type=options;
-   input.placeholder=label;
-   if(options==="number"){
-    input.min=name==="quantity"?"1":"50";
-    input.max="500000";
-    input.step="1";
-   }
-   if(options==="tel")input.inputMode="tel";
-   if(name==="phone")input.pattern="0[789][01][0-9]{8}";
-  }
-
-  input.id="field-"+name;
-  input.name=name;
-  input.required=true;
-  wrap.appendChild(input);
-  fields.appendChild(wrap);
- });
-
- document.getElementById("modalBg").classList.add("open");
-}
-
-function closeService(){
- document.getElementById("modalBg").classList.remove("open");
-}
-
-document.getElementById("modalBg").addEventListener("click",function(e){
- if(e.target===this)closeService();
-});
-
-document.addEventListener("keydown",function(e){
- if(e.key==="Escape")closeService();
-});
-
-document.getElementById("serviceForm").addEventListener("submit",function(e){
- e.preventDefault();
- if(!this.reportValidity())return;
-
- const message=document.getElementById("message");
- message.textContent="Demo only: your request has not been sent and no payment has been made. Live transactions will be enabled after PanBill is connected to a secure backend, payment provider and VTU service.";
- message.style.display="block";
-});
-
-document.getElementById("year").textContent=new Date().getFullYear();
-</script>
-
-<div id="panbill-auth-gate">
-  <div class="auth-card">
-    <h1 style="color:#087f5b;text-align:center">PanBill</h1>
-    <p style="text-align:center">
-      Your payments, made simple.
-    </p>
-
-    <div style="text-align:center">
-      <button type="button" class="switch"
-        id="panbill-show-signup">Create account</button>
-      <button type="button" class="switch"
-        id="panbill-show-login">Log in</button>
+    <div class="notice">
+      Demo mode: submitting this form does not make a payment, deduct money or deliver airtime, data or bills. Live transactions require an approved service provider and a secure backend.
     </div>
 
-    <form id="panbill-signup-form">
-      <h2>Create your account</h2>
-      <input id="panbill-name" type="text"
-        placeholder="Full name" autocomplete="name" required>
-      <input id="panbill-signup-email" type="email"
-        placeholder="Email address" autocomplete="email" required>
-      <input id="panbill-signup-password" type="password"
-        placeholder="Password (at least 8 characters)"
-        minlength="8" autocomplete="new-password" required>
-      <button class="primary" type="submit">Create account</button>
+    <div id="service-message" class="status" role="status"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Account</h2>
+    <p id="account-status">Please log in or create an account to use PanBill.</p>
+    <div id="panbill-backend-status" class="status" role="status"></div>
+  </div>
+</main>
+
+<footer>
+  <strong>PanBill</strong><br>
+  Simple services, convenient living.<br>
+  © <span id="year"></span> PanBill. All rights reserved.
+</footer>
+
+<!-- Login and sign-up screen -->
+<div id="auth-overlay" class="auth-overlay">
+  <div class="auth-box">
+    <h2>🌿 Welcome to PanBill</h2>
+    <p class="auth-help">Log in or create an account to continue.</p>
+
+    <div class="auth-tabs">
+      <button id="login-tab" class="active" type="button">Log In</button>
+      <button id="signup-tab" type="button">Sign Up</button>
+    </div>
+
+    <form id="auth-form">
+      <div id="name-field" hidden>
+        <label for="full-name">Full Name</label>
+        <input id="full-name" type="text" autocomplete="name">
+      </div>
+
+      <label for="email">Email Address</label>
+      <input id="email" type="email" autocomplete="email" required>
+
+      <label for="password">Password</label>
+      <input id="password" type="password" minlength="6" autocomplete="current-password" required>
+
+      <button id="auth-submit" class="primary" type="submit" style="margin-top:18px">
+        Log In
+      </button>
+
+      <p id="auth-message" class="auth-message" role="alert"></p>
     </form>
 
-    <form id="panbill-login-form" hidden>
-      <h2>Welcome back</h2>
-      <input id="panbill-login-email" type="email"
-        placeholder="Email address" autocomplete="email" required>
-      <input id="panbill-login-password" type="password"
-        placeholder="Password" autocomplete="current-password" required>
-      <button class="primary" type="submit">Log in</button>
-    </form>
-
-    <p id="panbill-auth-message" role="status" aria-live="polite"></p>
+    <p class="auth-help">
+      Use an email address you can access. Never share your password with anyone.
+    </p>
   </div>
 </div>
 
-<button id="panbill-logout" type="button" hidden>
-  Log out
-                                        </button>
-    </body>
-</html>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script>
-(() => {
-  // Replace these two placeholders with your real project details.
-  const SUPABASE_URL = "https://rbvmtrsftnmnlxjmewpp.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_Fn6FE75bdj11K39ZMxMRpA_EtFUrKTE";
-  const gate = document.getElementById("panbill-auth-gate");
-  const signup = document.getElementById("panbill-signup-form");
-  const login = document.getElementById("panbill-login-form");
-  const message = document.getElementById("panbill-auth-message");
-  const logout = document.getElementById("panbill-logout");
+<!-- Supabase library -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  if (!window.supabase ||
-      SUPABASE_URL.includes("PASTE_") ||
-      SUPABASE_PUBLISHABLE_KEY.includes("PASTE_")) {
-    message.textContent =
-      "Setup incomplete. Add your Supabase URL and publishable key.";
+<script>
+"use strict";
+
+/*
+  PanBill Supabase configuration.
+  The publishable key is intended for browser use.
+  Never put a service_role key in this file.
+*/
+const SUPABASE_URL = "https://rbvmtrsftnmnlxjmewpp.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_Fn6FE75bdj11K39ZMxMRpA_EtFUrKTE";
+
+const authOverlay = document.getElementById("auth-overlay");
+const authForm = document.getElementById("auth-form");
+const authMessage = document.getElementById("auth-message");
+const authSubmit = document.getElementById("auth-submit");
+const loginTab = document.getElementById("login-tab");
+const signupTab = document.getElementById("signup-tab");
+const nameField = document.getElementById("name-field");
+const fullName = document.getElementById("full-name");
+const passwordInput = document.getElementById("password");
+const logoutButton = document.getElementById("logout-button");
+const accountStatus = document.getElementById("account-status");
+const backendStatus = document.getElementById("panbill-backend-status");
+const servicePanel = document.getElementById("service-panel");
+const serviceTitle = document.getElementById("service-title");
+const serviceFields = document.getElementById("service-fields");
+const serviceForm = document.getElementById("service-form");
+const serviceMessage = document.getElementById("service-message");
+
+document.getElementById("year").textContent = new Date().getFullYear();
+
+let authClient = null;
+let authMode = "login";
+let currentSession = null;
+let backendCheckInProgress = false;
+
+function showAuthMessage(message) {
+  authMessage.textContent = message || "";
+}
+
+function showServiceMessage(message) {
+  serviceMessage.textContent = message || "";
+  serviceMessage.classList.toggle("visible", Boolean(message));
+}
+
+function showBackendMessage(message) {
+  backendStatus.textContent = message || "";
+  backendStatus.classList.toggle("visible", Boolean(message));
+}
+
+function setAuthMode(mode) {
+  authMode = mode;
+
+  const isSignup = mode === "signup";
+
+  loginTab.classList.toggle("active", !isSignup);
+  signupTab.classList.toggle("active", isSignup);
+
+  nameField.hidden = !isSignup;
+  fullName.required = isSignup;
+
+  authSubmit.textContent = isSignup ? "Create Account" : "Log In";
+  passwordInput.autocomplete = isSignup
+    ? "new-password"
+    : "current-password";
+
+  showAuthMessage("");
+}
+
+loginTab.addEventListener("click", function () {
+  setAuthMode("login");
+});
+
+signupTab.addEventListener("click", function () {
+  setAuthMode("signup");
+});
+
+function showSignedIn(session) {
+  currentSession = session || null;
+
+  if (currentSession) {
+    authOverlay.hidden = true;
+    logoutButton.hidden = false;
+
+    const userEmail =
+      currentSession.user && currentSession.user.email
+        ? currentSession.user.email
+        : "Account";
+
+    accountStatus.textContent = "Signed in as " + userEmail + ".";
+  } else {
+    authOverlay.hidden = false;
+    logoutButton.hidden = true;
+    accountStatus.textContent =
+      "Please log in or create an account to use PanBill.";
+    showBackendMessage("");
+  }
+}
+
+authForm.addEventListener("submit", async function (event) {
+  event.preventDefault();
+
+  if (!authClient) {
+    showAuthMessage("PanBill could not connect to its authentication service. Check your internet connection and try again.");
     return;
   }
 
-  const authClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY
-  );
+  const email = document.getElementById("email").value.trim();
+  const password = passwordInput.value;
 
-  function showMessage(text) {
-    message.textContent = text;
-  }
+  authSubmit.disabled = true;
+  showAuthMessage("Please wait...");
 
-  function showSignedIn(signedIn) {
-    gate.hidden = signedIn;
-    logout.hidden = !signedIn;
-  }
+  try {
+    let result;
 
-  document.getElementById("panbill-show-signup")
-    .addEventListener("click", () => {
-      signup.hidden = false;
-      login.hidden = true;
-      showMessage("");
-    });
-
-  document.getElementById("panbill-show-login")
-    .addEventListener("click", () => {
-      signup.hidden = true;
-      login.hidden = false;
-      showMessage("");
-    });
-
-  signup.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const button = signup.querySelector('button[type="submit"]');
-    button.disabled = true;
-    showMessage("Creating your account...");
-
-    try {
-      const { data, error } = await authClient.auth.signUp({
-        email: document.getElementById("panbill-signup-email").value.trim(),
-        password: document.getElementById("panbill-signup-password").value,
+    if (authMode === "signup") {
+      result = await authClient.auth.signUp({
+        email: email,
+        password: password,
         options: {
           data: {
-            full_name: document.getElementById("panbill-name").value.trim()
-          },
-          emailRedirectTo: location.origin + location.pathname
+            full_name: fullName.value.trim()
+          }
         }
       });
-
-      if (error) throw error;
-
-      if (data.session) {
-        showSignedIn(true);
-        showMessage("");
-      } else {
-        showMessage(
-          "Account created. Check your email to confirm, then log in."
-        );
-        signup.reset();
-      }
-    } catch (error) {
-      showMessage(error.message || "Registration failed.");
-    } finally {
-      button.disabled = false;
-    }
-  });
-
-  login.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const button = login.querySelector('button[type="submit"]');
-    button.disabled = true;
-    showMessage("Logging in...");
-
-    try {
-      const { error } = await authClient.auth.signInWithPassword({
-        email: document.getElementById("panbill-login-email").value.trim(),
-        password: document.getElementById("panbill-login-password").value
+    } else {
+      result = await authClient.auth.signInWithPassword({
+        email: email,
+        password: password
       });
-
-      if (error) throw error;
-      showSignedIn(true);
-      showMessage("");
-      login.reset();
-    } catch (error) {
-      showMessage(error.message || "Login failed.");
-    } finally {
-      button.disabled = false;
     }
-  });
 
-  logout.addEventListener("click", async () => {
-    logout.disabled = true;
-    const { error } = await authClient.auth.signOut();
-    logout.disabled = false;
+    if (result.error) {
+      throw result.error;
+    }
 
-    if (error) {
-      showMessage(error.message);
+    if (authMode === "signup" && !result.data.session) {
+      showAuthMessage(
+        "Account created. Check your email for a confirmation link, then return here to log in."
+      );
       return;
     }
 
-    showSignedIn(false);
-    signup.hidden = true;
-    login.hidden = false;
-    showMessage("You have logged out.");
+    showAuthMessage("");
+    authForm.reset();
+    setAuthMode("login");
+  } catch (error) {
+    showAuthMessage(error.message || "Authentication failed. Please try again.");
+  } finally {
+    authSubmit.disabled = false;
+  }
+});
+
+logoutButton.addEventListener("click", async function () {
+  if (!authClient) return;
+
+  logoutButton.disabled = true;
+
+  try {
+    const result = await authClient.auth.signOut();
+
+    if (result.error) throw result.error;
+
+    showBackendMessage("");
+    showAuthMessage("");
+  } catch (error) {
+    alert(error.message || "Could not log out. Please try again.");
+  } finally {
+    logoutButton.disabled = false;
+  }
+});
+
+/*
+  Checks whether the deployed PanBill Edge Function can
+  recognize the logged-in user. It does not process payments.
+*/
+async function checkBackend(session) {
+  if (!authClient || !session || backendCheckInProgress) return;
+
+  backendCheckInProgress = true;
+  showBackendMessage("Checking PanBill backend...");
+
+  try {
+    const result = await authClient.functions.invoke("panbill-api", {
+      method: "GET"
+    });
+
+    if (result.error) {
+      throw result.error;
+    }
+
+    if (result.data && result.data.authenticated === true) {
+      showBackendMessage(
+        "Backend connection successful. Your account is authenticated. Bill payments and wallet funding are not yet live."
+      );
+    } else {
+      showBackendMessage(
+        "The backend responded, but its authentication could not be confirmed."
+      );
+    }
+  } catch (error) {
+    showBackendMessage(
+      "You are signed in, but the backend check failed. Check that the panbill-api Edge Function is deployed and configured correctly. Live transactions are not enabled."
+    );
+    console.error("PanBill backend check:", error);
+  } finally {
+    backendCheckInProgress = false;
+  }
+}
+
+/* Service form fields */
+const serviceDefinitions = {
+  airtime: {
+    title: "Buy Airtime",
+    fields: [
+      {
+        name: "network",
+        label: "Mobile Network",
+        type: "select",
+        options: ["MTN", "Airtel", "Glo", "9mobile"]
+      },
+      {
+        name: "phone",
+        label: "Phone Number",
+        type: "tel",
+        placeholder: "Enter phone number",
+        required: true
+      },
+      {
+        name: "amount",
+        label: "Amount (₦)",
+        type: "number",
+        placeholder: "Enter amount",
+        required: true,
+        min: "50"
+      }
+    ]
+  },
+
+  data: {
+    title: "Buy Data",
+    fields: [
+      {
+        name: "network",
+        label: "Mobile Network",
+        type: "select",
+        options: ["MTN", "Airtel", "Glo", "9mobile"]
+      },
+      {
+        name: "phone",
+        label: "Phone Number",
+        type: "tel",
+        placeholder: "Enter phone number",
+        required: true
+      },
+      {
+        name: "plan",
+        label: "Data Plan",
+        type: "select",
+        options: [
+          "Choose a plan",
+          "500MB",
+          "1GB",
+          "2GB",
+          "5GB",
+          "10GB"
+        ]
+      }
+    ]
+  },
+
+  tv: {
+    title: "TV Subscription",
+    fields: [
+      {
+        name: "provider",
+        label: "TV Provider",
+        type: "select",
+        options: ["DSTV", "GOtv", "Startimes"]
+      },
+      {
+        name: "smartcard",
+        label: "Smartcard or IUC Number",
+        type: "text",
+        placeholder: "Enter decoder number",
+        required: true
+      },
+      {
+        name: "amount",
+        label: "Amount (₦)",
+        type: "number",
+        placeholder: "Enter amount",
+        required: true,
+        min: "1"
+      }
+    ]
+  },
+
+  electricity: {
+    title: "Electricity Bill",
+    fields: [
+      {
+        name: "disco",
+        label: "Electricity Company",
+        type: "select",
+        options: [
+          "Choose company",
+          "PHED",
+          "EKEDC",
+          "IKEDC",
+          "AEDC",
+          "IBEDC",
+          "BEDC",
+          "EEDC",
+          "KEDCO",
+          "JED",
+          "KAEDCO"
+        ]
+      },
+      {
+        name: "meter",
+        label: "Meter Number",
+        type: "text",
+        placeholder: "Enter meter number",
+        required: true
+      },
+      {
+        name: "meterType",
+        label: "Meter Type",
+        type: "select",
+        options: ["Prepaid", "Postpaid"]
+      },
+      {
+        name: "amount",
+        label: "Amount (₦)",
+        type: "number",
+        placeholder: "Enter amount",
+        required: true,
+        min: "1"
+      }
+    ]
+  },
+
+  exam: {
+    title: "Exam Pins",
+    fields: [
+      {
+        name: "exam",
+        label: "Examination",
+        type: "select",
+        options: ["JAMB", "WAEC", "NECO", "NABTEB"]
+      },
+      {
+        name: "quantity",
+        label: "Quantity",
+        type: "number",
+        placeholder: "Enter quantity",
+        required: true,
+        min: "1"
+      }
+    ]
+  },
+
+  internet: {
+    title: "Internet Subscription",
+    fields: [
+      {
+        name: "provider",
+        label: "Internet Provider",
+        type: "select",
+        options: ["Spectranet", "Smile", "Other"]
+      },
+      {
+        name: "account",
+        label: "Account or Device Number",
+        type: "text",
+        placeholder: "Enter account number",
+        required: true
+      },
+      {
+        name: "amount",
+        label: "Amount (₦)",
+        type: "number",
+        placeholder: "Enter amount",
+        required: true,
+        min: "1"
+      }
+    ]
+  }
+};
+
+function addField(definition) {
+  const wrapper = document.createElement("div");
+  const label = document.createElement("label");
+  const id = "field-" + definition.name;
+
+  label.htmlFor = id;
+  label.textContent = definition.label;
+  wrapper.appendChild(label);
+
+  let input;
+
+  if (definition.type === "select") {
+    input = document.createElement("select");
+
+    definition.options.forEach(function (option, index) {
+      const optionElement = document.createElement("option");
+      optionElement.value =
+        index === 0 && option === "Choose a plan"
+          ? ""
+          : index === 0 && option === "Choose company"
+            ? ""
+            : option;
+
+      optionElement.textContent = option;
+      input.appendChild(optionElement);
+    });
+
+    if (
+      definition.options[0] === "Choose a plan" ||
+      definition.options[0] === "Choose company"
+    ) {
+      input.options[0].disabled = true;
+      input.options[0].selected = true;
+    }
+  } else {
+    input = document.createElement("input");
+    input.type = definition.type;
+    input.placeholder = definition.placeholder || "";
+
+    if (definition.min) input.min = definition.min;
+  }
+
+  input.id = id;
+  input.name = definition.name;
+  input.required = Boolean(definition.required);
+
+  if (definition.type === "number") {
+    input.step = "any";
+  }
+
+  wrapper.appendChild(input);
+  serviceFields.appendChild(wrapper);
+}
+
+document.querySelectorAll("[data-service]").forEach(function (button) {
+  button.addEventListener("click", function () {
+    if (!currentSession) {
+      authOverlay.hidden = false;
+      showAuthMessage("Please log in to continue.");
+      return;
+    }
+
+    const key = button.dataset.service;
+    const definition = serviceDefinitions[key];
+
+    if (!definition) return;
+
+    serviceTitle.textContent = definition.title;
+    serviceFields.replaceChildren();
+
+    definition.fields.forEach(addField);
+
+    servicePanel.hidden = false;
+    showServiceMessage("");
+
+    servicePanel.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  });
+});
+
+serviceForm.addEventListener("submit", function (event) {
+  event.preventDefault();
+
+  if (!currentSession) {
+    authOverlay.hidden = false;
+    showServiceMessage("Please log in first.");
+    return;
+  }
+
+  const formData = new FormData(serviceForm);
+  const details = {};
+
+  formData.forEach(function (value, key) {
+    details[key] = value;
   });
 
-  authClient.auth.onAuthStateChange((_event, session) => {
-    showSignedIn(Boolean(session));
-  });
+  console.log("PanBill demo request:", details);
 
-  authClient.auth.getSession().then(({ data, error }) => {
-    if (error) showMessage(error.message);
-    showSignedIn(Boolean(data.session));
-  });
-})();
+  showServiceMessage(
+    "Demo only: your details were checked in this browser, but no transaction was created and no payment was made. Connect a real VTU/payment provider before enabling purchases."
+  );
+});
+
+async function initializePanBill() {
+  if (
+    !window.supabase ||
+    typeof window.supabase.createClient !== "function"
+  ) {
+    showAuthMessage(
+      "The Supabase library could not load. Check your internet connection and refresh the page."
+    );
+    return;
+  }
+
+  try {
+    authClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
+
+    authClient.auth.onAuthStateChange(function (_event, session) {
+      showSignedIn(session);
+
+      if (session) {
+        setTimeout(function () {
+          checkBackend(session);
+        }, 0);
+      }
+    });
+
+    const result = await authClient.auth.getSession();
+
+    if (result.error) {
+      throw result.error;
+    }
+
+    showSignedIn(result.data.session);
+
+    if (result.data.session) {
+      checkBackend(result.data.session);
+    }
+  } catch (error) {
+    showAuthMessage(
+      error.message || "Could not initialize PanBill. Please refresh."
+    );
+  }
+}
+
+initializePanBill();
 </script>
+
 </body>
-  </html>
-
-
+</html>
