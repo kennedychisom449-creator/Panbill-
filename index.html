@@ -1074,6 +1074,67 @@ async function initializePanBill() {
 }
 
 initializePanBill();
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const fundButton = document.getElementById("fund-wallet-button");
+
+  if (!fundButton) return;
+
+  fundButton.addEventListener("click", async function () {
+    const amountText = prompt("How much do you want to add? Enter an amount in naira:");
+    if (amountText === null) return;
+
+    const amount = Number(amountText);
+
+    if (!Number.isFinite(amount) || amount < 100 || amount > 1000000) {
+      alert("Enter an amount from ₦100 to ₦1,000,000.");
+      return;
+    }
+
+    fundButton.disabled = true;
+
+    try {
+      const { data, error } = await authClient.functions.invoke(
+        "panbill-api",
+        { body: { action: "initialize", amount: amount } }
+      );
+
+      if (error || !data || !data.authorization_url) {
+        throw new Error(data?.error || error?.message || "Could not start payment.");
+      }
+
+      window.location.href = data.authorization_url;
+    } catch (error) {
+      alert(error.message || "Payment could not start. Please try again.");
+      fundButton.disabled = false;
+    }
+  });
+
+  const params = new URLSearchParams(window.location.search);
+  const reference = params.get("reference") || params.get("trxref");
+
+  if (reference) {
+    history.replaceState({}, document.title, window.location.pathname);
+
+    authClient.functions.invoke("panbill-api", {
+      body: { action: "verify", reference: reference }
+    }).then(function ({ data, error }) {
+      if (error) {
+        alert("We couldn't confirm your payment yet. Please check your wallet before trying again.");
+        return;
+      }
+
+      if (data && ["credited", "already_processed", "successful"].includes(data.status)) {
+        alert("Payment confirmed! Your wallet funding was processed.");
+        window.location.reload();
+      } else {
+        alert(data?.message || data?.error || "Payment is not confirmed yet. Please check again shortly.");
+      }
+    }).catch(function () {
+      alert("We couldn't confirm your payment yet. Please check your wallet.");
+    });
+  }
+});
 </script>
 
 </body>
