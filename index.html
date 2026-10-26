@@ -914,6 +914,114 @@ serviceForm.addEventListener("submit", function (event) {
   );
 });
 
+async function loadWallet(session) {
+  const walletPanel = document.getElementById("wallet-panel");
+  const balanceElement = document.getElementById("wallet-balance");
+  const messageElement = document.getElementById("wallet-message");
+  const historyElement = document.getElementById("transaction-history");
+
+  if (!session || !authClient) {
+    walletPanel.hidden = true;
+    return;
+  }
+
+  walletPanel.hidden = false;
+  messageElement.textContent = "Loading wallet...";
+  historyElement.textContent = "Loading transactions...";
+
+  document.getElementById("refresh-wallet").disabled = true;
+
+  try {
+    const userId = session.user.id;
+
+    const walletResult = await authClient
+      .from("wallets")
+      .select("balance")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (walletResult.error) throw walletResult.error;
+
+    if (!walletResult.data) {
+      balanceElement.textContent = "Unavailable";
+      messageElement.textContent =
+        "No wallet record was found for this account.";
+    } else {
+      const balance = Number(walletResult.data.balance);
+
+      balanceElement.textContent = Number.isFinite(balance)
+        ? balance.toLocaleString("en-NG", {
+            style: "currency",
+            currency: "NGN"
+          })
+        : "Unavailable";
+
+      messageElement.textContent = "Wallet balance loaded.";
+    }
+
+    const transactionResult = await authClient
+      .from("transactions")
+      .select("type, amount, status, reference, description, created_at")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(10);
+
+    if (transactionResult.error) {
+      throw transactionResult.error;
+    }
+
+    historyElement.replaceChildren();
+
+    if (!transactionResult.data.length) {
+      historyElement.textContent = "No transactions yet.";
+    } else {
+      transactionResult.data.forEach(function (transaction) {
+        const item = document.createElement("div");
+        item.style.padding = "12px 0";
+        item.style.borderBottom = "1px solid #e1eee7";
+
+        const title = document.createElement("strong");
+        title.textContent =
+          transaction.description || transaction.type || "Transaction";
+
+        const details = document.createElement("p");
+        details.style.margin = "6px 0";
+        details.textContent =
+          "Amount: " +
+          Number(transaction.amount).toLocaleString("en-NG", {
+            style: "currency",
+            currency: "NGN"
+          }) +
+          " · Status: " +
+          (transaction.status || "Unknown");
+
+        const date = document.createElement("small");
+        const parsedDate = new Date(transaction.created_at);
+        date.textContent = Number.isNaN(parsedDate.getTime())
+          ? ""
+          : parsedDate.toLocaleString();
+
+        item.append(title, details, date);
+        historyElement.appendChild(item);
+      });
+    }
+  } catch (error) {
+    console.error("PanBill wallet error:", error);
+    messageElement.textContent =
+      "Could not load wallet. Please refresh and try again.";
+    historyElement.textContent =
+      "Transaction history is currently unavailable.";
+  } finally {
+    document.getElementById("refresh-wallet").disabled = false;
+  }
+}
+
+document.getElementById("refresh-wallet").addEventListener("click", function () {
+  if (currentSession) {
+    loadWallet(currentSession);
+  }
+});
+
 async function initializePanBill() {
   if (
     !window.supabase ||
