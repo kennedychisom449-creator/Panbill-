@@ -496,7 +496,11 @@ signupTab.addEventListener("click", function () {
 
 function showSignedIn(session) {
   currentSession = session || null;
+  document.getElementById("wallet-panel").hidden = !currentSession;
 
+  if (currentSession) {
+    loadWallet(currentSession);
+  }
   if (currentSession) {
     authOverlay.hidden = true;
     logoutButton.hidden = false;
