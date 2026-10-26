@@ -1121,8 +1121,8 @@ document.addEventListener("DOMContentLoaded", function () {
       body: { action: "verify", reference: reference }
     }).then(function ({ data, error }) {
       if (error) {
-        alert("We couldn't confirm your payment yet. Please check your wallet before trying again.");
-        return;
+  alert("Verification error: " + (error.message || JSON.stringify(error)));
+  return;
       }
 
       if (data && ["credited", "already_processed", "successful"].includes(data.status)) {
