@@ -1,0 +1,364 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PanBill Admin Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f3f7f5;color:#172b24;font-family:Arial,sans-serif}
+header{background:#087f5b;color:white;padding:20px}
+header h1{margin:0;font-size:23px}
+header p{margin:6px 0 0;font-size:13px}
+main{max-width:1100px;margin:25px auto;padding:0 15px}
+.panel{background:white;border-radius:13px;padding:20px;margin-bottom:18px;box-shadow:0 3px 15px #0000000b}
+input{width:100%;padding:13px;border:1px solid #d5e0da;border-radius:8px;margin:8px 0 14px;font-size:15px}
+button{background:#087f5b;color:white;border:0;padding:11px 16px;border-radius:8px;font-weight:bold;cursor:pointer;margin:4px}
+button.secondary{background:#e6f3ed;color:#087f5b}
+button:disabled{opacity:.5}
+nav{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px}
+h2{font-size:19px;margin-top:0}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stat{background:#f0f8f4;padding:17px;border-radius:10px}
+.stat small{color:#60766c}
+.stat strong{display:block;font-size:25px;margin-top:8px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:650px}
+th,td{text-align:left;padding:12px;border-bottom:1px solid #edf1ee;font-size:13px}
+th{background:#f5f8f6}
+.muted{color:#6b7c74;font-size:13px}
+.status{font-weight:bold}
+.success{color:#087f5b}
+.failed{color:#c0392b}
+.pending{color:#b7791f}
+#message{margin:12px 0;color:#b42318;font-size:14px}
+.hidden{display:none!important}
+footer{text-align:center;color:#718078;font-size:12px;padding:25px}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>PanBill Admin</h1>
+  <p>Secure administration dashboard</p>
+</header>
+
+<main>
+  <section id="loginPanel" class="panel">
+    <h2>Administrator Login</h2>
+    <p class="muted">Sign in with your authorised PanBill administrator account.</p>
+    <form id="loginForm">
+      <label>Email address</label>
+      <input id="email" type="email" autocomplete="username" required
+        placeholder="Administrator email">
+      <label>Password</label>
+      <input id="password" type="password" autocomplete="current-password"
+        required placeholder="Your PanBill password">
+      <button id="loginButton" type="submit">Sign in securely</button>
+    </form>
+    <div id="loginMessage"></div>
+  </section>
+
+  <section id="dashboard" class="hidden">
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">
+        <div>
+          <strong>Administrator</strong>
+          <div id="adminEmail" class="muted"></div>
+        </div>
+        <button class="secondary" id="logoutButton">Log out</button>
+      </div>
+    </div>
+
+    <nav>
+      <button data-tab="overview">Overview</button>
+      <button class="secondary" data-tab="customers">Customers</button>
+      <button class="secondary" data-tab="transactions">Transactions</button>
+      <button class="secondary" id="refreshButton">Refresh</button>
+    </nav>
+
+    <div id="message"></div>
+
+    <section id="overviewTab" class="panel">
+      <h2>Business Overview</h2>
+      <div class="cards">
+        <div class="stat"><small>Wallet accounts</small><strong id="walletCount">—</strong></div>
+        <div class="stat"><small>Total transactions</small><strong id="transactionCount">—</strong></div>
+        <div class="stat"><small>Successful transactions</small><strong id="successfulCount">—</strong></div>
+        <div class="stat"><small>Pending transactions</small><strong id="pendingCount">—</strong></div>
+      </div>
+      <p class="muted">Counts are retrieved from your PanBill database.</p>
+    </section>
+
+    <section id="customersTab" class="panel hidden">
+      <h2>Registered Customers</h2>
+      <p class="muted">Customer accounts and wallet balances.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Email</th><th>Wallet balance</th><th>Registered</th><th>Last sign-in</th></tr></thead>
+          <tbody id="customersBody"></tbody>
+        </table>
+      </div>
+      <div style="margin-top:15px">
+        <button class="secondary" id="customersPrev">Previous</button>
+        <span id="customersPage" class="muted">Page 1</span>
+        <button class="secondary" id="customersNext">Next</button>
+      </div>
+    </section>
+
+    <section id="transactionsTab" class="panel hidden">
+      <h2>All Transactions</h2>
+      <p class="muted">Recent customer transactions and provider status.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Date</th><th>Type</th><th>Amount</th><th>Status</th><th>Reference</th><th>Customer ID</th></tr>
+          </thead>
+          <tbody id="transactionsBody"></tbody>
+        </table>
+      </div>
+      <div style="margin-top:15px">
+        <button class="secondary" id="transactionsPrev">Previous</button>
+        <span id="transactionsPage" class="muted">Page 1</span>
+        <button class="secondary" id="transactionsNext">Next</button>
+      </div>
+    </section>
+  </section>
+</main>
+
+<footer>PanBill Administration · Keep your login details private.</footer>
+
+<script>
+const SUPABASE_URL = "https://rbvmtrsftnmnlxjmewpp.supabase.co";
+const SUPABASE_KEY = "sb_publishable_Fn6FE75bdj11K39ZMxMRpA_EtFUrKTE";
+
+const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let customerPage = 1;
+let transactionPage = 1;
+let activeTab = "overview";
+
+const $ = id => document.getElementById(id);
+
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;",
+    '"':"&quot;", "'":"&#39;"
+  })[char]);
+}
+
+function money(value) {
+  return "₦" + Number(value || 0).toLocaleString("en-NG", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
+
+function date(value) {
+  if (!value) return "—";
+  const parsed = new Date(value);
+  return isNaN(parsed) ? "—" : parsed.toLocaleString("en-NG");
+}
+
+function showMessage(message, isError = true) {
+  $("message").textContent = message || "";
+  $("message").style.color = isError ? "#b42318" : "#087f5b";
+}
+
+async function adminRequest(action, extra = {}) {
+  const { data: { session } } = await client.auth.getSession();
+
+  if (!session) throw new Error("Your session has expired. Please sign in again.");
+
+  const { data, error } = await client.functions.invoke("panbill-admin", {
+    body: { action, ...extra }
+  });
+
+  if (error) {
+    let details = error.message || "Admin request failed.";
+    if (error.context && typeof error.context.json === "function") {
+      try {
+        const body = await error.context.json();
+        if (body.error) details = body.error;
+      } catch (_) {}
+    }
+    throw new Error(details);
+  }
+
+  if (!data || !data.success) {
+    throw new Error(data?.error || "Request was not successful.");
+  }
+
+  return data;
+}
+
+function showTab(tab) {
+  activeTab = tab;
+  ["overview", "customers", "transactions"].forEach(name => {
+    $(name + "Tab").classList.toggle("hidden", name !== tab);
+  });
+
+  document.querySelectorAll("nav button[data-tab]").forEach(button => {
+    button.classList.toggle("secondary", button.dataset.tab !== tab);
+  });
+
+  loadCurrentTab();
+}
+
+async function loadOverview() {
+  const result = await adminRequest("overview");
+  $("walletCount").textContent = result.overview.wallet_accounts;
+  $("transactionCount").textContent = result.overview.total_transactions;
+  $("successfulCount").textContent = result.overview.successful_transactions;
+  $("pendingCount").textContent = result.overview.pending_transactions;
+}
+
+async function loadCustomers() {
+  const result = await adminRequest("customers", {
+    page: customerPage,
+    perPage: 50
+  });
+
+  $("customersBody").innerHTML = (result.customers || []).map(customer => `
+    <tr>
+      <td>${escapeHTML(customer.email || "No email")}</td>
+      <td>${money(customer.wallet_balance)}</td>
+      <td>${date(customer.created_at)}</td>
+      <td>${date(customer.last_sign_in_at)}</td>
+    </tr>
+  `).join("") || '<tr><td colspan="4">No customers found.</td></tr>';
+
+  $("customersPage").textContent = "Page " + customerPage;
+  $("customersPrev").disabled = customerPage <= 1;
+  $("customersNext").disabled = result.customers.length < 50;
+}
+
+async function loadTransactions() {
+  const result = await adminRequest("transactions", {
+    page: transactionPage,
+    perPage: 50
+  });
+
+  $("transactionsBody").innerHTML = (result.transactions || []).map(item => {
+    const status = String(item.status || "unknown").toLowerCase();
+    return `
+      <tr>
+        <td>${date(item.created_at)}</td>
+        <td>${escapeHTML(item.type)}</td>
+        <td>${money(item.amount)}</td>
+        <td class="status ${["successful","failed","pending"].includes(status) ? status : ""}">
+          ${escapeHTML(item.status)}
+        </td>
+        <td>${escapeHTML(item.reference)}</td>
+        <td>${escapeHTML(item.user_id)}</td>
+      </tr>
+    `;
+  }).join("") || '<tr><td colspan="6">No transactions found.</td></tr>';
+
+  $("transactionsPage").textContent =
+    `Page ${transactionPage} · ${result.total} total`;
+
+  $("transactionsPrev").disabled = transactionPage <= 1;
+  $("transactionsNext").disabled = result.transactions.length < 50;
+}
+
+async function loadCurrentTab() {
+  showMessage("");
+  try {
+    if (activeTab === "overview") await loadOverview();
+    if (activeTab === "customers") await loadCustomers();
+    if (activeTab === "transactions") await loadTransactions();
+  } catch (error) {
+    showMessage(error.message);
+  }
+}
+
+function showDashboard(user) {
+  $("loginPanel").classList.add("hidden");
+  $("dashboard").classList.remove("hidden");
+  $("adminEmail").textContent = user.email || "";
+  showTab("overview");
+}
+
+function showLogin() {
+  $("dashboard").classList.add("hidden");
+  $("loginPanel").classList.remove("hidden");
+}
+
+$("loginForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  $("loginButton").disabled = true;
+  $("loginMessage").textContent = "Signing in...";
+
+  try {
+    const { data, error } = await client.auth.signInWithPassword({
+      email: $("email").value.trim(),
+      password: $("password").value
+    });
+
+    if (error) throw error;
+
+    showDashboard(data.user);
+    $("loginMessage").textContent = "";
+  } catch (error) {
+    $("loginMessage").textContent = error.message;
+  } finally {
+    $("loginButton").disabled = false;
+  }
+});
+
+$("logoutButton").addEventListener("click", async () => {
+  await client.auth.signOut();
+  showLogin();
+});
+
+document.querySelectorAll("nav button[data-tab]").forEach(button => {
+  button.addEventListener("click", () => showTab(button.dataset.tab));
+});
+
+$("refreshButton").addEventListener("click", loadCurrentTab);
+
+$("customersPrev").addEventListener("click", () => {
+  if (customerPage > 1) {
+    customerPage--;
+    loadCustomers();
+  }
+});
+
+$("customersNext").addEventListener("click", () => {
+  customerPage++;
+  loadCustomers();
+});
+
+$("transactionsPrev").addEventListener("click", () => {
+  if (transactionPage > 1) {
+    transactionPage--;
+    loadTransactions();
+  }
+});
+
+$("transactionsNext").addEventListener("click", () => {
+  transactionPage++;
+  loadTransactions();
+});
+
+async function initialise() {
+  const { data: { session } } = await client.auth.getSession();
+
+  if (session) {
+    showDashboard(session.user);
+  } else {
+    showLogin();
+  }
+
+  client.auth.onAuthStateChange((_event, session) => {
+    if (!session) showLogin();
+  });
+}
+
+initialise();
+</script>
+</body>
+</html>
