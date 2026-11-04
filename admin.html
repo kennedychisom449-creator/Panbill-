@@ -4,191 +4,587 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PanBill Admin Dashboard</title>
+<meta name="theme-color" content="#0b1424">
+<title>PanBill | Business Console</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1"></script>
+
 <style>
+:root {
+  --bg:#0b1424;
+  --sidebar:#101d31;
+  --panel:#142238;
+  --panel2:#192a42;
+  --green:#12b886;
+  --green2:#087f5b;
+  --text:#f3f7fc;
+  --muted:#93a4ba;
+  --border:#263951;
+  --red:#ff6b6b;
+  --yellow:#f5c451;
+}
 *{box-sizing:border-box}
-body{margin:0;background:#f3f7f5;color:#172b24;font-family:Arial,sans-serif}
-header{background:#087f5b;color:white;padding:20px}
-header h1{margin:0;font-size:23px}
-header p{margin:6px 0 0;font-size:13px}
-main{max-width:1100px;margin:25px auto;padding:0 15px}
-.panel{background:white;border-radius:13px;padding:20px;margin-bottom:18px;box-shadow:0 3px 15px #0000000b}
-input{width:100%;padding:13px;border:1px solid #d5e0da;border-radius:8px;margin:8px 0 14px;font-size:15px}
-button{background:#087f5b;color:white;border:0;padding:11px 16px;border-radius:8px;font-weight:bold;cursor:pointer;margin:4px}
-button.secondary{background:#e6f3ed;color:#087f5b}
-button:disabled{opacity:.5}
-nav{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px}
-h2{font-size:19px;margin-top:0}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
-.stat{background:#f0f8f4;padding:17px;border-radius:10px}
-.stat small{color:#60766c}
-.stat strong{display:block;font-size:25px;margin-top:8px}
-.table-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;min-width:650px}
-th,td{text-align:left;padding:12px;border-bottom:1px solid #edf1ee;font-size:13px}
-th{background:#f5f8f6}
-.muted{color:#6b7c74;font-size:13px}
-.status{font-weight:bold}
-.success{color:#087f5b}
-.failed{color:#c0392b}
-.pending{color:#b7791f}
-#message{margin:12px 0;color:#b42318;font-size:14px}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Inter,Arial,sans-serif;
+}
+button,input{font:inherit}
+button{cursor:pointer}
 .hidden{display:none!important}
-footer{text-align:center;color:#718078;font-size:12px;padding:25px}
+.layout{min-height:100vh;display:flex}
+.sidebar{
+  width:245px;
+  background:var(--sidebar);
+  border-right:1px solid var(--border);
+  padding:25px 17px;
+  display:flex;
+  flex-direction:column;
+  flex-shrink:0;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  padding:0 9px 30px;
+}
+.brand-icon{
+  width:43px;height:43px;border-radius:13px;
+  background:linear-gradient(135deg,#16c995,#087f5b);
+  display:grid;place-items:center;
+  font-weight:900;font-size:23px;color:white;
+}
+.brand strong{font-size:21px;letter-spacing:-.6px}
+.brand small{display:block;color:var(--muted);font-size:10px;margin-top:4px;letter-spacing:1.3px}
+.nav-label{
+  color:#71839c;font-size:10px;font-weight:800;
+  letter-spacing:1.5px;padding:14px 12px 9px;
+}
+.nav-btn{
+  width:100%;border:0;background:transparent;color:#a9b8ca;
+  padding:13px 12px;border-radius:10px;text-align:left;
+  display:flex;align-items:center;gap:12px;
+  margin:3px 0;font-size:13px;font-weight:600;
+}
+.nav-btn:hover,.nav-btn.active{
+  background:#183b3b;color:#39d9a3;
+}
+.nav-icon{width:20px;text-align:center;font-size:17px}
+.sidebar-bottom{margin-top:auto;padding-top:25px}
+.secure-note{
+  border:1px solid var(--border);background:#142238;
+  padding:14px;border-radius:12px;color:var(--muted);
+  font-size:11px;line-height:1.6;
+}
+.secure-note strong{display:block;color:#39d9a3;margin-bottom:5px}
+.main{flex:1;min-width:0}
+.topbar{
+  min-height:76px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:15px 30px;gap:15px;
+}
+.top-title{font-size:18px;font-weight:750}
+.top-subtitle{font-size:11px;color:var(--muted);margin-top:5px}
+.top-right{display:flex;align-items:center;gap:12px}
+.live-indicator{
+  display:flex;align-items:center;gap:7px;
+  font-size:11px;color:#47d9a5;
+  border:1px solid #245747;padding:8px 11px;border-radius:20px;
+}
+.dot{width:7px;height:7px;border-radius:50%;background:#20c997}
+.admin-avatar{
+  width:36px;height:36px;border-radius:50%;
+  display:grid;place-items:center;background:#244b49;
+  color:#6be3b6;font-weight:bold;
+}
+.content{padding:27px 30px;max-width:1500px;margin:auto}
+.welcome{
+  display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:15px;margin-bottom:25px;
+}
+.welcome h1{font-size:24px;margin:0;letter-spacing:-.6px}
+.welcome p{color:var(--muted);font-size:12px;margin:8px 0 0}
+.btn{
+  border:1px solid var(--border);border-radius:9px;
+  padding:10px 14px;color:var(--text);background:var(--panel2);
+  font-size:12px;font-weight:700;
+}
+.btn:hover{border-color:var(--green);color:#50dfad}
+.btn-primary{background:var(--green2);border-color:var(--green2);color:white}
+.btn-primary:hover{background:#09966d;color:white}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.stats{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:15px;margin-bottom:22px;
+}
+.stat-card{
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:14px;padding:19px;min-width:0;
+}
+.stat-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.stat-label{font-size:11px;color:var(--muted);font-weight:600}
+.stat-icon{
+  width:34px;height:34px;border-radius:10px;
+  display:grid;place-items:center;background:#1c3b3a;font-size:16px;
+}
+.stat-value{font-size:27px;font-weight:800;margin-top:16px;letter-spacing:-.7px}
+.stat-foot{font-size:10px;color:var(--muted);margin-top:8px}
+.green{color:#45d9a4}
+.red{color:var(--red)}
+.yellow{color:var(--yellow)}
+.panel{
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:14px;padding:21px;margin-bottom:18px;
+}
+.panel-head{
+  display:flex;justify-content:space-between;
+  align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:17px;
+}
+.panel h2{font-size:15px;margin:0}
+.panel-desc{font-size:11px;color:var(--muted);margin-top:6px}
+.quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.quick-item{
+  background:var(--panel2);border:1px solid var(--border);
+  border-radius:11px;padding:16px;
+}
+.quick-item strong{font-size:13px;display:block;margin-bottom:6px}
+.quick-item span{font-size:11px;color:var(--muted);line-height:1.5}
+.section{display:none}
+.section.active{display:block}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:700px}
+th,td{
+  padding:14px 12px;text-align:left;
+  border-bottom:1px solid var(--border);
+  font-size:11px;white-space:nowrap;
+}
+th{color:#8fa3bb;font-weight:700;background:#172840}
+td{color:#dce5ef}
+tbody tr:hover{background:#192b43}
+.status{
+  display:inline-block;padding:5px 9px;border-radius:20px;
+  font-size:10px;font-weight:800;text-transform:capitalize;
+}
+.status.successful{background:#123d34;color:#51d9a6}
+.status.failed{background:#49252e;color:#ff8585}
+.status.pending{background:#493c20;color:#f5ca65}
+.status.other{background:#27384c;color:#b6c5d7}
+.pagination{
+  display:flex;align-items:center;gap:12px;
+  margin-top:17px;flex-wrap:wrap;
+}
+.pagination span{font-size:11px;color:var(--muted)}
+#message{
+  padding:0;margin-bottom:14px;font-size:12px;
+  color:#ff8585;white-space:pre-wrap;
+}
+#message:not(:empty){
+  background:#3b202a;border:1px solid #713746;
+  border-radius:9px;padding:12px;
+}
+.empty{text-align:center;color:var(--muted);padding:30px}
+.loading{color:var(--muted);padding:20px;text-align:center}
+.search{
+  background:#0e1b2e;border:1px solid var(--border);
+  color:white;border-radius:8px;padding:10px 12px;
+  min-width:190px;max-width:100%;font-size:11px;
+}
+.footer{
+  text-align:center;color:#71839a;
+  font-size:10px;padding:25px;
+}
+.login-screen{
+  min-height:100vh;display:grid;place-items:center;
+  padding:20px;background:
+  radial-gradient(ellipse at top,#183b42 0%,#0b1424 55%);
+}
+.login-card{
+  width:100%;max-width:420px;background:var(--panel);
+  border:1px solid var(--border);border-radius:18px;padding:30px;
+  box-shadow:0 20px 70px #0005;
+}
+.login-brand{text-align:center;margin-bottom:25px}
+.login-brand .brand-icon{margin:auto;width:55px;height:55px}
+.login-brand h1{font-size:24px;margin:14px 0 5px}
+.login-brand p{color:var(--muted);font-size:11px}
+.login-card h2{font-size:16px;margin-bottom:7px}
+.login-card label{display:block;font-size:11px;color:#b4c2d3;margin:17px 0 7px}
+.login-card input{
+  width:100%;padding:13px;border-radius:9px;
+  border:1px solid var(--border);background:#0c192b;color:white;
+  outline:none;
+}
+.login-card input:focus{border-color:var(--green)}
+.login-card button{width:100%;margin-top:20px;padding:13px}
+#loginMessage{color:#ff8585;font-size:12px;margin-top:13px}
+.login-hint{font-size:10px;color:var(--muted);line-height:1.6;margin-top:20px}
+.mobile-brand{display:none}
+@media(max-width:1050px){
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:700px){
+  .layout{display:block}
+  .sidebar{
+    width:100%;padding:12px 12px 8px;
+    border-right:0;border-bottom:1px solid var(--border);
+  }
+  .brand{padding:0 5px 10px}
+  .brand-icon{width:35px;height:35px;font-size:19px}
+  .brand strong{font-size:18px}
+  .brand small{font-size:9px}
+  .nav-label,.sidebar-bottom{display:none}
+  .sidebar nav{
+    display:flex;overflow-x:auto;gap:5px;padding-bottom:3px;
+  }
+  .nav-btn{
+    width:auto;flex-shrink:0;padding:10px;
+    font-size:10px;gap:6px;margin:0;
+  }
+  .nav-icon{font-size:14px;width:auto}
+  .topbar{padding:13px 16px;min-height:65px}
+  .top-title{font-size:15px}
+  .top-subtitle{font-size:10px}
+  .live-indicator{font-size:9px;padding:7px}
+  .content{padding:19px 13px}
+  .welcome h1{font-size:21px}
+  .stats{gap:9px}
+  .stat-card{padding:13px}
+  .stat-value{font-size:22px}
+  .stat-label{font-size:10px}
+  .stat-icon{width:29px;height:29px}
+  .panel{padding:15px}
+  .quick-grid{grid-template-columns:1fr}
+  .search{width:100%}
+}
 </style>
 </head>
+
 <body>
 
-<header>
-  <h1>PanBill Admin</h1>
-  <p>Secure administration dashboard</p>
-</header>
+<!-- ADMIN LOGIN -->
+<section id="loginPanel" class="login-screen">
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="brand-icon">P</div>
+      <h1>PanBill</h1>
+      <p>BUSINESS MANAGEMENT CONSOLE</p>
+    </div>
+    <h2>Administrator sign in</h2>
+    <p class="panel-desc">Access is restricted to authorised PanBill administrators.</p>
 
-<main>
-  <section id="loginPanel" class="panel">
-    <h2>Administrator Login</h2>
-    <p class="muted">Sign in with your authorised PanBill administrator account.</p>
     <form id="loginForm">
-      <label>Email address</label>
-      <input id="email" type="email" autocomplete="username" required
-        placeholder="Administrator email">
-      <label>Password</label>
-      <input id="password" type="password" autocomplete="current-password"
-        required placeholder="Your PanBill password">
-      <button id="loginButton" type="submit">Sign in securely</button>
-    </form>
-    <div id="loginMessage"></div>
-  </section>
+      <label for="email">Administrator email</label>
+      <input id="email" type="email" autocomplete="username"
+        placeholder="Enter your admin email" required>
 
-  <section id="dashboard" class="hidden">
-    <div class="panel">
-      <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">
-        <div>
-          <strong>Administrator</strong>
-          <div id="adminEmail" class="muted"></div>
-        </div>
-        <button class="secondary" id="logoutButton">Log out</button>
+      <label for="password">Password</label>
+      <input id="password" type="password"
+        autocomplete="current-password" placeholder="Enter your password" required>
+
+      <button class="btn btn-primary" id="loginButton" type="submit">
+        Sign in securely
+      </button>
+    </form>
+
+    <div id="loginMessage"></div>
+    <div class="login-hint">
+      Your administrator privileges are verified securely by the PanBill backend.
+      Never share your password or administrator credentials.
+    </div>
+  </div>
+</section>
+
+<!-- ADMIN DASHBOARD -->
+<div id="dashboard" class="layout hidden">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">P</div>
+      <div>
+        <strong>PanBill</strong>
+        <small>BUSINESS CONSOLE</small>
       </div>
     </div>
 
+    <div class="nav-label">MANAGEMENT</div>
     <nav>
-      <button data-tab="overview">Overview</button>
-      <button class="secondary" data-tab="customers">Customers</button>
-      <button class="secondary" data-tab="transactions">Transactions</button>
-      <button class="secondary" id="refreshButton">Refresh</button>
+      <button class="nav-btn active" data-tab="overview">
+        <span class="nav-icon">▦</span> Overview
+      </button>
+      <button class="nav-btn" data-tab="customers">
+        <span class="nav-icon">♙</span> Customers
+      </button>
+      <button class="nav-btn" data-tab="transactions">
+        <span class="nav-icon">⇄</span> Transactions
+      </button>
     </nav>
 
-    <div id="message"></div>
+    <div class="sidebar-bottom">
+      <div class="secure-note">
+        <strong>● Secure administration</strong>
+        Protected by Supabase authentication and server-side administrator verification.
+      </div>
+    </div>
+  </aside>
 
-    <section id="overviewTab" class="panel">
-      <h2>Business Overview</h2>
-      <div class="cards">
-        <div class="stat"><small>Wallet accounts</small><strong id="walletCount">—</strong></div>
-        <div class="stat"><small>Total transactions</small><strong id="transactionCount">—</strong></div>
-        <div class="stat"><small>Successful transactions</small><strong id="successfulCount">—</strong></div>
-        <div class="stat"><small>Pending transactions</small><strong id="pendingCount">—</strong></div>
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <div class="top-title" id="pageTitle">Business Overview</div>
+        <div class="top-subtitle">PanBill administration and operations</div>
       </div>
-      <p class="muted">Counts are retrieved from your PanBill database.</p>
-    </section>
+      <div class="top-right">
+        <div class="live-indicator"><span class="dot"></span> Admin session</div>
+        <div class="admin-avatar">P</div>
+      </div>
+    </header>
 
-    <section id="customersTab" class="panel hidden">
-      <h2>Registered Customers</h2>
-      <p class="muted">Customer accounts and wallet balances.</p>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Email</th><th>Wallet balance</th><th>Registered</th><th>Last sign-in</th></tr></thead>
-          <tbody id="customersBody"></tbody>
-        </table>
+    <div class="content">
+      <div class="welcome">
+        <div>
+          <h1>Business console</h1>
+          <p>Monitor your platform and manage customer activity.</p>
+        </div>
+        <button class="btn" id="refreshButton">↻ Refresh data</button>
       </div>
-      <div style="margin-top:15px">
-        <button class="secondary" id="customersPrev">Previous</button>
-        <span id="customersPage" class="muted">Page 1</span>
-        <button class="secondary" id="customersNext">Next</button>
-      </div>
-    </section>
 
-    <section id="transactionsTab" class="panel hidden">
-      <h2>All Transactions</h2>
-      <p class="muted">Recent customer transactions and provider status.</p>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>Date</th><th>Type</th><th>Amount</th><th>Status</th><th>Reference</th><th>Customer ID</th></tr>
-          </thead>
-          <tbody id="transactionsBody"></tbody>
-        </table>
-      </div>
-      <div style="margin-top:15px">
-        <button class="secondary" id="transactionsPrev">Previous</button>
-        <span id="transactionsPage" class="muted">Page 1</span>
-        <button class="secondary" id="transactionsNext">Next</button>
-      </div>
-    </section>
-  </section>
-</main>
+      <div id="message"></div>
 
-<footer>PanBill Administration · Keep your login details private.</footer>
+      <!-- OVERVIEW -->
+      <section id="overviewTab" class="section active">
+        <div class="stats">
+          <div class="stat-card">
+            <div class="stat-top">
+              <span class="stat-label">WALLET ACCOUNTS</span>
+              <span class="stat-icon">♙</span>
+            </div>
+            <div class="stat-value" id="walletCount">—</div>
+            <div class="stat-foot">Registered wallet accounts</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-top">
+              <span class="stat-label">TOTAL TRANSACTIONS</span>
+              <span class="stat-icon">⇄</span>
+            </div>
+            <div class="stat-value" id="transactionCount">—</div>
+            <div class="stat-foot">All recorded transactions</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-top">
+              <span class="stat-label">SUCCESSFUL</span>
+              <span class="stat-icon">✓</span>
+            </div>
+            <div class="stat-value green" id="successfulCount">—</div>
+            <div class="stat-foot">Successfully completed transactions</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-top">
+              <span class="stat-label">PENDING</span>
+              <span class="stat-icon">◷</span>
+            </div>
+            <div class="stat-value yellow" id="pendingCount">—</div>
+            <div class="stat-foot">Transactions awaiting completion</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Platform management</h2>
+              <div class="panel-desc">Your available administration tools</div>
+            </div>
+          </div>
+
+          <div class="quick-grid">
+            <div class="quick-item">
+              <strong>♙ Customer management</strong>
+              <span>View registered customer accounts, registration dates and wallet balances.</span>
+            </div>
+            <div class="quick-item">
+              <strong>⇄ Transaction monitoring</strong>
+              <span>Review transaction references, amounts, dates and payment statuses.</span>
+            </div>
+            <div class="quick-item">
+              <strong>⌑ Access protection</strong>
+              <span>Administrator access is checked by the secure backend before records are returned.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Business information</h2>
+              <div class="panel-desc">PanBill operational summary</div>
+            </div>
+          </div>
+          <p class="panel-desc">
+            This dashboard currently displays database-backed account and transaction
+            counts. It does not yet calculate net profit, provider margins or live
+            WiseSub availability.
+          </p>
+        </div>
+      </section>
+
+      <!-- CUSTOMERS -->
+      <section id="customersTab" class="section">
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Registered customers</h2>
+              <div class="panel-desc">Customer account information and wallet balances</div>
+            </div>
+            <input class="search" id="customerSearch"
+              placeholder="Search this page by email...">
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>EMAIL ADDRESS</th>
+                  <th>WALLET BALANCE</th>
+                  <th>REGISTRATION DATE</th>
+                  <th>LAST SIGN-IN</th>
+                </tr>
+              </thead>
+              <tbody id="customersBody">
+                <tr><td colspan="4" class="loading">Loading customers...</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pagination">
+            <button class="btn" id="customersPrev">Previous</button>
+            <span id="customersPage">Page 1</span>
+            <button class="btn" id="customersNext">Next</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- TRANSACTIONS -->
+      <section id="transactionsTab" class="section">
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Transaction monitoring</h2>
+              <div class="panel-desc">Review recorded customer transactions</div>
+            </div>
+            <input class="search" id="transactionSearch"
+              placeholder="Search this page by reference...">
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>DATE</th>
+                  <th>SERVICE</th>
+                  <th>AMOUNT</th>
+                  <th>STATUS</th>
+                  <th>REFERENCE</th>
+                  <th>CUSTOMER ID</th>
+                </tr>
+              </thead>
+              <tbody id="transactionsBody">
+                <tr><td colspan="6" class="loading">Loading transactions...</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pagination">
+            <button class="btn" id="transactionsPrev">Previous</button>
+            <span id="transactionsPage">Page 1</span>
+            <button class="btn" id="transactionsNext">Next</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="footer">
+        PanBill Business Console · Secure administration · © 2026 PanBill
+      </div>
+    </div>
+  </main>
+</div>
 
 <script>
+"use strict";
+
 const SUPABASE_URL = "https://rbvmtrsftnmnlxjmewpp.supabase.co";
 const SUPABASE_KEY = "sb_publishable_Fn6FE75bdj11K39ZMxMRpA_EtFUrKTE";
 
-const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const client = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 
 let customerPage = 1;
 let transactionPage = 1;
 let activeTab = "overview";
+let customersCache = [];
+let transactionsCache = [];
 
 const $ = id => document.getElementById(id);
 
 function escapeHTML(value) {
   return String(value ?? "").replace(/[&<>"']/g, char => ({
-    "&":"&amp;", "<":"&lt;", ">":"&gt;",
-    '"':"&quot;", "'":"&#39;"
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
   })[char]);
 }
 
 function money(value) {
   return "₦" + Number(value || 0).toLocaleString("en-NG", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
+    minimumFractionDigits:2,
+    maximumFractionDigits:2
   });
 }
 
 function date(value) {
   if (!value) return "—";
   const parsed = new Date(value);
-  return isNaN(parsed) ? "—" : parsed.toLocaleString("en-NG");
+  return isNaN(parsed.getTime()) ? "—" : parsed.toLocaleString("en-NG");
 }
 
 function showMessage(message, isError = true) {
   $("message").textContent = message || "";
-  $("message").style.color = isError ? "#b42318" : "#087f5b";
+  if (message) {
+    $("message").style.color = isError ? "#ff8585" : "#45d9a4";
+  }
 }
 
 async function adminRequest(action, extra = {}) {
-  const { data: { session } } = await client.auth.getSession();
+  const { data:{session} } = await client.auth.getSession();
 
-  if (!session) throw new Error("Your session has expired. Please sign in again.");
+  if (!session) {
+    throw new Error("Your session has expired. Please sign in again.");
+  }
 
   const { data, error } = await client.functions.invoke("panbill-admin", {
-    body: { action, ...extra }
+    body:{action,...extra}
   });
 
   if (error) {
     let details = error.message || "Admin request failed.";
+
     if (error.context && typeof error.context.json === "function") {
       try {
         const body = await error.context.json();
         if (body.error) details = body.error;
       } catch (_) {}
     }
+
     throw new Error(details);
   }
 
   if (!data || !data.success) {
-    throw new Error(data?.error || "Request was not successful.");
+    throw new Error(data?.error || "The admin request was not successful.");
   }
 
   return data;
@@ -196,12 +592,21 @@ async function adminRequest(action, extra = {}) {
 
 function showTab(tab) {
   activeTab = tab;
-  ["overview", "customers", "transactions"].forEach(name => {
-    $(name + "Tab").classList.toggle("hidden", name !== tab);
+
+  const titles = {
+    overview:"Business Overview",
+    customers:"Customer Management",
+    transactions:"Transaction Monitoring"
+  };
+
+  $("pageTitle").textContent = titles[tab] || "Business Console";
+
+  ["overview","customers","transactions"].forEach(name => {
+    $(name + "Tab").classList.toggle("active", name === tab);
   });
 
-  document.querySelectorAll("nav button[data-tab]").forEach(button => {
-    button.classList.toggle("secondary", button.dataset.tab !== tab);
+  document.querySelectorAll(".nav-btn[data-tab]").forEach(button => {
+    button.classList.toggle("active", button.dataset.tab === tab);
   });
 
   loadCurrentTab();
@@ -209,76 +614,122 @@ function showTab(tab) {
 
 async function loadOverview() {
   const result = await adminRequest("overview");
-  $("walletCount").textContent = result.overview.wallet_accounts;
-  $("transactionCount").textContent = result.overview.total_transactions;
-  $("successfulCount").textContent = result.overview.successful_transactions;
-  $("pendingCount").textContent = result.overview.pending_transactions;
+  const overview = result.overview || {};
+
+  $("walletCount").textContent =
+    Number(overview.wallet_accounts || 0).toLocaleString("en-NG");
+
+  $("transactionCount").textContent =
+    Number(overview.total_transactions || 0).toLocaleString("en-NG");
+
+  $("successfulCount").textContent =
+    Number(overview.successful_transactions || 0).toLocaleString("en-NG");
+
+  $("pendingCount").textContent =
+    Number(overview.pending_transactions || 0).toLocaleString("en-NG");
 }
 
-async function loadCustomers() {
-  const result = await adminRequest("customers", {
-    page: customerPage,
-    perPage: 50
-  });
+function renderCustomers() {
+  const search = $("customerSearch").value.trim().toLowerCase();
 
-  $("customersBody").innerHTML = (result.customers || []).map(customer => `
+  const filtered = customersCache.filter(customer =>
+    String(customer.email || "").toLowerCase().includes(search)
+  );
+
+  $("customersBody").innerHTML = filtered.map(customer => `
     <tr>
       <td>${escapeHTML(customer.email || "No email")}</td>
-      <td>${money(customer.wallet_balance)}</td>
+      <td class="green">${money(customer.wallet_balance)}</td>
       <td>${date(customer.created_at)}</td>
       <td>${date(customer.last_sign_in_at)}</td>
     </tr>
-  `).join("") || '<tr><td colspan="4">No customers found.</td></tr>';
+  `).join("") || '<tr><td colspan="4" class="empty">No matching customers found.</td></tr>';
+}
+
+async function loadCustomers() {
+  $("customersBody").innerHTML =
+    '<tr><td colspan="4" class="loading">Loading customer records...</td></tr>';
+
+  const result = await adminRequest("customers", {
+    page:customerPage,
+    perPage:50
+  });
+
+  customersCache = result.customers || [];
+  renderCustomers();
 
   $("customersPage").textContent = "Page " + customerPage;
   $("customersPrev").disabled = customerPage <= 1;
-  $("customersNext").disabled = result.customers.length < 50;
+  $("customersNext").disabled = customersCache.length < 50;
 }
 
-async function loadTransactions() {
-  const result = await adminRequest("transactions", {
-    page: transactionPage,
-    perPage: 50
-  });
+function renderTransactions() {
+  const search = $("transactionSearch").value.trim().toLowerCase();
 
-  $("transactionsBody").innerHTML = (result.transactions || []).map(item => {
+  const filtered = transactionsCache.filter(item =>
+    String(item.reference || "").toLowerCase().includes(search) ||
+    String(item.type || "").toLowerCase().includes(search) ||
+    String(item.status || "").toLowerCase().includes(search)
+  );
+
+  $("transactionsBody").innerHTML = filtered.map(item => {
     const status = String(item.status || "unknown").toLowerCase();
+    const statusClass = ["successful","failed","pending"].includes(status)
+      ? status : "other";
+
     return `
       <tr>
         <td>${date(item.created_at)}</td>
-        <td>${escapeHTML(item.type)}</td>
+        <td>${escapeHTML(item.type || "—")}</td>
         <td>${money(item.amount)}</td>
-        <td class="status ${["successful","failed","pending"].includes(status) ? status : ""}">
-          ${escapeHTML(item.status)}
-        </td>
-        <td>${escapeHTML(item.reference)}</td>
-        <td>${escapeHTML(item.user_id)}</td>
+        <td><span class="status ${statusClass}">
+          ${escapeHTML(item.status || "Unknown")}
+        </span></td>
+        <td>${escapeHTML(item.reference || "—")}</td>
+        <td>${escapeHTML(item.user_id || "—")}</td>
       </tr>
     `;
-  }).join("") || '<tr><td colspan="6">No transactions found.</td></tr>';
+  }).join("") || '<tr><td colspan="6" class="empty">No matching transactions found.</td></tr>';
+}
+
+async function loadTransactions() {
+  $("transactionsBody").innerHTML =
+    '<tr><td colspan="6" class="loading">Loading transaction records...</td></tr>';
+
+  const result = await adminRequest("transactions", {
+    page:transactionPage,
+    perPage:50
+  });
+
+  transactionsCache = result.transactions || [];
+  renderTransactions();
 
   $("transactionsPage").textContent =
-    `Page ${transactionPage} · ${result.total} total`;
+    `Page ${transactionPage} · ${Number(result.total || 0).toLocaleString("en-NG")} total`;
 
   $("transactionsPrev").disabled = transactionPage <= 1;
-  $("transactionsNext").disabled = result.transactions.length < 50;
+  $("transactionsNext").disabled = transactionsCache.length < 50;
 }
 
 async function loadCurrentTab() {
   showMessage("");
+
+  $("refreshButton").disabled = true;
+
   try {
     if (activeTab === "overview") await loadOverview();
     if (activeTab === "customers") await loadCustomers();
     if (activeTab === "transactions") await loadTransactions();
   } catch (error) {
     showMessage(error.message);
+  } finally {
+    $("refreshButton").disabled = false;
   }
 }
 
 function showDashboard(user) {
   $("loginPanel").classList.add("hidden");
   $("dashboard").classList.remove("hidden");
-  $("adminEmail").textContent = user.email || "";
   showTab("overview");
 }
 
@@ -289,32 +740,34 @@ function showLogin() {
 
 $("loginForm").addEventListener("submit", async event => {
   event.preventDefault();
+
   $("loginButton").disabled = true;
-  $("loginMessage").textContent = "Signing in...";
+  $("loginButton").textContent = "Verifying access...";
+  $("loginMessage").textContent = "";
 
   try {
-    const { data, error } = await client.auth.signInWithPassword({
-      email: $("email").value.trim(),
-      password: $("password").value
+    const { data,error } = await client.auth.signInWithPassword({
+      email:$("email").value.trim(),
+      password:$("password").value
     });
 
     if (error) throw error;
 
     showDashboard(data.user);
-    $("loginMessage").textContent = "";
   } catch (error) {
     $("loginMessage").textContent = error.message;
   } finally {
     $("loginButton").disabled = false;
+    $("loginButton").textContent = "Sign in securely";
   }
 });
 
-$("logoutButton").addEventListener("click", async () => {
+$("logoutButton")?.addEventListener("click", async () => {
   await client.auth.signOut();
   showLogin();
 });
 
-document.querySelectorAll("nav button[data-tab]").forEach(button => {
+document.querySelectorAll(".nav-btn[data-tab]").forEach(button => {
   button.addEventListener("click", () => showTab(button.dataset.tab));
 });
 
@@ -344,8 +797,11 @@ $("transactionsNext").addEventListener("click", () => {
   loadTransactions();
 });
 
+$("customerSearch").addEventListener("input", renderCustomers);
+$("transactionSearch").addEventListener("input", renderTransactions);
+
 async function initialise() {
-  const { data: { session } } = await client.auth.getSession();
+  const { data:{session} } = await client.auth.getSession();
 
   if (session) {
     showDashboard(session.user);
@@ -353,12 +809,13 @@ async function initialise() {
     showLogin();
   }
 
-  client.auth.onAuthStateChange((_event, session) => {
+  client.auth.onAuthStateChange((_event,session) => {
     if (!session) showLogin();
   });
 }
 
 initialise();
 </script>
+
 </body>
 </html>
