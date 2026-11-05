@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,211 +9,959 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--bg:#0b1424;--sidebar:#101d31;--panel:#142238;--panel2:#192a42;--green:#12b886;--green2:#087f5b;--text:#f3f7fc;--muted:#93a4ba;--border:#263951;--red:#ff6b6b;--yellow:#f5c451}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:none!important}
-.layout{min-height:100vh;display:flex}.sidebar{width:245px;background:var(--sidebar);border-right:1px solid var(--border);padding:24px 16px;display:flex;flex-direction:column;flex-shrink:0}.brand{display:flex;align-items:center;gap:11px;padding:0 8px 28px}.brand-icon{width:43px;height:43px;border-radius:13px;background:linear-gradient(135deg,#16c995,#087f5b);display:grid;place-items:center;font-size:23px;font-weight:900}.brand strong{font-size:21px}.brand small{display:block;color:var(--muted);font-size:10px;margin-top:4px;letter-spacing:1.3px}.nav-label{color:#71839c;font-size:10px;font-weight:bold;letter-spacing:1.5px;padding:13px 12px 9px}.nav-btn{width:100%;border:0;background:transparent;color:#a9b8ca;padding:13px 12px;border-radius:10px;text-align:left;display:flex;gap:12px;margin:3px 0;font-size:13px;font-weight:600}.nav-btn:hover,.nav-btn.active{background:#183b3b;color:#39d9a3}.nav-icon{width:20px;text-align:center}.sidebar-bottom{margin-top:auto}.secure-note{border:1px solid var(--border);background:var(--panel);padding:14px;border-radius:12px;color:var(--muted);font-size:11px;line-height:1.6}.secure-note strong{display:block;color:#39d9a3;margin-bottom:5px}
-.main{flex:1;min-width:0}.topbar{min-height:76px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:15px 30px;gap:15px}.top-title{font-size:18px;font-weight:750}.top-subtitle{font-size:11px;color:var(--muted);margin-top:5px}.top-right{display:flex;align-items:center;gap:12px}.live-indicator{font-size:11px;color:#47d9a5;border:1px solid #245747;padding:8px 11px;border-radius:20px}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#20c997;margin-right:6px}.content{padding:27px 30px;max-width:1500px;margin:auto}.welcome{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px;margin-bottom:25px}.welcome h1{font-size:24px;margin:0}.welcome p{color:var(--muted);font-size:12px;margin:8px 0 0}
-.btn{border:1px solid var(--border);border-radius:9px;padding:10px 14px;color:var(--text);background:var(--panel2);font-size:12px;font-weight:700}.btn:hover{border-color:var(--green);color:#50dfad}.btn-primary{background:var(--green2);border-color:var(--green2);color:white}.btn-danger{background:#49252e;border-color:#713746;color:#ff9999}.btn:disabled{opacity:.4;cursor:not-allowed}
-.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;margin-bottom:22px}.stat-card,.panel{background:var(--panel);border:1px solid var(--border);border-radius:14px}.stat-card{padding:19px;min-width:0}.stat-label{font-size:11px;color:var(--muted);font-weight:600}.stat-value{font-size:27px;font-weight:800;margin-top:16px}.stat-foot{font-size:10px;color:var(--muted);margin-top:8px}.green{color:#45d9a4}.red{color:var(--red)}.yellow{color:var(--yellow)}.panel{padding:21px;margin-bottom:18px}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:17px}.panel h2{font-size:15px;margin:0}.panel-desc{font-size:11px;color:var(--muted);margin-top:6px}.quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.quick-item{background:var(--panel2);border:1px solid var(--border);border-radius:11px;padding:16px}.quick-item strong{font-size:13px;display:block;margin-bottom:6px}.quick-item span{font-size:11px;color:var(--muted);line-height:1.5;overflow-wrap:anywhere}
-.section{display:none}.section.active{display:block}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:650px}th,td{padding:13px 11px;text-align:left;border-bottom:1px solid var(--border);font-size:11px;white-space:nowrap}th{color:#8fa3bb;background:#172840}td{color:#dce5ef}tbody tr:hover{background:#192b43}.status{display:inline-block;padding:5px 9px;border-radius:20px;font-size:10px;font-weight:800;text-transform:capitalize}.status.successful,.status.active{background:#123d34;color:#51d9a6}.status.failed,.status.suspended{background:#49252e;color:#ff8585}.status.pending{background:#493c20;color:#f5ca65}.status.other{background:#27384c;color:#b6c5d7}.pagination{display:flex;align-items:center;gap:12px;margin-top:17px;flex-wrap:wrap}.pagination span{font-size:11px;color:var(--muted)}.search{background:#0e1b2e;border:1px solid var(--border);color:white;border-radius:8px;padding:10px 12px;min-width:190px;max-width:100%;font-size:11px}.empty,.loading{text-align:center;color:var(--muted);padding:25px}#message{font-size:12px;white-space:pre-wrap;margin-bottom:14px}#message:not(:empty){background:#3b202a;border:1px solid #713746;border-radius:9px;padding:12px;color:#ff8585}.footer{text-align:center;color:#71839a;font-size:10px;padding:25px}
-.login-screen{min-height:100vh;display:grid;place-items:center;padding:20px;background:radial-gradient(ellipse at top,#183b42 0%,#0b1424 55%)}.login-card{width:100%;max-width:430px;background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:30px;box-shadow:0 20px 70px #0005}.login-brand{text-align:center;margin-bottom:25px}.login-brand .brand-icon{margin:auto;width:55px;height:55px}.login-brand h1{font-size:24px;margin:14px 0 5px}.login-brand p{color:var(--muted);font-size:11px}.login-card h2{font-size:16px}.login-card label{display:block;font-size:11px;color:#b4c2d3;margin:17px 0 7px}.login-card input{width:100%;padding:13px;border-radius:9px;border:1px solid var(--border);background:#0c192b;color:white;outline:none}.login-card input:focus{border-color:var(--green)}.login-card button[type=submit]{width:100%;margin-top:20px;padding:13px}#loginMessage{color:#ff8585;font-size:12px;margin-top:13px}
-.modal{position:fixed;inset:0;z-index:50;background:#06101ddd;overflow:auto;padding:20px}.modal-card{width:100%;max-width:900px;margin:20px auto;background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:22px}.modal-close{float:right}.detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:16px 0}.detail-item{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:13px;min-width:0}.detail-item strong{display:block;font-size:10px;color:var(--muted);margin-bottom:7px}.detail-item span{font-size:12px;overflow-wrap:anywhere}.reason-input{width:100%;padding:12px;border-radius:9px;background:#0c192b;border:1px solid var(--border);color:white;margin:10px 0}.pricing-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.pricing-field{background:var(--panel2);border:1px solid var(--border);border-radius:11px;padding:14px;min-width:0}.pricing-field label{display:block;color:#c2cfdd;font-size:11px;font-weight:700;margin-bottom:8px}.pricing-field input{width:100%;padding:12px;border-radius:8px;background:#0c192b;border:1px solid var(--border);color:white;outline:none}.pricing-field input:focus{border-color:var(--green)}.pricing-help{font-size:10px;color:var(--muted);line-height:1.5;margin-top:7px}.pricing-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:16px}.pricing-note{background:#183b3b;border:1px solid #245747;color:#b8f2dc;padding:13px;border-radius:10px;font-size:11px;line-height:1.6;margin-bottom:16px}.clickable-row{cursor:pointer}.clickable-row:hover{background:#203650}.provider-response{white-space:pre-wrap;overflow-wrap:anywhere;max-height:280px;overflow:auto;background:#0b1728;border:1px solid var(--border);border-radius:9px;padding:13px;font-size:11px;line-height:1.55;color:#c9d8e8}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+.layout{min-height:100vh;display:flex}
+.sidebar{width:245px;background:var(--sidebar);border-right:1px solid var(--border);padding:24px 16px;display:flex;flex-direction:column;flex-shrink:0}
+.brand{display:flex;align-items:center;gap:11px;padding:0 8px 28px}
+.brand-icon{width:43px;height:43px;border-radius:13px;background:linear-gradient(135deg,#16c995,#087f5b);display:grid;place-items:center;font-size:23px;font-weight:900}
+.brand strong{font-size:21px}
+.brand small{display:block;color:var(--muted);font-size:10px;margin-top:4px;letter-spacing:1.3px}
+.nav-label{color:#71839c;font-size:10px;font-weight:bold;letter-spacing:1.5px;padding:13px 12px 9px}
+.nav-btn{width:100%;border:0;background:transparent;color:#a9b8ca;padding:13px 12px;border-radius:10px;text-align:left;display:flex;gap:12px;margin:3px 0;font-size:13px;font-weight:600}
+.nav-btn:hover,.nav-btn.active{background:#183b3b;color:#39d9a3}
+.nav-icon{width:20px;text-align:center}
+.sidebar-bottom{margin-top:auto}
+.secure-note{border:1px solid var(--border);background:var(--panel);padding:14px;border-radius:12px;color:var(--muted);font-size:11px;line-height:1.6}
+.secure-note strong{display:block;color:#39d9a3;margin-bottom:5px}
+.main{flex:1;min-width:0}
+.topbar{min-height:76px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:15px 30px;gap:15px}
+.top-title{font-size:18px;font-weight:750}
+.top-subtitle{font-size:11px;color:var(--muted);margin-top:5px}
+.top-right{display:flex;align-items:center;gap:12px}
+.live-indicator{font-size:11px;color:#47d9a5;border:1px solid #245747;padding:8px 11px;border-radius:20px}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#20c997;margin-right:6px}
+.content{padding:27px 30px;max-width:1500px;margin:auto}
+.welcome{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px;margin-bottom:25px}
+.welcome h1{font-size:24px;margin:0}
+.welcome p{color:var(--muted);font-size:12px;margin:8px 0 0}
+.btn{border:1px solid var(--border);border-radius:9px;padding:10px 14px;color:var(--text);background:var(--panel2);font-size:12px;font-weight:700}
+.btn:hover{border-color:var(--green);color:#50dfad}
+.btn-primary{background:var(--green2);border-color:var(--green2);color:white}
+.btn-danger{background:#49252e;border-color:#713746;color:#ff9999}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;margin-bottom:22px}
+.stat-card,.panel{background:var(--panel);border:1px solid var(--border);border-radius:14px}
+.stat-card{padding:19px;min-width:0}
+.stat-label{font-size:11px;color:var(--muted);font-weight:600}
+.stat-value{font-size:27px;font-weight:800;margin-top:16px}
+.stat-foot{font-size:10px;color:var(--muted);margin-top:8px}
+.green{color:#45d9a4}
+.red{color:var(--red)}
+.yellow{color:var(--yellow)}
+.panel{padding:21px;margin-bottom:18px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:17px}
+.panel h2{font-size:15px;margin:0}
+.panel-desc{font-size:11px;color:var(--muted);margin-top:6px}
+.quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.quick-item{background:var(--panel2);border:1px solid var(--border);border-radius:11px;padding:16px}
+.quick-item strong{font-size:13px;display:block;margin-bottom:6px}
+.quick-item span{font-size:11px;color:var(--muted);line-height:1.5;overflow-wrap:anywhere}
+.section{display:none}
+.section.active{display:block}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:650px}
+th,td{padding:13px 11px;text-align:left;border-bottom:1px solid var(--border);font-size:11px;white-space:nowrap}
+th{color:#8fa3bb;background:#172840}
+td{color:#dce5ef}
+tbody tr:hover{background:#192b43}
+.status{display:inline-block;padding:5px 9px;border-radius:20px;font-size:10px;font-weight:800;text-transform:capitalize}
+.status.successful,.status.active{background:#123d34;color:#51d9a6}
+.status.failed,.status.suspended{background:#49252e;color:#ff8585}
+.status.pending{background:#493c20;color:#f5ca65}
+.status.other{background:#27384c;color:#b6c5d7}
+.pagination{display:flex;align-items:center;gap:12px;margin-top:17px;flex-wrap:wrap}
+.pagination span{font-size:11px;color:var(--muted)}
+.search{background:#0e1b2e;border:1px solid var(--border);color:white;border-radius:8px;padding:10px 12px;min-width:190px;max-width:100%;font-size:11px}
+.empty,.loading{text-align:center;color:var(--muted);padding:25px}
+#message{font-size:12px;white-space:pre-wrap;margin-bottom:14px}
+#message:not(:empty){background:#3b202a;border:1px solid #713746;border-radius:9px;padding:12px;color:#ff8585}
+.footer{text-align:center;color:#71839a;font-size:10px;padding:25px}
+.login-screen{min-height:100vh;display:grid;place-items:center;padding:20px;background:radial-gradient(ellipse at top,#183b42 0%,#0b1424 55%)}
+.login-card{width:100%;max-width:430px;background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:30px;box-shadow:0 20px 70px #0005}
+.login-brand{text-align:center;margin-bottom:25px}
+.login-brand .brand-icon{margin:auto;width:55px;height:55px}
+.login-brand h1{font-size:24px;margin:14px 0 5px}
+.login-brand p{color:var(--muted);font-size:11px}
+.login-card h2{font-size:16px}
+.login-card label{display:block;font-size:11px;color:#b4c2d3;margin:17px 0 7px}
+.login-card input{width:100%;padding:13px;border-radius:9px;border:1px solid var(--border);background:#0c192b;color:white;outline:none}
+.login-card input:focus{border-color:var(--green)}
+.login-card button[type=submit]{width:100%;margin-top:20px;padding:13px}
+#loginMessage{color:#ff8585;font-size:12px;margin-top:13px}
+.modal{position:fixed;inset:0;z-index:50;background:#06101ddd;overflow:auto;padding:20px}
+.modal-card{width:100%;max-width:900px;margin:20px auto;background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:22px}
+.modal-close{float:right}
+.detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:16px 0}
+.detail-item{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:13px;min-width:0}
+.detail-item strong{display:block;font-size:10px;color:var(--muted);margin-bottom:7px}
+.detail-item span{font-size:12px;overflow-wrap:anywhere}
+.reason-input{width:100%;padding:12px;border-radius:9px;background:#0c192b;border:1px solid var(--border);color:white;margin:10px 0}
+.pricing-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.pricing-field{background:var(--panel2);border:1px solid var(--border);border-radius:11px;padding:14px;min-width:0}
+.pricing-field label{display:block;color:#c2cfdd;font-size:11px;font-weight:700;margin-bottom:8px}
+.pricing-field input{width:100%;padding:12px;border-radius:8px;background:#0c192b;border:1px solid var(--border);color:white;outline:none}
+.pricing-field input:focus{border-color:var(--green)}
+.pricing-help{font-size:10px;color:var(--muted);line-height:1.5;margin-top:7px}
+.pricing-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:16px}
+.pricing-note{background:#183b3b;border:1px solid #245747;color:#b8f2dc;padding:13px;border-radius:10px;font-size:11px;line-height:1.6;margin-bottom:16px}
+.clickable-row{cursor:pointer}
+.clickable-row:hover{background:#203650}
+.provider-response{white-space:pre-wrap;overflow-wrap:anywhere;max-height:280px;overflow:auto;background:#0b1728;border:1px solid var(--border);border-radius:9px;padding:13px;font-size:11px;line-height:1.55;color:#c9d8e8}
+
+/* MOBILE TRANSACTION DETAILS */
+.mobile-transaction-list{display:none}
+.mobile-transaction-card{background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:14px;margin:10px 0}
+.mobile-transaction-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.mobile-transaction-info{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:12px 0}
+.mobile-transaction-info div{min-width:0}
+.mobile-transaction-info strong{display:block;font-size:9px;color:var(--muted);margin-bottom:5px}
+.mobile-transaction-info span{display:block;font-size:11px;overflow-wrap:anywhere}
+.view-transaction-button{width:100%;padding:13px;background:var(--green2);border-color:var(--green2);color:white;font-size:13px}
+
 @media(max-width:1050px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:700px){.layout{display:block}.sidebar{width:100%;padding:12px;border:0;border-bottom:1px solid var(--border)}.brand{padding:0 5px 10px}.brand-icon{width:35px;height:35px;font-size:19px}.brand strong{font-size:18px}.brand small{font-size:9px}.nav-label,.sidebar-bottom{display:none}.sidebar nav{display:flex;overflow-x:auto;gap:5px}.nav-btn{width:auto;flex-shrink:0;padding:10px;font-size:10px;gap:6px}.nav-icon{width:auto}.topbar{padding:13px 15px;min-height:65px}.top-title{font-size:15px}.top-subtitle{font-size:10px}.live-indicator{font-size:9px;padding:7px}.content{padding:19px 13px}.welcome h1{font-size:21px}.stats{gap:9px}.stat-card{padding:13px}.stat-value{font-size:22px}.panel{padding:15px}.quick-grid{grid-template-columns:1fr}.search{width:100%}.detail-grid{grid-template-columns:1fr}.modal{padding:8px}.modal-card{padding:15px;margin:8px auto}.pricing-grid{grid-template-columns:1fr}}
+@media(max-width:700px){
+ .layout{display:block}
+ .sidebar{width:100%;padding:12px;border:0;border-bottom:1px solid var(--border)}
+ .brand{padding:0 5px 10px}
+ .brand-icon{width:35px;height:35px;font-size:19px}
+ .brand strong{font-size:18px}
+ .brand small{font-size:9px}
+ .nav-label,.sidebar-bottom{display:none}
+ .sidebar nav{display:flex;overflow-x:auto;gap:5px}
+ .nav-btn{width:auto;flex-shrink:0;padding:10px;font-size:10px;gap:6px}
+ .nav-icon{width:auto}
+ .topbar{padding:13px 15px;min-height:65px}
+ .top-title{font-size:15px}
+ .top-subtitle{font-size:10px}
+ .live-indicator{font-size:9px;padding:7px}
+ .content{padding:19px 13px}
+ .welcome h1{font-size:21px}
+ .stats{gap:9px}
+ .stat-card{padding:13px}
+ .stat-value{font-size:22px}
+ .panel{padding:15px}
+ .quick-grid{grid-template-columns:1fr}
+ .search{width:100%}
+ .detail-grid{grid-template-columns:1fr}
+ .modal{padding:8px}
+ .modal-card{padding:15px;margin:8px auto}
+ .pricing-grid{grid-template-columns:1fr}
+
+ /* Show transaction cards instead of the wide table on phones */
+ #transactionsTab .table-wrap{display:none}
+ #transactionsTab .mobile-transaction-list{display:block}
+}
 </style>
 </head>
 <body>
-<section id="loginPanel" class="login-screen"><div class="login-card">
-  <div class="login-brand"><div class="brand-icon">P</div><h1>PanBill</h1><p>SUPER ADMINISTRATION CONSOLE</p></div>
-  <h2>Administrator sign in</h2><p class="panel-desc">Restricted to authorised PanBill administrators.</p>
-  <form id="loginForm"><label for="email">Administrator email</label><input id="email" type="email" autocomplete="username" required placeholder="Admin email"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required placeholder="Password"><button class="btn btn-primary" id="loginButton" type="submit">Sign in securely</button></form>
-  <div id="loginMessage"></div><p class="panel-desc">Your administrator privileges are verified by the PanBill backend. Never share your credentials.</p>
-</div></section>
+
+<section id="loginPanel" class="login-screen">
+<div class="login-card">
+ <div class="login-brand">
+  <div class="brand-icon">P</div>
+  <h1>PanBill</h1>
+  <p>SUPER ADMINISTRATION CONSOLE</p>
+ </div>
+ <h2>Administrator sign in</h2>
+ <p class="panel-desc">Restricted to authorised PanBill administrators.</p>
+ <form id="loginForm">
+  <label for="email">Administrator email</label>
+  <input id="email" type="email" autocomplete="username" required placeholder="Admin email">
+  <label for="password">Password</label>
+  <input id="password" type="password" autocomplete="current-password" required placeholder="Password">
+  <button class="btn btn-primary" id="loginButton" type="submit">Sign in securely</button>
+ </form>
+ <div id="loginMessage"></div>
+ <p class="panel-desc">Your administrator privileges are verified by the PanBill backend. Never share your credentials.</p>
+</div>
+</section>
 
 <div id="dashboard" class="layout hidden">
-<aside class="sidebar"><div class="brand"><div class="brand-icon">P</div><div><strong>PanBill</strong><small>SUPER ADMIN</small></div></div><div class="nav-label">BUSINESS MANAGEMENT</div>
-<nav>
-<button class="nav-btn active" data-tab="overview"><span class="nav-icon">▦</span> Overview</button>
-<button class="nav-btn" data-tab="customers"><span class="nav-icon">♙</span> Customers</button>
-<button class="nav-btn" data-tab="transactions"><span class="nav-icon">⇄</span> Transactions</button>
-<button class="nav-btn" data-tab="pricing"><span class="nav-icon">₦</span> VTU Pricing</button>
-<button class="nav-btn" data-tab="audit"><span class="nav-icon">⌑</span> Audit log</button>
-</nav><div class="sidebar-bottom"><div class="secure-note"><strong>● Secure administration</strong>Server-side administrator verification and recorded account-access changes.</div></div></aside>
-<main class="main"><header class="topbar"><div><div class="top-title" id="pageTitle">Business Overview</div><div class="top-subtitle">PanBill administration and operations</div></div><div class="top-right"><div class="live-indicator"><span class="dot"></span> Admin session</div><button class="btn" id="logoutButton">Log out</button></div></header>
-<div class="content"><div class="welcome"><div><h1>Business control centre</h1><p>Monitor your platform and manage customer accounts.</p></div><button class="btn" id="refreshButton">↻ Refresh data</button></div><div id="message"></div>
-<section id="overviewTab" class="section active"><div class="stats">
-<div class="stat-card"><div class="stat-label">WALLET ACCOUNTS</div><div class="stat-value" id="walletCount">—</div><div class="stat-foot">Registered wallet accounts</div></div>
-<div class="stat-card"><div class="stat-label">TOTAL TRANSACTIONS</div><div class="stat-value" id="transactionCount">—</div><div class="stat-foot">Recorded transactions</div></div>
-<div class="stat-card"><div class="stat-label">SUCCESSFUL</div><div class="stat-value green" id="successfulCount">—</div><div class="stat-foot">Completed transactions</div></div>
-<div class="stat-card"><div class="stat-label">PENDING</div><div class="stat-value yellow" id="pendingCount">—</div><div class="stat-foot">Awaiting completion</div></div></div>
-<div class="panel"><div class="panel-head"><div><h2>Management centre</h2><div class="panel-desc">Available administrative capabilities</div></div></div><div class="quick-grid">
-<div class="quick-item"><strong>♙ Customer management</strong><span>Inspect customer accounts, wallet balances, account status and recent transactions.</span></div>
-<div class="quick-item"><strong>⇄ Transaction monitoring</strong><span>Search, filter and inspect transaction records and provider responses.</span></div>
-<div class="quick-item"><strong>⌑ Account protection</strong><span>Suspend or reactivate accounts with a recorded reason.</span></div></div></div>
-<div class="panel"><h2>Financial reporting</h2><p class="panel-desc">These counts are database-backed. Transaction volume is not profit; provider costs and refunds are not calculated here.</p></div></section>
+<aside class="sidebar">
+ <div class="brand">
+  <div class="brand-icon">P</div>
+  <div><strong>PanBill</strong><small>SUPER ADMIN</small></div>
+ </div>
+ <div class="nav-label">BUSINESS MANAGEMENT</div>
+ <nav>
+  <button class="nav-btn active" data-tab="overview"><span class="nav-icon">▦</span> Overview</button>
+  <button class="nav-btn" data-tab="customers"><span class="nav-icon">♙</span> Customers</button>
+  <button class="nav-btn" data-tab="transactions"><span class="nav-icon">⇄</span> Transactions</button>
+  <button class="nav-btn" data-tab="pricing"><span class="nav-icon">₦</span> VTU Pricing</button>
+  <button class="nav-btn" data-tab="audit"><span class="nav-icon">⌑</span> Audit log</button>
+ </nav>
+ <div class="sidebar-bottom">
+  <div class="secure-note"><strong>● Secure administration</strong>Server-side administrator verification and recorded account-access changes.</div>
+ </div>
+</aside>
 
-<section id="customersTab" class="section"><div class="panel"><div class="panel-head"><div><h2>Customer directory</h2><div class="panel-desc">View accounts and open individual customer records.</div></div><input class="search" id="customerSearch" placeholder="Search this page by email..."></div>
-<div class="table-wrap"><table><thead><tr><th>EMAIL</th><th>WALLET BALANCE</th><th>REGISTERED</th><th>LAST SIGN-IN</th><th>STATUS</th><th>ACTIONS</th></tr></thead><tbody id="customersBody"><tr><td colspan="6" class="loading">Loading customers...</td></tr></tbody></table></div>
-<div class="pagination"><button class="btn" id="customersPrev">Previous</button><span id="customersPage">Page 1</span><button class="btn" id="customersNext">Next</button></div></div></section>
+<main class="main">
+<header class="topbar">
+ <div>
+  <div class="top-title" id="pageTitle">Business Overview</div>
+  <div class="top-subtitle">PanBill administration and operations</div>
+ </div>
+ <div class="top-right">
+  <div class="live-indicator"><span class="dot"></span> Admin session</div>
+  <button class="btn" id="logoutButton">Log out</button>
+ </div>
+</header>
 
-<section id="transactionsTab" class="section"><div class="panel"><div class="panel-head"><div><h2>Transaction monitoring</h2><div class="panel-desc">Search by customer email, customer ID, transaction reference or provider reference. Select a record to inspect its details.</div></div>
-<input class="search" id="transactionSearch" placeholder="Search email, customer ID or reference..." aria-label="Search transactions">
-<select class="search" id="transactionStatusFilter" aria-label="Filter transaction status"><option value="all">All statuses</option><option value="successful">Successful</option><option value="pending">Pending</option><option value="failed">Failed</option></select></div>
-<div class="table-wrap"><table><thead><tr><th>DATE</th><th>SERVICE</th><th>AMOUNT</th><th>STATUS</th><th>REFERENCE</th><th>CUSTOMER ID</th><th>DETAILS</th></tr></thead><tbody id="transactionsBody"><tr><td colspan="7" class="loading">Loading transactions...</td></tr></tbody></table></div>
-<div class="pagination"><button class="btn" id="transactionsPrev">Previous</button><span id="transactionsPage">Page 1</span><button class="btn" id="transactionsNext">Next</button></div></div></section>
+<div class="content">
+<div class="welcome">
+ <div><h1>Business control centre</h1><p>Monitor your platform and manage customer accounts.</p></div>
+ <button class="btn" id="refreshButton">↻ Refresh data</button>
+</div>
+<div id="message"></div>
 
-<section id="pricingTab" class="section"><div class="panel"><div class="panel-head"><div><h2>VTU service pricing</h2><div class="panel-desc">Configure service fees and wallet funding charges.</div></div><button class="btn" id="reloadPricingButton">↻ Reload prices</button></div>
-<div class="pricing-note">Your saved pricing settings are read by the connected <strong>super-responder</strong> function. Updated settings apply to new eligible purchases after saving. Existing transactions retain their original amounts.</div>
-<div id="pricingUpdated" class="panel-desc" style="margin-bottom:15px">Last updated: —</div><div class="pricing-grid">
-<div class="pricing-field"><label for="price_wallet_funding_fee_percent">Wallet funding fee (%)</label><input id="price_wallet_funding_fee_percent" type="number" min="0" max="10" step="0.01"><div class="pricing-help">Percentage charged on the amount a customer adds. Current saved setting: 0.5%.</div></div>
-<div class="pricing-field"><label for="price_airtime_fee">Airtime extra fee (₦)</label><input id="price_airtime_fee" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">Additional charge on airtime purchases. Current saved setting: ₦10.</div></div>
-<div class="pricing-field"><label for="price_airtime_discount">Airtime discount (₦)</label><input id="price_airtime_discount" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">Discount from airtime face value. Current saved setting: ₦0.</div></div>
-<div class="pricing-field"><label for="price_data_above_1_5gb_fee">Data fee above 1.5GB (₦)</label><input id="price_data_above_1_5gb_fee" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">Applies to qualifying data packages. Current saved setting: ₦20.</div></div>
-<div class="pricing-field"><label for="price_dstv_fee">DStv fee up to ₦1,000,000 (₦)</label><input id="price_dstv_fee" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">Standard DStv subscription fee. Current saved setting: ₦50.</div></div>
-<div class="pricing-field"><label for="price_dstv_above_1000000_fee">DStv fee above ₦1,000,000 (₦)</label><input id="price_dstv_above_1000000_fee" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">Fee for DStv amounts above ₦1,000,000. Current saved setting: ₦500.</div></div>
-<div class="pricing-field"><label for="price_gotv_fee">GOtv fee (₦)</label><input id="price_gotv_fee" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">Additional GOtv subscription fee. Current saved setting: ₦10.</div></div>
-<div class="pricing-field"><label for="price_startimes_above_1000_fee">Startimes fee above ₦1,000 (₦)</label><input id="price_startimes_above_1000_fee" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">Applies above ₦1,000. Current saved setting: ₦10.</div></div>
-<div class="pricing-field"><label for="price_electricity_fee">Electricity fee (₦)</label><input id="price_electricity_fee" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">Additional electricity purchase fee. Current saved setting: ₦15.</div></div>
-<div class="pricing-field"><label for="price_exam_pin_fee">Exam PIN fee (₦)</label><input id="price_exam_pin_fee" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">Additional examination PIN fee. Current saved setting: ₦20.</div></div>
-</div><div style="margin-top:20px"><label for="pricingReason" style="display:block;font-size:11px;color:#b4c2d3;font-weight:700">Reason for this pricing change</label><textarea id="pricingReason" class="reason-input" rows="3" maxlength="500" placeholder="Explain why you are changing these prices (at least 5 characters)"></textarea></div>
-<div class="pricing-actions"><button class="btn btn-primary" id="savePricingButton">Save pricing settings</button><span id="pricingSaveStatus" class="panel-desc" aria-live="polite"></span></div></div></section>
+<section id="overviewTab" class="section active">
+ <div class="stats">
+  <div class="stat-card"><div class="stat-label">WALLET ACCOUNTS</div><div class="stat-value" id="walletCount">—</div><div class="stat-foot">Registered wallet accounts</div></div>
+  <div class="stat-card"><div class="stat-label">TOTAL TRANSACTIONS</div><div class="stat-value" id="transactionCount">—</div><div class="stat-foot">Recorded transactions</div></div>
+  <div class="stat-card"><div class="stat-label">SUCCESSFUL</div><div class="stat-value green" id="successfulCount">—</div><div class="stat-foot">Completed transactions</div></div>
+  <div class="stat-card"><div class="stat-label">PENDING</div><div class="stat-value yellow" id="pendingCount">—</div><div class="stat-foot">Awaiting completion</div></div>
+ </div>
+ <div class="panel">
+  <div class="panel-head"><div><h2>Management centre</h2><div class="panel-desc">Available administrative capabilities</div></div></div>
+  <div class="quick-grid">
+   <div class="quick-item"><strong>♙ Customer management</strong><span>Inspect customer accounts, wallet balances, account status and recent transactions.</span></div>
+   <div class="quick-item"><strong>⇄ Transaction monitoring</strong><span>Search, filter and inspect transaction records and provider responses.</span></div>
+   <div class="quick-item"><strong>⌑ Account protection</strong><span>Suspend or reactivate accounts with a recorded reason.</span></div>
+  </div>
+ </div>
+ <div class="panel"><h2>Financial reporting</h2><p class="panel-desc">These counts are database-backed. Transaction volume is not profit; provider costs and refunds are not calculated here.</p></div>
+</section>
 
-<section id="auditTab" class="section"><div class="panel"><div class="panel-head"><div><h2>Administrative audit log</h2><div class="panel-desc">Records of customer account-access and pricing changes.</div></div></div>
-<div class="table-wrap"><table><thead><tr><th>DATE</th><th>ACTION</th><th>CUSTOMER ID</th><th>REASON</th><th>RESULT</th></tr></thead><tbody id="auditBody"><tr><td colspan="5" class="loading">Loading audit records...</td></tr></tbody></table></div>
-<div class="pagination"><button class="btn" id="auditPrev">Previous</button><span id="auditPage">Page 1</span><button class="btn" id="auditNext">Next</button></div></div></section>
-<div class="footer">PanBill Super Admin · Secure business administration · © 2026</div></div></main></div>
+<section id="customersTab" class="section">
+ <div class="panel">
+  <div class="panel-head">
+   <div><h2>Customer directory</h2><div class="panel-desc">View accounts and open individual customer records.</div></div>
+   <input class="search" id="customerSearch" placeholder="Search this page by email...">
+  </div>
+  <div class="table-wrap">
+   <table><thead><tr><th>EMAIL</th><th>WALLET BALANCE</th><th>REGISTERED</th><th>LAST SIGN-IN</th><th>STATUS</th><th>ACTIONS</th></tr></thead>
+   <tbody id="customersBody"><tr><td colspan="6" class="loading">Loading customers...</td></tr></tbody></table>
+  </div>
+  <div class="pagination"><button class="btn" id="customersPrev">Previous</button><span id="customersPage">Page 1</span><button class="btn" id="customersNext">Next</button></div>
+ </div>
+</section>
 
-<div id="customerModal" class="modal hidden"><div class="modal-card"><button class="btn modal-close" id="closeCustomerModal">Close</button><h2>Customer account details</h2><p class="panel-desc">Account information, wallet balance and recent transactions.</p><div id="customerDetailContent" class="loading">Loading customer account...</div></div></div>
-<div id="transactionModal" class="modal hidden"><div class="modal-card"><button class="btn modal-close" id="closeTransactionModal">Close</button><h2>Transaction details</h2><p class="panel-desc">Complete transaction record, customer information and provider response.</p><div id="transactionDetailContent" class="loading">Loading transaction details...</div></div></div>
+<section id="transactionsTab" class="section">
+ <div class="panel">
+  <div class="panel-head">
+   <div><h2>Transaction monitoring</h2><div class="panel-desc">Search by customer email, customer ID, transaction reference or provider reference. Select a record to inspect its details.</div></div>
+   <input class="search" id="transactionSearch" placeholder="Search email, customer ID or reference..." aria-label="Search transactions">
+   <select class="search" id="transactionStatusFilter" aria-label="Filter transaction status">
+    <option value="all">All statuses</option>
+    <option value="successful">Successful</option>
+    <option value="pending">Pending</option>
+    <option value="failed">Failed</option>
+   </select>
+  </div>
+
+  <!-- Mobile-friendly transaction cards -->
+  <div id="mobileTransactionsList" class="mobile-transaction-list"></div>
+
+  <!-- Desktop transaction table -->
+  <div class="table-wrap">
+   <table>
+    <thead><tr><th>DATE</th><th>SERVICE</th><th>AMOUNT</th><th>STATUS</th><th>REFERENCE</th><th>CUSTOMER ID</th><th>DETAILS</th></tr></thead>
+    <tbody id="transactionsBody"><tr><td colspan="7" class="loading">Loading transactions...</td></tr></tbody>
+   </table>
+  </div>
+  <div class="pagination"><button class="btn" id="transactionsPrev">Previous</button><span id="transactionsPage">Page 1</span><button class="btn" id="transactionsNext">Next</button></div>
+ </div>
+</section>
+
+<section id="pricingTab" class="section">
+ <div class="panel">
+  <div class="panel-head"><div><h2>VTU service pricing</h2><div class="panel-desc">Configure service fees and wallet funding charges.</div></div><button class="btn" id="reloadPricingButton">↻ Reload prices</button></div>
+  <div class="pricing-note">Your saved pricing settings are read by the connected <strong>super-responder</strong> function. Updated settings apply to new eligible purchases after saving. Existing transactions retain their original amounts.</div>
+  <div id="pricingUpdated" class="panel-desc" style="margin-bottom:15px">Last updated: —</div>
+  <div class="pricing-grid">
+   <div class="pricing-field"><label for="price_wallet_funding_fee_percent">Wallet funding fee (%)</label><input id="price_wallet_funding_fee_percent" type="number" min="0" max="10" step="0.01"><div class="pricing-help">Percentage charged on the amount a customer adds. Current saved setting: 0.5%.</div></div>
+   <div class="pricing-field"><label for="price_airtime_fee">Airtime extra fee (₦)</label><input id="price_airtime_fee" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">Additional charge on airtime purchases. Current saved setting: ₦10.</div></div>
+   <div class="pricing-field"><label for="price_airtime_discount">Airtime discount (₦)</label><input id="price_airtime_discount" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">Discount from airtime face value. Current saved setting: ₦0.</div></div>
+   <div class="pricing-field"><label for="price_data_above_1_5gb_fee">Data fee above 1.5GB (₦)</label><input id="price_data_above_1_5gb_fee" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">Applies to qualifying data packages. Current saved setting: ₦20.</div></div>
+   <div class="pricing-field"><label for="price_dstv_fee">DStv fee up to ₦1,000,000 (₦)</label><input id="price_dstv_fee" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">Standard DStv subscription fee. Current saved setting: ₦50.</div></div>
+   <div class="pricing-field"><label for="price_dstv_above_1000000_fee">DStv fee above ₦1,000,000 (₦)</label><input id="price_dstv_above_1000000_fee" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">Fee for DStv amounts above ₦1,000,000. Current saved setting: ₦500.</div></div>
+   <div class="pricing-field"><label for="price_gotv_fee">GOtv fee (₦)</label><input id="price_gotv_fee" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">Additional GOtv subscription fee. Current saved setting: ₦10.</div></div>
+   <div class="pricing-field"><label for="price_startimes_above_1000_fee">Startimes fee above ₦1,000 (₦)</label><input id="price_startimes_above_1000_fee" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">Applies above ₦1,000. Current saved setting: ₦10.</div></div>
+   <div class="pricing-field"><label for="price_electricity_fee">Electricity fee (₦)</label><input id="price_electricity_fee" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">Additional electricity purchase fee. Current saved setting: ₦15.</div></div>
+   <div class="pricing-field"><label for="price_exam_pin_fee">Exam PIN fee (₦)</label><input id="price_exam_pin_fee" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">Additional examination PIN fee. Current saved setting: ₦20.</div></div>
+  </div>
+  <div style="margin-top:20px">
+   <label for="pricingReason" style="display:block;font-size:11px;color:#b4c2d3;font-weight:700">Reason for this pricing change</label>
+   <textarea id="pricingReason" class="reason-input" rows="3" maxlength="500" placeholder="Explain why you are changing these prices (at least 5 characters)"></textarea>
+  </div>
+  <div class="pricing-actions"><button class="btn btn-primary" id="savePricingButton">Save pricing settings</button><span id="pricingSaveStatus" class="panel-desc" aria-live="polite"></span></div>
+ </div>
+</section>
+
+<section id="auditTab" class="section">
+ <div class="panel">
+  <div class="panel-head"><div><h2>Administrative audit log</h2><div class="panel-desc">Records of customer account-access and pricing changes.</div></div></div>
+  <div class="table-wrap">
+   <table><thead><tr><th>DATE</th><th>ACTION</th><th>CUSTOMER ID</th><th>REASON</th><th>RESULT</th></tr></thead>
+   <tbody id="auditBody"><tr><td colspan="5" class="loading">Loading audit records...</td></tr></tbody></table>
+  </div>
+  <div class="pagination"><button class="btn" id="auditPrev">Previous</button><span id="auditPage">Page 1</span><button class="btn" id="auditNext">Next</button></div>
+ </div>
+</section>
+
+<div class="footer">PanBill Super Admin · Secure business administration · © 2026</div>
+</div>
+</main>
+</div>
+
+<div id="customerModal" class="modal hidden">
+ <div class="modal-card">
+  <button class="btn modal-close" id="closeCustomerModal">Close</button>
+  <h2>Customer account details</h2>
+  <p class="panel-desc">Account information, wallet balance and recent transactions.</p>
+  <div id="customerDetailContent" class="loading">Loading customer account...</div>
+ </div>
+</div>
+
+<div id="transactionModal" class="modal hidden">
+ <div class="modal-card">
+  <button class="btn modal-close" id="closeTransactionModal">Close</button>
+  <h2>Transaction details</h2>
+  <p class="panel-desc">Complete transaction record, customer information and provider response.</p>
+  <div id="transactionDetailContent" class="loading">Loading transaction details...</div>
+ </div>
+</div>
 
 <script>
 "use strict";
+
 const SUPABASE_URL="https://rbvmtrsftnmnlxjmewpp.supabase.co";
 const SUPABASE_KEY="sb_publishable_Fn6FE75bdj11K39ZMxMRpA_EtFUrKTE";
 const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
 let customerPage=1,transactionPage=1,auditPage=1,activeTab="overview";
 let customersCache=[],transactionsCache=[],transactionTotal=0,auditTotal=0,transactionSearchTimer=null;
+
 const $=id=>document.getElementById(id);
-function escapeHTML(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
-function money(v){return "₦"+Number(v||0).toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2});}
-function date(v){if(!v)return "—";const d=new Date(v);return isNaN(d.getTime())?"—":d.toLocaleString("en-NG");}
-function showMessage(m,error=true){$("message").textContent=m||"";$("message").style.color=error?"#ff8585":"#45d9a4";}
+
+function escapeHTML(v){
+ return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+function money(v){
+ return "₦"+Number(v||0).toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+function date(v){
+ if(!v)return "—";
+ const d=new Date(v);
+ return isNaN(d.getTime())?"—":d.toLocaleString("en-NG");
+}
+
+function showMessage(m,error=true){
+ $("message").textContent=m||"";
+ $("message").style.color=error?"#ff8585":"#45d9a4";
+}
+
 async function adminRequest(action,extra={}){
- const {data:{session},error:se}=await client.auth.getSession();if(se)throw se;if(!session)throw new Error("Your session has expired. Please sign in again.");
+ const {data:{session},error:se}=await client.auth.getSession();
+ if(se)throw se;
+ if(!session)throw new Error("Your session has expired. Please sign in again.");
+
  const {data,error}=await client.functions.invoke("panbill-admin",{body:{action,...extra}});
- if(error){let m=error.message||"Admin request failed.";if(error.context&&typeof error.context.json==="function"){try{const d=await error.context.json();if(d.error)m=d.error;}catch(_){}}throw new Error(m);}
- if(!data||!data.success)throw new Error(data?.error||"Request failed.");return data;
+
+ if(error){
+  let m=error.message||"Admin request failed.";
+  if(error.context&&typeof error.context.json==="function"){
+   try{
+    const d=await error.context.json();
+    if(d.error)m=d.error;
+   }catch(_){}
+  }
+  throw new Error(m);
+ }
+
+ if(!data||!data.success)throw new Error(data?.error||"Request failed.");
+ return data;
 }
+
 function showTab(tab){
- activeTab=tab;const titles={overview:"Business Overview",customers:"Customer Management",transactions:"Transaction Monitoring",audit:"Administrative Audit Log",pricing:"VTU Pricing Management"};
+ activeTab=tab;
+ const titles={
+  overview:"Business Overview",
+  customers:"Customer Management",
+  transactions:"Transaction Monitoring",
+  audit:"Administrative Audit Log",
+  pricing:"VTU Pricing Management"
+ };
+
  $("pageTitle").textContent=titles[tab]||"PanBill";
- ["overview","customers","transactions","pricing","audit"].forEach(n=>$(n+"Tab").classList.toggle("active",n===tab));
- document.querySelectorAll(".nav-btn[data-tab]").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));loadCurrentTab();
+
+ ["overview","customers","transactions","pricing","audit"].forEach(n=>{
+  $(n+"Tab").classList.toggle("active",n===tab);
+ });
+
+ document.querySelectorAll(".nav-btn[data-tab]").forEach(b=>{
+  b.classList.toggle("active",b.dataset.tab===tab);
+ });
+
+ loadCurrentTab();
 }
+
 async function loadOverview(){
- const r=await adminRequest("overview"),o=r.overview||{};
+ const r=await adminRequest("overview");
+ const o=r.overview||{};
+
  $("walletCount").textContent=Number(o.wallet_accounts||0).toLocaleString("en-NG");
  $("transactionCount").textContent=Number(o.total_transactions||0).toLocaleString("en-NG");
  $("successfulCount").textContent=Number(o.successful_transactions||0).toLocaleString("en-NG");
  $("pendingCount").textContent=Number(o.pending_transactions||0).toLocaleString("en-NG");
 }
+
 function renderCustomers(){
  const s=$("customerSearch").value.trim().toLowerCase();
- const rows=customersCache.filter(c=>String(c.email||"").toLowerCase().includes(s)||String(c.id||"").toLowerCase().includes(s));
- $("customersBody").innerHTML=rows.map(c=>{const suspended=c.account_status==="suspended";return `<tr><td>${escapeHTML(c.email||"No email")}</td><td class="green">${money(c.wallet_balance)}</td><td>${date(c.created_at)}</td><td>${date(c.last_sign_in_at)}</td><td><span class="status ${suspended?"suspended":"active"}">${suspended?"Suspended":"Active"}</span></td><td><button class="btn" data-view-customer="${escapeHTML(c.id)}">View account</button></td></tr>`;}).join("")||'<tr><td colspan="6" class="empty">No matching customers found on this page.</td></tr>';
- document.querySelectorAll("[data-view-customer]").forEach(b=>b.addEventListener("click",()=>openCustomerDetail(b.dataset.viewCustomer)));
+
+ const rows=customersCache.filter(c=>
+  String(c.email||"").toLowerCase().includes(s)||
+  String(c.id||"").toLowerCase().includes(s)
+ );
+
+ $("customersBody").innerHTML=rows.map(c=>{
+  const suspended=c.account_status==="suspended";
+
+  return `<tr>
+   <td>${escapeHTML(c.email||"No email")}</td>
+   <td class="green">${money(c.wallet_balance)}</td>
+   <td>${date(c.created_at)}</td>
+   <td>${date(c.last_sign_in_at)}</td>
+   <td><span class="status ${suspended?"suspended":"active"}">${suspended?"Suspended":"Active"}</span></td>
+   <td><button class="btn" data-view-customer="${escapeHTML(c.id)}">View account</button></td>
+  </tr>`;
+ }).join("")||'<tr><td colspan="6" class="empty">No matching customers found on this page.</td></tr>';
+
+ document.querySelectorAll("[data-view-customer]").forEach(b=>{
+  b.addEventListener("click",()=>openCustomerDetail(b.dataset.viewCustomer));
+ });
 }
+
 async function loadCustomers(){
  $("customersBody").innerHTML='<tr><td colspan="6" class="loading">Loading customers...</td></tr>';
- const r=await adminRequest("customers",{page:customerPage,perPage:50});customersCache=r.customers||[];renderCustomers();
- $("customersPage").textContent="Page "+customerPage;$("customersPrev").disabled=customerPage<=1;$("customersNext").disabled=customersCache.length<50;
+
+ const r=await adminRequest("customers",{page:customerPage,perPage:50});
+
+ customersCache=r.customers||[];
+ renderCustomers();
+
+ $("customersPage").textContent="Page "+customerPage;
+ $("customersPrev").disabled=customerPage<=1;
+ $("customersNext").disabled=customersCache.length<50;
 }
+
+/* FIXED TRANSACTION RENDERING: desktop table + mobile cards */
 function renderTransactions(){
- $("transactionsBody").innerHTML=transactionsCache.map(t=>{const s=String(t.status||"unknown").toLowerCase(),cls=["successful","failed","pending"].includes(s)?s:"other";return `<tr class="clickable-row" data-view-transaction="${escapeHTML(t.id)}" title="Open transaction details"><td>${date(t.created_at)}</td><td>${escapeHTML(t.type||"—")}</td><td>${money(t.amount)}</td><td><span class="status ${cls}">${escapeHTML(s)}</span></td><td>${escapeHTML(t.reference||"—")}</td><td>${escapeHTML(t.user_id||"—")}</td><td><button class="btn" type="button">View details</button></td></tr>`;}).join("")||'<tr><td colspan="7" class="empty">No transactions match your search and filter.</td></tr>';
- document.querySelectorAll("[data-view-transaction]").forEach(el=>el.addEventListener("click",()=>openTransactionDetail(el.dataset.viewTransaction)));
+
+ const rows=transactionsCache.map(t=>{
+  const s=String(t.status||"unknown").toLowerCase();
+  const cls=["successful","failed","pending"].includes(s)?s:"other";
+
+  const id=escapeHTML(t.id);
+  const ref=escapeHTML(t.reference||"—");
+  const type=escapeHTML(t.type||"—");
+  const amount=money(t.amount);
+  const created=date(t.created_at);
+  const customer=escapeHTML(t.user_id||"—");
+
+  return {
+   table:`<tr class="clickable-row" data-view-transaction="${id}" title="Open transaction details">
+    <td>${created}</td>
+    <td>${type}</td>
+    <td>${amount}</td>
+    <td><span class="status ${cls}">${escapeHTML(s)}</span></td>
+    <td>${ref}</td>
+    <td>${customer}</td>
+    <td><button class="btn" type="button" data-open-transaction="${id}">View details</button></td>
+   </tr>`,
+
+   mobile:`<article class="mobile-transaction-card">
+    <div class="mobile-transaction-top">
+     <strong>${type}</strong>
+     <span class="status ${cls}">${escapeHTML(s)}</span>
+    </div>
+
+    <div class="mobile-transaction-info">
+     <div>
+      <strong>AMOUNT</strong>
+      <span>${amount}</span>
+     </div>
+     <div>
+      <strong>DATE</strong>
+      <span>${created}</span>
+     </div>
+     <div>
+      <strong>REFERENCE</strong>
+      <span>${ref}</span>
+     </div>
+     <div>
+      <strong>CUSTOMER ID</strong>
+      <span>${customer}</span>
+     </div>
+    </div>
+
+    <button class="btn view-transaction-button"
+     type="button"
+     data-open-transaction="${id}">
+     View transaction details
+    </button>
+   </article>`
+  };
+ });
+
+ $("transactionsBody").innerHTML=
+  rows.map(r=>r.table).join("")||
+  '<tr><td colspan="7" class="empty">No transactions match your search and filter.</td></tr>';
+
+ $("mobileTransactionsList").innerHTML=
+  rows.map(r=>r.mobile).join("")||
+  '<div class="empty">No transactions match your search and filter.</div>';
+
+ // Desktop: clicking the transaction row opens details.
+ $("transactionsBody").querySelectorAll("[data-view-transaction]").forEach(el=>{
+  el.addEventListener("click",e=>{
+   if(e.target.closest("[data-open-transaction]"))return;
+   openTransactionDetail(el.dataset.viewTransaction);
+  });
+ });
+
+ // Desktop: the View details button opens the details modal.
+ $("transactionsBody").querySelectorAll("[data-open-transaction]").forEach(btn=>{
+  btn.addEventListener("click",e=>{
+   e.stopPropagation();
+   openTransactionDetail(btn.dataset.openTransaction);
+  });
+ });
+
+ // Mobile: the visible button opens the details modal.
+ $("mobileTransactionsList").querySelectorAll("[data-open-transaction]").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+   openTransactionDetail(btn.dataset.openTransaction);
+  });
+ });
 }
+
 async function loadTransactions(){
  $("transactionsBody").innerHTML='<tr><td colspan="7" class="loading">Loading transactions...</td></tr>';
- const r=await adminRequest("transactions",{page:transactionPage,perPage:50,search:$("transactionSearch").value.trim(),status:$("transactionStatusFilter").value});
- transactionsCache=r.transactions||[];transactionTotal=Number(r.total||0);renderTransactions();
+ $("mobileTransactionsList").innerHTML='<div class="loading">Loading transactions...</div>';
+
+ const r=await adminRequest("transactions",{
+  page:transactionPage,
+  perPage:50,
+  search:$("transactionSearch").value.trim(),
+  status:$("transactionStatusFilter").value
+ });
+
+ transactionsCache=r.transactions||[];
+ transactionTotal=Number(r.total||0);
+
+ renderTransactions();
+
  $("transactionsPage").textContent=`Page ${transactionPage} · ${transactionTotal.toLocaleString("en-NG")} total`;
- $("transactionsPrev").disabled=transactionPage<=1;$("transactionsNext").disabled=transactionPage*50>=transactionTotal;
+ $("transactionsPrev").disabled=transactionPage<=1;
+ $("transactionsNext").disabled=transactionPage*50>=transactionTotal;
 }
+
 async function openTransactionDetail(id){
- $("transactionModal").classList.remove("hidden");$("transactionDetailContent").innerHTML='<div class="loading">Loading transaction details...</div>';
+ $("transactionModal").classList.remove("hidden");
+ $("transactionDetailContent").innerHTML='<div class="loading">Loading transaction details...</div>';
+
  try{
-  const r=await adminRequest("transaction_detail",{transactionId:id}),t=r.transaction||{},s=String(t.status||"unknown").toLowerCase(),cls=["successful","failed","pending"].includes(s)?s:"other";
-  let response=t.provider_response;if(response===null||response===undefined||response==="")response="No provider response was stored for this transaction.";else if(typeof response==="object")response=JSON.stringify(response,null,2);else response=String(response);
-  $("transactionDetailContent").innerHTML=`<div class="detail-grid">
-  <div class="detail-item"><strong>TRANSACTION STATUS</strong><span class="status ${cls}">${escapeHTML(s)}</span></div><div class="detail-item"><strong>AMOUNT</strong><span class="green">${money(t.amount)}</span></div>
-  <div class="detail-item"><strong>CUSTOMER EMAIL</strong><span>${escapeHTML(t.customer_email||"Not available")}</span></div><div class="detail-item"><strong>CUSTOMER PHONE</strong><span>${escapeHTML(t.customer_phone||"Not provided")}</span></div>
-  <div class="detail-item"><strong>CUSTOMER ID</strong><span>${escapeHTML(t.user_id||"—")}</span></div><div class="detail-item"><strong>CUSTOMER ACCOUNT STATUS</strong><span>${escapeHTML(t.customer_account_status||"unknown")}</span></div>
-  <div class="detail-item"><strong>CUSTOMER WALLET BALANCE</strong><span>${money(t.customer_wallet_balance)}</span></div><div class="detail-item"><strong>SERVICE / TYPE</strong><span>${escapeHTML(t.type||"—")}</span></div>
-  <div class="detail-item"><strong>TRANSACTION REFERENCE</strong><span>${escapeHTML(t.reference||"—")}</span></div><div class="detail-item"><strong>PROVIDER</strong><span>${escapeHTML(t.provider||"—")}</span></div>
-  <div class="detail-item"><strong>PROVIDER REFERENCE</strong><span>${escapeHTML(t.provider_reference||"—")}</span></div><div class="detail-item"><strong>PROVIDER STATUS</strong><span>${escapeHTML(t.provider_status||"—")}</span></div>
-  <div class="detail-item"><strong>TRANSACTION DATE</strong><span>${date(t.created_at)}</span></div><div class="detail-item"><strong>TRANSACTION ID</strong><span>${escapeHTML(t.id||"—")}</span></div></div>
-  <div class="detail-item" style="margin-bottom:12px"><strong>DESCRIPTION</strong><span>${escapeHTML(t.description||"No description stored.")}</span></div>
-  <div class="detail-item"><strong>PROVIDER RESPONSE</strong><pre class="provider-response">${escapeHTML(response)}</pre></div>`;
- }catch(e){$("transactionDetailContent").innerHTML=`<p class="red">${escapeHTML(e.message)}</p>`;}
+  const r=await adminRequest("transaction_detail",{transactionId:id});
+  const t=r.transaction||{};
+  const s=String(t.status||"unknown").toLowerCase();
+  const cls=["successful","failed","pending"].includes(s)?s:"other";
+
+  let response=t.provider_response;
+
+  if(response===null||response===undefined||response===""){
+   response="No provider response was stored for this transaction.";
+  }else if(typeof response==="object"){
+   response=JSON.stringify(response,null,2);
+  }else{
+   response=String(response);
+  }
+
+  $("transactionDetailContent").innerHTML=`
+   <div class="detail-grid">
+    <div class="detail-item"><strong>TRANSACTION STATUS</strong><span class="status ${cls}">${escapeHTML(s)}</span></div>
+    <div class="detail-item"><strong>AMOUNT</strong><span class="green">${money(t.amount)}</span></div>
+    <div class="detail-item"><strong>CUSTOMER EMAIL</strong><span>${escapeHTML(t.customer_email||"Not available")}</span></div>
+    <div class="detail-item"><strong>CUSTOMER PHONE</strong><span>${escapeHTML(t.customer_phone||"Not provided")}</span></div>
+    <div class="detail-item"><strong>CUSTOMER ID</strong><span>${escapeHTML(t.user_id||"—")}</span></div>
+    <div class="detail-item"><strong>CUSTOMER ACCOUNT STATUS</strong><span>${escapeHTML(t.customer_account_status||"unknown")}</span></div>
+    <div class="detail-item"><strong>CUSTOMER WALLET BALANCE</strong><span>${money(t.customer_wallet_balance)}</span></div>
+    <div class="detail-item"><strong>SERVICE / TYPE</strong><span>${escapeHTML(t.type||"—")}</span></div>
+    <div class="detail-item"><strong>TRANSACTION REFERENCE</strong><span>${escapeHTML(t.reference||"—")}</span></div>
+    <div class="detail-item"><strong>PROVIDER</strong><span>${escapeHTML(t.provider||"—")}</span></div>
+    <div class="detail-item"><strong>PROVIDER REFERENCE</strong><span>${escapeHTML(t.provider_reference||"—")}</span></div>
+    <div class="detail-item"><strong>PROVIDER STATUS</strong><span>${escapeHTML(t.provider_status||"—")}</span></div>
+    <div class="detail-item"><strong>TRANSACTION DATE</strong><span>${date(t.created_at)}</span></div>
+    <div class="detail-item"><strong>TRANSACTION ID</strong><span>${escapeHTML(t.id||"—")}</span></div>
+   </div>
+
+   <div class="detail-item" style="margin-bottom:12px">
+    <strong>DESCRIPTION</strong>
+    <span>${escapeHTML(t.description||"No description stored.")}</span>
+   </div>
+
+   <div class="detail-item">
+    <strong>PROVIDER RESPONSE</strong>
+    <pre class="provider-response">${escapeHTML(response)}</pre>
+   </div>`;
+ }catch(e){
+  $("transactionDetailContent").innerHTML=`<p class="red">${escapeHTML(e.message)}</p>`;
+ }
 }
-const pricingFields=["wallet_funding_fee_percent","airtime_fee","airtime_discount","data_above_1_5gb_fee","dstv_fee","dstv_above_1000000_fee","gotv_fee","startimes_above_1000_fee","electricity_fee","exam_pin_fee"];
+
+const pricingFields=[
+ "wallet_funding_fee_percent",
+ "airtime_fee",
+ "airtime_discount",
+ "data_above_1_5gb_fee",
+ "dstv_fee",
+ "dstv_above_1000000_fee",
+ "gotv_fee",
+ "startimes_above_1000_fee",
+ "electricity_fee",
+ "exam_pin_fee"
+];
+
 async function loadPricing(){
- $("pricingSaveStatus").textContent="Loading current pricing...";const r=await adminRequest("get_pricing"),s=r.settings||{};
- pricingFields.forEach(k=>{const f=$("price_"+k);if(f)f.value=Number(s[k]??0);});
- $("pricingUpdated").textContent="Last updated: "+date(r.updated_at)+(r.updated_by?" · Admin ID: "+r.updated_by:"");$("pricingSaveStatus").textContent="Pricing loaded.";
+ $("pricingSaveStatus").textContent="Loading current pricing...";
+
+ const r=await adminRequest("get_pricing");
+ const s=r.settings||{};
+
+ pricingFields.forEach(k=>{
+  const f=$("price_"+k);
+  if(f)f.value=Number(s[k]??0);
+ });
+
+ $("pricingUpdated").textContent="Last updated: "+date(r.updated_at)+(r.updated_by?" · Admin ID: "+r.updated_by:"");
+ $("pricingSaveStatus").textContent="Pricing loaded.";
 }
+
 async function savePricing(){
- const b=$("savePricingButton"),out=$("pricingSaveStatus"),reason=$("pricingReason").value.trim();
- if(reason.length<5||reason.length>500){out.textContent="Enter a reason between 5 and 500 characters.";return;}
- const settings={};for(const k of pricingFields){const raw=$("price_"+k).value;if(raw.trim()===""){out.textContent="Complete every pricing field before saving.";return;}const v=Number(raw);if(!Number.isFinite(v)||v<0){out.textContent="Pricing values must be valid non-negative numbers.";return;}settings[k]=v;}
+ const b=$("savePricingButton");
+ const out=$("pricingSaveStatus");
+ const reason=$("pricingReason").value.trim();
+
+ if(reason.length<5||reason.length>500){
+  out.textContent="Enter a reason between 5 and 500 characters.";
+  return;
+ }
+
+ const settings={};
+
+ for(const k of pricingFields){
+  const raw=$("price_"+k).value;
+
+  if(raw.trim()===""){
+   out.textContent="Complete every pricing field before saving.";
+   return;
+  }
+
+  const v=Number(raw);
+
+  if(!Number.isFinite(v)||v<0){
+   out.textContent="Pricing values must be valid non-negative numbers.";
+   return;
+  }
+
+  settings[k]=v;
+ }
+
  if(!confirm("Save these pricing settings? New eligible purchases will use the updated settings."))return;
- b.disabled=true;b.textContent="Saving...";out.textContent="Saving and recording the change...";
- try{const r=await adminRequest("save_pricing",{settings,reason});$("pricingReason").value="";$("pricingUpdated").textContent="Last updated: "+date(r.updated_at);out.textContent=r.message||"Pricing settings saved.";showMessage("Pricing settings saved and audit record created.",false);}
- catch(e){out.textContent=e.message;showMessage(e.message);}finally{b.disabled=false;b.textContent="Save pricing settings";}
+
+ b.disabled=true;
+ b.textContent="Saving...";
+ out.textContent="Saving and recording the change...";
+
+ try{
+  const r=await adminRequest("save_pricing",{settings,reason});
+  $("pricingReason").value="";
+  $("pricingUpdated").textContent="Last updated: "+date(r.updated_at);
+  out.textContent=r.message||"Pricing settings saved.";
+  showMessage("Pricing settings saved and audit record created.",false);
+ }catch(e){
+  out.textContent=e.message;
+  showMessage(e.message);
+ }finally{
+  b.disabled=false;
+  b.textContent="Save pricing settings";
+ }
 }
+
 async function loadAuditLogs(){
  $("auditBody").innerHTML='<tr><td colspan="5" class="loading">Loading audit records...</td></tr>';
- const r=await adminRequest("audit_logs",{page:auditPage,perPage:50}),logs=r.audit_logs||[];auditTotal=Number(r.total||0);
- $("auditBody").innerHTML=logs.map(l=>{const o=l.details?.outcome||"recorded",cls=o==="success"?"successful":o==="failed"?"failed":"pending";return `<tr><td>${date(l.created_at)}</td><td>${escapeHTML(l.action)}</td><td>${escapeHTML(l.target_user_id||"—")}</td><td style="white-space:normal;min-width:180px">${escapeHTML(l.reason||"—")}</td><td><span class="status ${cls}">${escapeHTML(o)}</span></td></tr>`;}).join("")||'<tr><td colspan="5" class="empty">No administrative actions recorded yet.</td></tr>';
- $("auditPage").textContent=`Page ${auditPage} · ${auditTotal.toLocaleString("en-NG")} total`;$("auditPrev").disabled=auditPage<=1;$("auditNext").disabled=auditPage*50>=auditTotal;
+
+ const r=await adminRequest("audit_logs",{page:auditPage,perPage:50});
+ const logs=r.audit_logs||[];
+
+ auditTotal=Number(r.total||0);
+
+ $("auditBody").innerHTML=logs.map(l=>{
+  const o=l.details?.outcome||"recorded";
+  const cls=o==="success"?"successful":o==="failed"?"failed":"pending";
+
+  return `<tr>
+   <td>${date(l.created_at)}</td>
+   <td>${escapeHTML(l.action)}</td>
+   <td>${escapeHTML(l.target_user_id||"—")}</td>
+   <td style="white-space:normal;min-width:180px">${escapeHTML(l.reason||"—")}</td>
+   <td><span class="status ${cls}">${escapeHTML(o)}</span></td>
+  </tr>`;
+ }).join("")||'<tr><td colspan="5" class="empty">No administrative actions recorded yet.</td></tr>';
+
+ $("auditPage").textContent=`Page ${auditPage} · ${auditTotal.toLocaleString("en-NG")} total`;
+ $("auditPrev").disabled=auditPage<=1;
+ $("auditNext").disabled=auditPage*50>=auditTotal;
 }
+
 async function loadCurrentTab(){
- showMessage("");$("refreshButton").disabled=true;
- try{if(activeTab==="overview")await loadOverview();if(activeTab==="customers")await loadCustomers();if(activeTab==="transactions")await loadTransactions();if(activeTab==="audit")await loadAuditLogs();if(activeTab==="pricing")await loadPricing();}
- catch(e){showMessage(e.message);}finally{$("refreshButton").disabled=false;}
-}
-async function openCustomerDetail(id){
- $("customerModal").classList.remove("hidden");$("customerDetailContent").innerHTML='<div class="loading">Loading customer account...</div>';
+ showMessage("");
+ $("refreshButton").disabled=true;
+
  try{
-  const r=await adminRequest("customer_detail",{userId:id}),c=r.customer,tx=r.transactions||[],suspended=c.account_status==="suspended";
-  $("customerDetailContent").innerHTML=`<div class="detail-grid">
-  <div class="detail-item"><strong>EMAIL ADDRESS</strong><span>${escapeHTML(c.email||"—")}</span></div><div class="detail-item"><strong>CUSTOMER ID</strong><span>${escapeHTML(c.id)}</span></div>
-  <div class="detail-item"><strong>WALLET BALANCE</strong><span class="green">${money(c.wallet_balance)}</span></div><div class="detail-item"><strong>ACCOUNT STATUS</strong><span class="status ${suspended?"suspended":"active"}">${suspended?"Suspended":"Active"}</span></div>
-  <div class="detail-item"><strong>REGISTRATION DATE</strong><span>${date(c.created_at)}</span></div><div class="detail-item"><strong>LAST SIGN-IN</strong><span>${date(c.last_sign_in_at)}</span></div>
-  <div class="detail-item"><strong>EMAIL CONFIRMED</strong><span>${c.email_confirmed_at?"Yes":"No"}</span></div><div class="detail-item"><strong>PHONE</strong><span>${escapeHTML(c.phone||"Not provided")}</span></div></div>
-  <div class="panel-head"><div><h2>Account access</h2><p class="panel-desc">Changes require a reason and are recorded.</p></div><button class="btn ${suspended?"btn-primary":"btn-danger"}" id="toggleCustomerAccess">${suspended?"Reactivate account":"Suspend account"}</button></div>
-  <h2 style="margin:22px 0 10px">Recent transactions</h2><div class="table-wrap"><table style="min-width:550px"><thead><tr><th>DATE</th><th>SERVICE</th><th>AMOUNT</th><th>STATUS</th><th>REFERENCE</th></tr></thead><tbody>${tx.map(t=>`<tr><td>${date(t.created_at)}</td><td>${escapeHTML(t.type||"—")}</td><td>${money(t.amount)}</td><td>${escapeHTML(t.status||"—")}</td><td>${escapeHTML(t.reference||"—")}</td></tr>`).join("")||'<tr><td colspan="5" class="empty">No transactions found.</td></tr>'}</tbody></table></div><p class="panel-desc">Showing up to 50 recent transactions for this customer.</p>`;
-  $("toggleCustomerAccess").addEventListener("click",async()=>{
-   const next=suspended?"active":"suspended",reason=prompt("Enter the reason for "+next+" this account (10–500 characters):");if(reason===null)return;if(reason.trim().length<10||reason.trim().length>500){alert("Please enter a reason between 10 and 500 characters.");return;}if(!confirm("Confirm "+next+" for "+(c.email||c.id)+"?"))return;
-   const b=$("toggleCustomerAccess");b.disabled=true;try{await adminRequest("set_customer_access",{userId:c.id,status:next,reason:reason.trim()});alert("Customer account "+next+" successfully.");$("customerModal").classList.add("hidden");await loadCustomers();}catch(e){alert(e.message);b.disabled=false;}
-  });
- }catch(e){$("customerDetailContent").innerHTML=`<p class="red">${escapeHTML(e.message)}</p>`;}
+  if(activeTab==="overview")await loadOverview();
+  if(activeTab==="customers")await loadCustomers();
+  if(activeTab==="transactions")await loadTransactions();
+  if(activeTab==="audit")await loadAuditLogs();
+  if(activeTab==="pricing")await loadPricing();
+ }catch(e){
+  showMessage(e.message);
+ }finally{
+  $("refreshButton").disabled=false;
+ }
 }
-function showDashboard(){$("loginPanel").classList.add("hidden");$("dashboard").classList.remove("hidden");showTab("overview");}
-function showLogin(){$("dashboard").classList.add("hidden");$("customerModal").classList.add("hidden");$("transactionModal").classList.add("hidden");$("loginPanel").classList.remove("hidden");}
-$("loginForm").addEventListener("submit",async e=>{e.preventDefault();$("loginButton").disabled=true;$("loginButton").textContent="Verifying access...";$("loginMessage").textContent="";try{const {error}=await client.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});if(error)throw error;showDashboard();}catch(e){$("loginMessage").textContent=e.message;}finally{$("loginButton").disabled=false;$("loginButton").textContent="Sign in securely";}});
-$("logoutButton").addEventListener("click",async()=>{const {error}=await client.auth.signOut();if(error)showMessage(error.message);else showLogin();});
-document.querySelectorAll(".nav-btn[data-tab]").forEach(b=>b.addEventListener("click",()=>showTab(b.dataset.tab)));
-$("refreshButton").addEventListener("click",loadCurrentTab);$("reloadPricingButton").addEventListener("click",loadPricing);$("savePricingButton").addEventListener("click",savePricing);
-$("closeCustomerModal").addEventListener("click",()=>$("customerModal").classList.add("hidden"));$("closeTransactionModal").addEventListener("click",()=>$("transactionModal").classList.add("hidden"));
-$("customerModal").addEventListener("click",e=>{if(e.target===$("customerModal"))$("customerModal").classList.add("hidden");});
-$("transactionModal").addEventListener("click",e=>{if(e.target===$("transactionModal"))$("transactionModal").classList.add("hidden");});
-$("customersPrev").addEventListener("click",()=>{if(customerPage>1){customerPage--;loadCustomers();}});$("customersNext").addEventListener("click",()=>{customerPage++;loadCustomers();});
-$("transactionsPrev").addEventListener("click",()=>{if(transactionPage>1){transactionPage--;loadTransactions();}});$("transactionsNext").addEventListener("click",()=>{if(transactionPage*50<transactionTotal){transactionPage++;loadTransactions();}});
-$("auditPrev").addEventListener("click",()=>{if(auditPage>1){auditPage--;loadAuditLogs();}});$("auditNext").addEventListener("click",()=>{if(auditPage*50<auditTotal){auditPage++;loadAuditLogs();}});
+
+async function openCustomerDetail(id){
+ $("customerModal").classList.remove("hidden");
+ $("customerDetailContent").innerHTML='<div class="loading">Loading customer account...</div>';
+
+ try{
+  const r=await adminRequest("customer_detail",{userId:id});
+  const c=r.customer;
+  const tx=r.transactions||[];
+  const suspended=c.account_status==="suspended";
+
+  $("customerDetailContent").innerHTML=`
+   <div class="detail-grid">
+    <div class="detail-item"><strong>EMAIL ADDRESS</strong><span>${escapeHTML(c.email||"—")}</span></div>
+    <div class="detail-item"><strong>CUSTOMER ID</strong><span>${escapeHTML(c.id)}</span></div>
+    <div class="detail-item"><strong>WALLET BALANCE</strong><span class="green">${money(c.wallet_balance)}</span></div>
+    <div class="detail-item"><strong>ACCOUNT STATUS</strong><span class="status ${suspended?"suspended":"active"}">${suspended?"Suspended":"Active"}</span></div>
+    <div class="detail-item"><strong>REGISTRATION DATE</strong><span>${date(c.created_at)}</span></div>
+    <div class="detail-item"><strong>LAST SIGN-IN</strong><span>${date(c.last_sign_in_at)}</span></div>
+    <div class="detail-item"><strong>EMAIL CONFIRMED</strong><span>${c.email_confirmed_at?"Yes":"No"}</span></div>
+    <div class="detail-item"><strong>PHONE</strong><span>${escapeHTML(c.phone||"Not provided")}</span></div>
+   </div>
+
+   <div class="panel-head">
+    <div><h2>Account access</h2><p class="panel-desc">Changes require a reason and are recorded.</p></div>
+    <button class="btn ${suspended?"btn-primary":"btn-danger"}" id="toggleCustomerAccess">${suspended?"Reactivate account":"Suspend account"}</button>
+   </div>
+
+   <h2 style="margin:22px 0 10px">Recent transactions</h2>
+   <div class="table-wrap">
+    <table style="min-width:550px">
+     <thead><tr><th>DATE</th><th>SERVICE</th><th>AMOUNT</th><th>STATUS</th><th>REFERENCE</th></tr></thead>
+     <tbody>
+      ${tx.map(t=>`<tr>
+       <td>${date(t.created_at)}</td>
+       <td>${escapeHTML(t.type||"—")}</td>
+       <td>${money(t.amount)}</td>
+       <td>${escapeHTML(t.status||"—")}</td>
+       <td>${escapeHTML(t.reference||"—")}</td>
+      </tr>`).join("")||'<tr><td colspan="5" class="empty">No transactions found.</td></tr>'}
+     </tbody>
+    </table>
+   </div>
+   <p class="panel-desc">Showing up to 50 recent transactions for this customer.</p>`;
+
+  $("toggleCustomerAccess").addEventListener("click",async()=>{
+   const next=suspended?"active":"suspended";
+   const reason=prompt("Enter the reason for "+next+" this account (10–500 characters):");
+
+   if(reason===null)return;
+
+   if(reason.trim().length<10||reason.trim().length>500){
+    alert("Please enter a reason between 10 and 500 characters.");
+    return;
+   }
+
+   if(!confirm("Confirm "+next+" for "+(c.email||c.id)+"?"))return;
+
+   const b=$("toggleCustomerAccess");
+   b.disabled=true;
+
+   try{
+    await adminRequest("set_customer_access",{
+     userId:c.id,
+     status:next,
+     reason:reason.trim()
+    });
+
+    alert("Customer account "+next+" successfully.");
+    $("customerModal").classList.add("hidden");
+    await loadCustomers();
+   }catch(e){
+    alert(e.message);
+    b.disabled=false;
+   }
+  });
+
+ }catch(e){
+  $("customerDetailContent").innerHTML=`<p class="red">${escapeHTML(e.message)}</p>`;
+ }
+}
+
+function showDashboard(){
+ $("loginPanel").classList.add("hidden");
+ $("dashboard").classList.remove("hidden");
+ showTab("overview");
+}
+
+function showLogin(){
+ $("dashboard").classList.add("hidden");
+ $("customerModal").classList.add("hidden");
+ $("transactionModal").classList.add("hidden");
+ $("loginPanel").classList.remove("hidden");
+}
+
+$("loginForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+
+ $("loginButton").disabled=true;
+ $("loginButton").textContent="Verifying access...";
+ $("loginMessage").textContent="";
+
+ try{
+  const {error}=await client.auth.signInWithPassword({
+   email:$("email").value.trim(),
+   password:$("password").value
+  });
+
+  if(error)throw error;
+
+  showDashboard();
+ }catch(e){
+  $("loginMessage").textContent=e.message;
+ }finally{
+  $("loginButton").disabled=false;
+  $("loginButton").textContent="Sign in securely";
+ }
+});
+
+$("logoutButton").addEventListener("click",async()=>{
+ const {error}=await client.auth.signOut();
+ if(error)showMessage(error.message);
+ else showLogin();
+});
+
+document.querySelectorAll(".nav-btn[data-tab]").forEach(b=>{
+ b.addEventListener("click",()=>showTab(b.dataset.tab));
+});
+
+$("refreshButton").addEventListener("click",loadCurrentTab);
+$("reloadPricingButton").addEventListener("click",loadPricing);
+$("savePricingButton").addEventListener("click",savePricing);
+
+$("closeCustomerModal").addEventListener("click",()=>{
+ $("customerModal").classList.add("hidden");
+});
+
+$("closeTransactionModal").addEventListener("click",()=>{
+ $("transactionModal").classList.add("hidden");
+});
+
+$("customerModal").addEventListener("click",e=>{
+ if(e.target===$("customerModal"))$("customerModal").classList.add("hidden");
+});
+
+$("transactionModal").addEventListener("click",e=>{
+ if(e.target===$("transactionModal"))$("transactionModal").classList.add("hidden");
+});
+
+$("customersPrev").addEventListener("click",()=>{
+ if(customerPage>1){
+  customerPage--;
+  loadCustomers();
+ }
+});
+
+$("customersNext").addEventListener("click",()=>{
+ customerPage++;
+ loadCustomers();
+});
+
+$("transactionsPrev").addEventListener("click",()=>{
+ if(transactionPage>1){
+  transactionPage--;
+  loadTransactions();
+ }
+});
+
+$("transactionsNext").addEventListener("click",()=>{
+ if(transactionPage*50<transactionTotal){
+  transactionPage++;
+  loadTransactions();
+ }
+});
+
+$("auditPrev").addEventListener("click",()=>{
+ if(auditPage>1){
+  auditPage--;
+  loadAuditLogs();
+ }
+});
+
+$("auditNext").addEventListener("click",()=>{
+ if(auditPage*50<auditTotal){
+  auditPage++;
+  loadAuditLogs();
+ }
+});
+
 $("customerSearch").addEventListener("input",renderCustomers);
-$("transactionSearch").addEventListener("input",()=>{clearTimeout(transactionSearchTimer);transactionSearchTimer=setTimeout(()=>{transactionPage=1;loadTransactions().catch(e=>showMessage(e.message));},350);});
-$("transactionStatusFilter").addEventListener("change",()=>{transactionPage=1;loadTransactions().catch(e=>showMessage(e.message));});
-async function initialise(){const {data:{session}}=await client.auth.getSession();if(session)showDashboard();else showLogin();client.auth.onAuthStateChange((_event,session)=>{if(!session)showLogin();});}
+
+$("transactionSearch").addEventListener("input",()=>{
+ clearTimeout(transactionSearchTimer);
+
+ transactionSearchTimer=setTimeout(()=>{
+  transactionPage=1;
+  loadTransactions().catch(e=>showMessage(e.message));
+ },350);
+});
+
+$("transactionStatusFilter").addEventListener("change",()=>{
+ transactionPage=1;
+ loadTransactions().catch(e=>showMessage(e.message));
+});
+
+async function initialise(){
+ const {data:{session}}=await client.auth.getSession();
+
+ if(session)showDashboard();
+ else showLogin();
+
+ client.auth.onAuthStateChange((_event,session)=>{
+  if(!session)showLogin();
+ });
+}
+
 initialise();
 </script>
 </body>
