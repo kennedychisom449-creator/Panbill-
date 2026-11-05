@@ -23,7 +23,7 @@
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
-button,input{font:inherit}
+button,input,textarea{font:inherit}
 button{cursor:pointer}
 .hidden{display:none!important}
 .layout{min-height:100vh;display:flex}
@@ -112,6 +112,14 @@ tbody tr:hover{background:#192b43}
 .detail-item strong{display:block;font-size:10px;color:var(--muted);margin-bottom:7px}
 .detail-item span{font-size:12px;overflow-wrap:anywhere}
 .reason-input{width:100%;padding:12px;border-radius:9px;background:#0c192b;border:1px solid var(--border);color:white;margin:10px 0}
+.pricing-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.pricing-field{background:var(--panel2);border:1px solid var(--border);border-radius:11px;padding:14px;min-width:0}
+.pricing-field label{display:block;color:#c2cfdd;font-size:11px;font-weight:700;margin-bottom:8px}
+.pricing-field input{width:100%;padding:12px;border-radius:8px;background:#0c192b;border:1px solid var(--border);color:white;outline:none}
+.pricing-field input:focus{border-color:var(--green)}
+.pricing-help{font-size:10px;color:var(--muted);line-height:1.5;margin-top:7px}
+.pricing-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:16px}
+.pricing-note{background:#183b3b;border:1px solid #245747;color:#b8f2dc;padding:13px;border-radius:10px;font-size:11px;line-height:1.6;margin-bottom:16px}
 @media(max-width:1050px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){
 .layout{display:block}
@@ -139,6 +147,7 @@ tbody tr:hover{background:#192b43}
 .detail-grid{grid-template-columns:1fr}
 .modal{padding:8px}
 .modal-card{padding:15px;margin:8px auto}
+.pricing-grid{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -176,6 +185,7 @@ tbody tr:hover{background:#192b43}
       <button class="nav-btn active" data-tab="overview"><span class="nav-icon">▦</span> Overview</button>
       <button class="nav-btn" data-tab="customers"><span class="nav-icon">♙</span> Customers</button>
       <button class="nav-btn" data-tab="transactions"><span class="nav-icon">⇄</span> Transactions</button>
+      <button class="nav-btn" data-tab="pricing"><span class="nav-icon">₦</span> VTU Pricing</button>
       <button class="nav-btn" data-tab="audit"><span class="nav-icon">⌑</span> Audit log</button>
     </nav>
     <div class="sidebar-bottom">
@@ -248,6 +258,93 @@ tbody tr:hover{background:#192b43}
             <tbody id="transactionsBody"><tr><td colspan="6" class="loading">Loading transactions...</td></tr></tbody>
           </table></div>
           <div class="pagination"><button class="btn" id="transactionsPrev">Previous</button><span id="transactionsPage">Page 1</span><button class="btn" id="transactionsNext">Next</button></div>
+        </div>
+      </section>
+
+      <section id="pricingTab" class="section">
+        <div class="panel">
+          <div class="panel-head">
+            <div><h2>VTU service pricing</h2><div class="panel-desc">Configure service fees and wallet funding charges.</div></div>
+            <button class="btn" id="reloadPricingButton" type="button">↻ Reload prices</button>
+          </div>
+
+          <div class="pricing-note">
+            Changes saved here are configuration only until the <strong>super-responder</strong> function is connected to this pricing table. Once connected, new purchases will use these settings. Existing transactions will retain their original amounts.
+          </div>
+
+          <div id="pricingUpdated" class="panel-desc" style="margin-bottom:15px">Last updated: —</div>
+
+          <div class="pricing-grid">
+            <div class="pricing-field">
+              <label for="price_wallet_funding_fee_percent">Wallet funding fee (%)</label>
+              <input id="price_wallet_funding_fee_percent" type="number" min="0" max="10" step="0.01">
+              <div class="pricing-help">Percentage charged on the amount a customer adds. Current default: 0.5%.</div>
+            </div>
+
+            <div class="pricing-field">
+              <label for="price_airtime_fee">Airtime extra fee (₦)</label>
+              <input id="price_airtime_fee" type="number" min="0" max="10000" step="0.01">
+              <div class="pricing-help">Additional charge on airtime purchases. Current default: ₦0.</div>
+            </div>
+
+            <div class="pricing-field">
+              <label for="price_airtime_discount">Airtime discount (₦)</label>
+              <input id="price_airtime_discount" type="number" min="0" max="10000" step="0.01">
+              <div class="pricing-help">Discount from airtime face value. Current default: ₦0.</div>
+            </div>
+
+            <div class="pricing-field">
+              <label for="price_data_above_1_5gb_fee">Data fee above 1.5GB (₦)</label>
+              <input id="price_data_above_1_5gb_fee" type="number" min="0" max="10000" step="0.01">
+              <div class="pricing-help">Applies to qualifying data packages across all networks. Current default: ₦20.</div>
+            </div>
+
+            <div class="pricing-field">
+              <label for="price_dstv_fee">DStv fee up to ₦1,000,000 (₦)</label>
+              <input id="price_dstv_fee" type="number" min="0" max="10000" step="0.01">
+              <div class="pricing-help">Standard DStv subscription fee. Current default: ₦50.</div>
+            </div>
+
+            <div class="pricing-field">
+              <label for="price_dstv_above_1000000_fee">DStv fee above ₦1,000,000 (₦)</label>
+              <input id="price_dstv_above_1000000_fee" type="number" min="0" max="10000" step="0.01">
+              <div class="pricing-help">Total fee for DStv amounts above ₦1,000,000. Current default: ₦500.</div>
+            </div>
+
+            <div class="pricing-field">
+              <label for="price_gotv_fee">GOtv fee (₦)</label>
+              <input id="price_gotv_fee" type="number" min="0" max="10000" step="0.01">
+              <div class="pricing-help">Additional GOtv subscription fee. Current default: ₦10.</div>
+            </div>
+
+            <div class="pricing-field">
+              <label for="price_startimes_above_1000_fee">Startimes fee above ₦1,000 (₦)</label>
+              <input id="price_startimes_above_1000_fee" type="number" min="0" max="10000" step="0.01">
+              <div class="pricing-help">Only applies when the subscription price is greater than ₦1,000. Current default: ₦10.</div>
+            </div>
+
+            <div class="pricing-field">
+              <label for="price_electricity_fee">Electricity fee (₦)</label>
+              <input id="price_electricity_fee" type="number" min="0" max="10000" step="0.01">
+              <div class="pricing-help">Additional electricity purchase fee. Current default: ₦15.</div>
+            </div>
+
+            <div class="pricing-field">
+              <label for="price_exam_pin_fee">Exam PIN fee (₦)</label>
+              <input id="price_exam_pin_fee" type="number" min="0" max="10000" step="0.01">
+              <div class="pricing-help">Additional examination PIN fee. Current default: ₦20.</div>
+            </div>
+          </div>
+
+          <div style="margin-top:20px">
+            <label for="pricingReason" style="display:block;font-size:11px;color:#b4c2d3;font-weight:700">Reason for this pricing change</label>
+            <textarea id="pricingReason" class="reason-input" rows="3" maxlength="500" placeholder="Explain why you are changing these prices (at least 5 characters)"></textarea>
+          </div>
+
+          <div class="pricing-actions">
+            <button class="btn btn-primary" id="savePricingButton" type="button">Save pricing settings</button>
+            <span id="pricingSaveStatus" class="panel-desc" aria-live="polite"></span>
+          </div>
         </div>
       </section>
 
@@ -344,15 +441,20 @@ function showTab(tab) {
     overview:"Business Overview",
     customers:"Customer Management",
     transactions:"Transaction Monitoring",
-    audit:"Administrative Audit Log"
+    audit:"Administrative Audit Log",
+    pricing:"VTU Pricing Management"
   };
+
   $("pageTitle").textContent = titles[tab] || "PanBill";
-  ["overview","customers","transactions","audit"].forEach(name => {
+
+  ["overview","customers","transactions","pricing","audit"].forEach(name => {
     $(name + "Tab").classList.toggle("active",name === tab);
   });
+
   document.querySelectorAll(".nav-btn[data-tab]").forEach(button => {
     button.classList.toggle("active",button.dataset.tab === tab);
   });
+
   loadCurrentTab();
 }
 
@@ -430,6 +532,90 @@ async function loadTransactions() {
   $("transactionsNext").disabled = transactionsCache.length < 50;
 }
 
+const pricingFields = [
+  "wallet_funding_fee_percent",
+  "airtime_fee",
+  "airtime_discount",
+  "data_above_1_5gb_fee",
+  "dstv_fee",
+  "dstv_above_1000000_fee",
+  "gotv_fee",
+  "startimes_above_1000_fee",
+  "electricity_fee",
+  "exam_pin_fee"
+];
+
+async function loadPricing() {
+  $("pricingSaveStatus").textContent = "Loading current pricing...";
+  const result = await adminRequest("get_pricing");
+  const settings = result.settings || {};
+
+  pricingFields.forEach(key => {
+    const field = $("price_" + key);
+    if (field) field.value = Number(settings[key] ?? 0);
+  });
+
+  $("pricingUpdated").textContent =
+    "Last updated: " + date(result.updated_at) +
+    (result.updated_by ? " · Admin ID: " + result.updated_by : "");
+
+  $("pricingSaveStatus").textContent = "Pricing loaded.";
+}
+
+async function savePricing() {
+  const button = $("savePricingButton");
+  const status = $("pricingSaveStatus");
+  const reason = $("pricingReason").value.trim();
+
+  if (reason.length < 5 || reason.length > 500) {
+    status.textContent = "Enter a reason between 5 and 500 characters.";
+    return;
+  }
+
+  const settings = {};
+
+  for (const key of pricingFields) {
+    const raw = $("price_" + key).value;
+
+    if (raw.trim() === "") {
+      status.textContent = "Complete every pricing field before saving.";
+      return;
+    }
+
+    const value = Number(raw);
+
+    if (!Number.isFinite(value) || value < 0) {
+      status.textContent = "Pricing values must be valid non-negative numbers.";
+      return;
+    }
+
+    settings[key] = value;
+  }
+
+  if (!confirm("Save these pricing settings? The super-responder must also be connected before customer charges change.")) {
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "Saving...";
+  status.textContent = "Saving and recording the change...";
+
+  try {
+    const result = await adminRequest("save_pricing", { settings, reason });
+
+    $("pricingReason").value = "";
+    $("pricingUpdated").textContent = "Last updated: " + date(result.updated_at);
+    status.textContent = result.message || "Pricing settings saved.";
+    showMessage("Pricing settings saved and audit record created.", false);
+  } catch (error) {
+    status.textContent = error.message;
+    showMessage(error.message);
+  } finally {
+    button.disabled = false;
+    button.textContent = "Save pricing settings";
+  }
+}
+
 async function loadAuditLogs() {
   $("auditBody").innerHTML = '<tr><td colspan="5" class="loading">Loading audit records...</td></tr>';
   const result = await adminRequest("audit_logs",{page:auditPage,perPage:50});
@@ -438,6 +624,7 @@ async function loadAuditLogs() {
   $("auditBody").innerHTML = logs.map(log => {
     const outcome = log.details?.outcome || "recorded";
     const cls = outcome === "success" ? "successful" : outcome === "failed" ? "failed" : "pending";
+
     return `<tr>
       <td>${date(log.created_at)}</td>
       <td>${escapeHTML(log.action)}</td>
@@ -455,11 +642,13 @@ async function loadAuditLogs() {
 async function loadCurrentTab() {
   showMessage("");
   $("refreshButton").disabled = true;
+
   try {
     if (activeTab === "overview") await loadOverview();
     if (activeTab === "customers") await loadCustomers();
     if (activeTab === "transactions") await loadTransactions();
     if (activeTab === "audit") await loadAuditLogs();
+    if (activeTab === "pricing") await loadPricing();
   } catch (error) {
     showMessage(error.message);
   } finally {
@@ -488,10 +677,12 @@ async function openCustomerDetail(userId) {
         <div class="detail-item"><strong>EMAIL CONFIRMED</strong><span>${c.email_confirmed_at ? "Yes" : "No"}</span></div>
         <div class="detail-item"><strong>PHONE</strong><span>${escapeHTML(c.phone || "Not provided")}</span></div>
       </div>
+
       <div class="panel-head">
         <div><h2>Account access</h2><p class="panel-desc">Changes require a reason and are recorded.</p></div>
         <button class="btn ${suspended ? "btn-primary" : "btn-danger"}" id="toggleCustomerAccess">${suspended ? "Reactivate account" : "Suspend account"}</button>
       </div>
+
       <h2 style="margin:22px 0 10px">Recent transactions</h2>
       <div class="table-wrap"><table style="min-width:550px">
         <thead><tr><th>DATE</th><th>SERVICE</th><th>AMOUNT</th><th>STATUS</th><th>REFERENCE</th></tr></thead>
@@ -503,19 +694,24 @@ async function openCustomerDetail(userId) {
     $("toggleCustomerAccess").addEventListener("click",async () => {
       const nextStatus = suspended ? "active" : "suspended";
       const reason = prompt("Enter the reason for " + nextStatus + " this account (10–500 characters):");
+
       if (reason === null) return;
+
       if (reason.trim().length < 10 || reason.trim().length > 500) {
         alert("Please enter a reason between 10 and 500 characters.");
         return;
       }
+
       if (!confirm("Confirm " + nextStatus + " for " + (c.email || c.id) + "?")) return;
 
       const button = $("toggleCustomerAccess");
       button.disabled = true;
+
       try {
         await adminRequest("set_customer_access",{
           userId:c.id,status:nextStatus,reason:reason.trim()
         });
+
         alert("Customer account " + nextStatus + " successfully.");
         $("customerModal").classList.add("hidden");
         await loadCustomers();
@@ -552,9 +748,9 @@ $("loginForm").addEventListener("submit",async event => {
       email:$("email").value.trim(),
       password:$("password").value
     });
+
     if (error) throw error;
 
-    // The backend will verify admin permission on the first request.
     showDashboard();
   } catch (error) {
     $("loginMessage").textContent = error.message;
@@ -575,6 +771,8 @@ document.querySelectorAll(".nav-btn[data-tab]").forEach(button => {
 });
 
 $("refreshButton").addEventListener("click",loadCurrentTab);
+$("reloadPricingButton").addEventListener("click",loadPricing);
+$("savePricingButton").addEventListener("click",savePricing);
 $("closeCustomerModal").addEventListener("click",() => $("customerModal").classList.add("hidden"));
 
 $("customersPrev").addEventListener("click",() => {
@@ -597,6 +795,7 @@ $("transactionSearch").addEventListener("input",renderTransactions);
 
 async function initialise() {
   const {data:{session}} = await client.auth.getSession();
+
   if (session) showDashboard();
   else showLogin();
 
