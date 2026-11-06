@@ -191,6 +191,7 @@ tbody tr:hover{background:#192b43}
   <button class="nav-btn" data-tab="transactions"><span class="nav-icon">⇄</span> Transactions</button>
   <button class="nav-btn" data-tab="pricing"><span class="nav-icon">₦</span> VTU Pricing</button>
   <button class="nav-btn" data-tab="audit"><span class="nav-icon">⌑</span> Audit log</button>
+  <button class="nav-btn super-admin-only hidden" data-tab="marketplace"><span class="nav-icon">▣</span> Marketplace Sellers</button>
   <button class="nav-btn super-admin-only hidden" data-tab="agents"><span class="nav-icon">♙</span> Agent Management</button>
  </nav>
  <div class="sidebar-bottom">
@@ -303,6 +304,22 @@ tbody tr:hover{background:#192b43}
    <tbody id="auditBody"><tr><td colspan="5" class="loading">Loading audit records...</td></tr></tbody></table>
   </div>
   <div class="pagination"><button class="btn" id="auditPrev">Previous</button><span id="auditPage">Page 1</span><button class="btn" id="auditNext">Next</button></div>
+ </div>
+</section>
+
+<section id="marketplaceTab" class="section super-admin-only hidden">
+ <div class="panel">
+  <div class="panel-head">
+   <div><h2>Seller applications</h2><div class="panel-desc">Review applications submitted to the PanBill marketplace. Only the Super Admin can approve, reject or suspend sellers.</div></div>
+   <button class="btn" id="reloadMarketplaceSellersButton">↻ Refresh applications</button>
+  </div>
+  <div class="table-wrap">
+   <table>
+    <thead><tr><th>BUSINESS</th><th>CONTACT</th><th>PHONE</th><th>SUBMITTED</th><th>STATUS</th><th>ACTIONS</th></tr></thead>
+    <tbody id="marketplaceSellersBody"><tr><td colspan="6" class="loading">Loading seller applications...</td></tr></tbody>
+   </table>
+  </div>
+  <p class="panel-desc" style="margin-top:14px">Approval uses the deployed marketplace-admin Edge Function. The default commission rate is 5% unless you enter another rate during approval.</p>
  </div>
 </section>
 
@@ -444,8 +461,8 @@ async function verifyAdminRole(){
 }
 
 function showTab(tab){
- if(tab==="agents"&&!isSuperAdmin){
-  showMessage("Only the Super Admin can access Agent Management.");
+ if((tab==="agents"||tab==="marketplace")&&!isSuperAdmin){
+  showMessage("Only the Super Admin can access this section.");
   return;
  }
 
@@ -456,11 +473,12 @@ function showTab(tab){
   transactions:"Transaction Monitoring",
   audit:"Administrative Audit Log",
   pricing:"VTU Pricing Management",
-  agents:"Agent Management"
+  agents:"Agent Management",
+  marketplace:"Marketplace Seller Applications"
  };
  $("pageTitle").textContent=titles[tab]||"PanBill";
 
- ["overview","customers","transactions","pricing","audit","agents"].forEach(n=>{
+ ["overview","customers","transactions","pricing","audit","agents","marketplace"].forEach(n=>{
   $(n+"Tab").classList.toggle("active",n===tab);
  });
 
@@ -735,6 +753,7 @@ async function loadCurrentTab(){
   if(activeTab==="audit")await loadAuditLogs();
   if(activeTab==="pricing")await loadPricing();
   if(activeTab==="agents"&&isSuperAdmin)await loadAgents();
+  if(activeTab==="marketplace"&&isSuperAdmin)await loadMarketplaceSellers();
  }catch(e){
   showMessage(e.message);
  }finally{
@@ -815,6 +834,79 @@ async function openCustomerDetail(id){
  }catch(e){
   $("customerDetailContent").innerHTML=`<p class="red">${escapeHTML(e.message)}</p>`;
  }
+}
+
+/* MARKETPLACE SELLER MANAGEMENT — Super Admin only */
+async function marketplaceAdminRequest(body){
+ if(!isSuperAdmin)throw new Error("Only the Super Admin can manage marketplace sellers.");
+ const {data:{session},error:sessionError}=await client.auth.getSession();
+ if(sessionError)throw sessionError;
+ if(!session)throw new Error("Your session has expired. Please sign in again.");
+ const {data,error}=await client.functions.invoke("marketplace-admin",{body});
+ if(error){
+  let message=error.message||"Marketplace administration request failed.";
+  if(error.context&&typeof error.context.json==="function"){
+   try{const result=await error.context.json();if(result.error)message=result.error;}catch(_){}
+  }
+  throw new Error(message);
+ }
+ if(!data||!data.success)throw new Error(data?.error||"Marketplace request failed.");
+ return data;
+}
+
+async function loadMarketplaceSellers(){
+ if(!isSuperAdmin)return;
+ const body=$("marketplaceSellersBody");
+ body.innerHTML='<tr><td colspan="6" class="loading">Loading seller applications...</td></tr>';
+ try{
+  const result=await marketplaceAdminRequest({action:"pending_sellers"});
+  const sellers=Array.isArray(result.sellers)?result.sellers:[];
+  if(!sellers.length){
+   body.innerHTML='<tr><td colspan="6" class="empty">There are no pending seller applications.</td></tr>';
+   return;
+  }
+  body.innerHTML=sellers.map(s=>`<tr>
+   <td><strong>${escapeHTML(s.business_name)}</strong><br><small>${escapeHTML(s.slug||"")}</small><br><small>${escapeHTML(s.business_description||"")}</small></td>
+   <td>${escapeHTML(s.contact_email||"—")}</td>
+   <td>${escapeHTML(s.contact_phone||"—")}</td>
+   <td>${date(s.created_at)}</td>
+   <td><span class="status pending">${escapeHTML(s.status||"pending")}</span></td>
+   <td><button class="btn btn-primary" data-marketplace-review="approved" data-seller-id="${escapeHTML(s.user_id)}">Approve</button> <button class="btn btn-danger" data-marketplace-review="rejected" data-seller-id="${escapeHTML(s.user_id)}">Reject</button></td>
+  </tr>`).join("");
+  body.querySelectorAll("[data-marketplace-review]").forEach(button=>{
+   button.addEventListener("click",()=>reviewMarketplaceSeller(button.dataset.sellerId,button.dataset.marketplaceReview));
+  });
+ }catch(e){
+  body.innerHTML=`<tr><td colspan="6" class="red">${escapeHTML(e.message)}</td></tr>`;
+ }
+}
+
+async function reviewMarketplaceSeller(sellerUserId,decision){
+ if(!isSuperAdmin||!sellerUserId)return;
+ const sellerRow=[...$("marketplaceSellersBody").querySelectorAll("tr")].find(row=>row.querySelector(`[data-seller-id="${CSS.escape(sellerUserId)}"]`));
+ const businessName=sellerRow?.querySelector("strong")?.textContent||"this seller";
+ if(decision==="approved"){
+  const entered=prompt(`Approve ${businessName}. Enter marketplace commission percentage (0–100):`,"5");
+  if(entered===null)return;
+  const rate=Number(entered);
+  if(!Number.isFinite(rate)||rate<0||rate>100){alert("Enter a commission rate from 0 to 100.");return;}
+  const reason=prompt("Optional reason or approval note (maximum 500 characters):","");
+  if(reason===null)return;
+  try{
+   const result=await marketplaceAdminRequest({action:"review_seller",seller_user_id:sellerUserId,decision,commission_rate:rate,reason});
+   alert(result.message||"Seller approved successfully.");
+   await loadMarketplaceSellers();
+  }catch(e){alert(e.message);}
+  return;
+ }
+ const reason=prompt(`Reason for rejecting ${businessName} (optional, maximum 500 characters):`,"");
+ if(reason===null)return;
+ if(!confirm(`Are you sure you want to reject ${businessName}?`))return;
+ try{
+  const result=await marketplaceAdminRequest({action:"review_seller",seller_user_id:sellerUserId,decision,reason});
+  alert(result.message||"Seller application rejected.");
+  await loadMarketplaceSellers();
+ }catch(e){alert(e.message);}
 }
 
 /* AGENT MANAGEMENT — Super Admin only */
@@ -1018,6 +1110,7 @@ $("agentSearchEmail").addEventListener("keydown",e=>{
  }
 });
 $("reloadAgentsButton").addEventListener("click",loadAgents);
+$("reloadMarketplaceSellersButton").addEventListener("click",()=>loadMarketplaceSellers().catch(e=>showMessage(e.message)));
 
 $("closeCustomerModal").addEventListener("click",()=>$("customerModal").classList.add("hidden"));
 $("closeTransactionModal").addEventListener("click",()=>$("transactionModal").classList.add("hidden"));
