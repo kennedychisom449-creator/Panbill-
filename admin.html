@@ -3,9 +3,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0b1424">
-<title>PanBill | Super Admin</title>
+<title>PanBill | Admin Console</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--bg:#0b1424;--sidebar:#101d31;--panel:#142238;--panel2:#192a42;--green:#12b886;--green2:#087f5b;--text:#f3f7fc;--muted:#93a4ba;--border:#263951;--red:#ff6b6b;--yellow:#f5c451}
@@ -91,7 +91,7 @@ tbody tr:hover{background:#192b43}
 .login-card input{width:100%;padding:13px;border-radius:9px;border:1px solid var(--border);background:#0c192b;color:white;outline:none}
 .login-card input:focus{border-color:var(--green)}
 .login-card button[type=submit]{width:100%;margin-top:20px;padding:13px}
-#loginMessage{color:#ff8585;font-size:12px;margin-top:13px}
+#loginMessage{color:#ff8585;font-size:12px;margin-top:13px;white-space:pre-wrap}
 .modal{position:fixed;inset:0;z-index:50;background:#06101ddd;overflow:auto;padding:20px}
 .modal-card{width:100%;max-width:900px;margin:20px auto;background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:22px}
 .modal-close{float:right}
@@ -107,12 +107,10 @@ tbody tr:hover{background:#192b43}
 .pricing-field input:focus{border-color:var(--green)}
 .pricing-help{font-size:10px;color:var(--muted);line-height:1.5;margin-top:7px}
 .pricing-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:16px}
-.pricing-note{background:#183b3b;border:1px solid #245747;color:#b8f2dc;padding:13px;border-radius:10px;font-size:11px;line-height:1.6;margin-bottom:16px}
+.pricing-note,.agent-role-note{background:#183b3b;border:1px solid #245747;color:#b8f2dc;padding:13px;border-radius:10px;font-size:11px;line-height:1.6;margin-bottom:16px}
 .clickable-row{cursor:pointer}
 .clickable-row:hover{background:#203650}
 .provider-response{white-space:pre-wrap;overflow-wrap:anywhere;max-height:280px;overflow:auto;background:#0b1728;border:1px solid var(--border);border-radius:9px;padding:13px;font-size:11px;line-height:1.55;color:#c9d8e8}
-
-/* MOBILE TRANSACTION DETAILS */
 .mobile-transaction-list{display:none}
 .mobile-transaction-card{background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:14px;margin:10px 0}
 .mobile-transaction-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
@@ -121,7 +119,9 @@ tbody tr:hover{background:#192b43}
 .mobile-transaction-info strong{display:block;font-size:9px;color:var(--muted);margin-bottom:5px}
 .mobile-transaction-info span{display:block;font-size:11px;overflow-wrap:anywhere}
 .view-transaction-button{width:100%;padding:13px;background:var(--green2);border-color:var(--green2);color:white;font-size:13px}
-
+.agent-result{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:10px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.agent-result small{display:block;color:var(--muted);margin-top:5px;font-size:10px}
+.agent-readonly-note{color:#f5ca65;font-size:11px;line-height:1.6;margin:12px 0;padding:12px;background:#493c20;border-radius:9px}
 @media(max-width:1050px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){
  .layout{display:block}
@@ -150,8 +150,6 @@ tbody tr:hover{background:#192b43}
  .modal{padding:8px}
  .modal-card{padding:15px;margin:8px auto}
  .pricing-grid{grid-template-columns:1fr}
-
- /* Show transaction cards instead of the wide table on phones */
  #transactionsTab .table-wrap{display:none}
  #transactionsTab .mobile-transaction-list{display:block}
 }
@@ -160,31 +158,31 @@ tbody tr:hover{background:#192b43}
 <body>
 
 <section id="loginPanel" class="login-screen">
-<div class="login-card">
- <div class="login-brand">
-  <div class="brand-icon">P</div>
-  <h1>PanBill</h1>
-  <p>SUPER ADMINISTRATION CONSOLE</p>
+ <div class="login-card">
+  <div class="login-brand">
+   <div class="brand-icon">P</div>
+   <h1>PanBill</h1>
+   <p>ADMINISTRATION CONSOLE</p>
+  </div>
+  <h2>Administrator sign in</h2>
+  <p class="panel-desc">Restricted to authorised PanBill administrators and appointed agents.</p>
+  <form id="loginForm">
+   <label for="email">Email address</label>
+   <input id="email" type="email" autocomplete="username" required placeholder="Your registered email">
+   <label for="password">Password</label>
+   <input id="password" type="password" autocomplete="current-password" required placeholder="Password">
+   <button class="btn btn-primary" id="loginButton" type="submit">Sign in securely</button>
+  </form>
+  <div id="loginMessage"></div>
+  <p class="panel-desc">Your administrative privileges are verified by the PanBill backend. Never share your credentials.</p>
  </div>
- <h2>Administrator sign in</h2>
- <p class="panel-desc">Restricted to authorised PanBill administrators.</p>
- <form id="loginForm">
-  <label for="email">Administrator email</label>
-  <input id="email" type="email" autocomplete="username" required placeholder="Admin email">
-  <label for="password">Password</label>
-  <input id="password" type="password" autocomplete="current-password" required placeholder="Password">
-  <button class="btn btn-primary" id="loginButton" type="submit">Sign in securely</button>
- </form>
- <div id="loginMessage"></div>
- <p class="panel-desc">Your administrator privileges are verified by the PanBill backend. Never share your credentials.</p>
-</div>
 </section>
 
 <div id="dashboard" class="layout hidden">
 <aside class="sidebar">
  <div class="brand">
   <div class="brand-icon">P</div>
-  <div><strong>PanBill</strong><small>SUPER ADMIN</small></div>
+  <div><strong>PanBill</strong><small id="brandRole">ADMIN CONSOLE</small></div>
  </div>
  <div class="nav-label">BUSINESS MANAGEMENT</div>
  <nav>
@@ -193,9 +191,10 @@ tbody tr:hover{background:#192b43}
   <button class="nav-btn" data-tab="transactions"><span class="nav-icon">⇄</span> Transactions</button>
   <button class="nav-btn" data-tab="pricing"><span class="nav-icon">₦</span> VTU Pricing</button>
   <button class="nav-btn" data-tab="audit"><span class="nav-icon">⌑</span> Audit log</button>
+  <button class="nav-btn super-admin-only hidden" data-tab="agents"><span class="nav-icon">♙</span> Agent Management</button>
  </nav>
  <div class="sidebar-bottom">
-  <div class="secure-note"><strong>● Secure administration</strong>Server-side administrator verification and recorded account-access changes.</div>
+  <div class="secure-note"><strong>● Secure administration</strong>Administrative access is verified by the PanBill server. Agent permissions are read-only.</div>
  </div>
 </aside>
 
@@ -206,14 +205,14 @@ tbody tr:hover{background:#192b43}
   <div class="top-subtitle">PanBill administration and operations</div>
  </div>
  <div class="top-right">
-  <div class="live-indicator"><span class="dot"></span> Admin session</div>
+  <div class="live-indicator" id="sessionLabel"><span class="dot"></span> Verifying session</div>
   <button class="btn" id="logoutButton">Log out</button>
  </div>
 </header>
 
 <div class="content">
 <div class="welcome">
- <div><h1>Business control centre</h1><p>Monitor your platform and manage customer accounts.</p></div>
+ <div><h1>Business control centre</h1><p id="welcomeText">Monitor your platform and manage customer accounts.</p></div>
  <button class="btn" id="refreshButton">↻ Refresh data</button>
 </div>
 <div id="message"></div>
@@ -230,7 +229,7 @@ tbody tr:hover{background:#192b43}
   <div class="quick-grid">
    <div class="quick-item"><strong>♙ Customer management</strong><span>Inspect customer accounts, wallet balances, account status and recent transactions.</span></div>
    <div class="quick-item"><strong>⇄ Transaction monitoring</strong><span>Search, filter and inspect transaction records and provider responses.</span></div>
-   <div class="quick-item"><strong>⌑ Account protection</strong><span>Suspend or reactivate accounts with a recorded reason.</span></div>
+   <div class="quick-item"><strong>⌑ Account protection</strong><span>Super Admin can suspend or reactivate accounts with a recorded reason.</span></div>
   </div>
  </div>
  <div class="panel"><h2>Financial reporting</h2><p class="panel-desc">These counts are database-backed. Transaction volume is not profit; provider costs and refunds are not calculated here.</p></div>
@@ -253,20 +252,13 @@ tbody tr:hover{background:#192b43}
 <section id="transactionsTab" class="section">
  <div class="panel">
   <div class="panel-head">
-   <div><h2>Transaction monitoring</h2><div class="panel-desc">Search by customer email, customer ID, transaction reference or provider reference. Select a record to inspect its details.</div></div>
+   <div><h2>Transaction monitoring</h2><div class="panel-desc">Search by email, customer ID, transaction reference or provider reference.</div></div>
    <input class="search" id="transactionSearch" placeholder="Search email, customer ID or reference..." aria-label="Search transactions">
    <select class="search" id="transactionStatusFilter" aria-label="Filter transaction status">
-    <option value="all">All statuses</option>
-    <option value="successful">Successful</option>
-    <option value="pending">Pending</option>
-    <option value="failed">Failed</option>
+    <option value="all">All statuses</option><option value="successful">Successful</option><option value="pending">Pending</option><option value="failed">Failed</option>
    </select>
   </div>
-
-  <!-- Mobile-friendly transaction cards -->
   <div id="mobileTransactionsList" class="mobile-transaction-list"></div>
-
-  <!-- Desktop transaction table -->
   <div class="table-wrap">
    <table>
     <thead><tr><th>DATE</th><th>SERVICE</th><th>AMOUNT</th><th>STATUS</th><th>REFERENCE</th><th>CUSTOMER ID</th><th>DETAILS</th></tr></thead>
@@ -279,32 +271,33 @@ tbody tr:hover{background:#192b43}
 
 <section id="pricingTab" class="section">
  <div class="panel">
-  <div class="panel-head"><div><h2>VTU service pricing</h2><div class="panel-desc">Configure service fees and wallet funding charges.</div></div><button class="btn" id="reloadPricingButton">↻ Reload prices</button></div>
-  <div class="pricing-note">Your saved pricing settings are read by the connected <strong>super-responder</strong> function. Updated settings apply to new eligible purchases after saving. Existing transactions retain their original amounts.</div>
+  <div class="panel-head"><div><h2>VTU service pricing</h2><div class="panel-desc">View and configure service fees and wallet funding charges.</div></div><button class="btn" id="reloadPricingButton">↻ Reload prices</button></div>
+  <div class="pricing-note" id="pricingNote">Your saved pricing settings are read by the connected super-responder function. Updated settings apply to new eligible purchases after saving.</div>
   <div id="pricingUpdated" class="panel-desc" style="margin-bottom:15px">Last updated: —</div>
   <div class="pricing-grid">
-   <div class="pricing-field"><label for="price_wallet_funding_fee_percent">Wallet funding fee (%)</label><input id="price_wallet_funding_fee_percent" type="number" min="0" max="10" step="0.01"><div class="pricing-help">Percentage charged on the amount a customer adds. Current saved setting: 0.5%.</div></div>
-   <div class="pricing-field"><label for="price_airtime_fee">Airtime extra fee (₦)</label><input id="price_airtime_fee" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">Additional charge on airtime purchases. Current saved setting: ₦10.</div></div>
-   <div class="pricing-field"><label for="price_airtime_discount">Airtime discount (₦)</label><input id="price_airtime_discount" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">Discount from airtime face value. Current saved setting: ₦0.</div></div>
-   <div class="pricing-field"><label for="price_data_above_1_5gb_fee">Data fee above 1.5GB (₦)</label><input id="price_data_above_1_5gb_fee" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">Applies to qualifying data packages. Current saved setting: ₦20.</div></div>
-   <div class="pricing-field"><label for="price_dstv_fee">DStv fee up to ₦1,000,000 (₦)</label><input id="price_dstv_fee" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">Standard DStv subscription fee. Current saved setting: ₦50.</div></div>
-   <div class="pricing-field"><label for="price_dstv_above_1000000_fee">DStv fee above ₦1,000,000 (₦)</label><input id="price_dstv_above_1000000_fee" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">Fee for DStv amounts above ₦1,000,000. Current saved setting: ₦500.</div></div>
-   <div class="pricing-field"><label for="price_gotv_fee">GOtv fee (₦)</label><input id="price_gotv_fee" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">Additional GOtv subscription fee. Current saved setting: ₦10.</div></div>
-   <div class="pricing-field"><label for="price_startimes_above_1000_fee">Startimes fee above ₦1,000 (₦)</label><input id="price_startimes_above_1000_fee" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">Applies above ₦1,000. Current saved setting: ₦10.</div></div>
-   <div class="pricing-field"><label for="price_electricity_fee">Electricity fee (₦)</label><input id="price_electricity_fee" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">Additional electricity purchase fee. Current saved setting: ₦15.</div></div>
-   <div class="pricing-field"><label for="price_exam_pin_fee">Exam PIN fee (₦)</label><input id="price_exam_pin_fee" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">Additional examination PIN fee. Current saved setting: ₦20.</div></div>
+   <div class="pricing-field"><label for="price_wallet_funding_fee_percent">Wallet funding fee (%)</label><input id="price_wallet_funding_fee_percent" type="number" min="0" max="10" step="0.01"><div class="pricing-help">Percentage charged when a customer funds their wallet. Approved setting: 0.5%.</div></div>
+   <div class="pricing-field"><label for="price_airtime_fee">Airtime extra fee (₦)</label><input id="price_airtime_fee" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">No additional airtime charge. Approved setting: ₦0.</div></div>
+   <div class="pricing-field"><label for="price_airtime_discount">Airtime discount (₦)</label><input id="price_airtime_discount" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">No airtime discount. Approved setting: ₦0.</div></div>
+   <div class="pricing-field"><label for="price_data_above_1_5gb_fee">Data fee above 1.5GB (₦)</label><input id="price_data_above_1_5gb_fee" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">Approved setting: ₦20.</div></div>
+   <div class="pricing-field"><label for="price_dstv_fee">DStv fee up to ₦1,000,000 (₦)</label><input id="price_dstv_fee" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">Approved setting: ₦50.</div></div>
+   <div class="pricing-field"><label for="price_dstv_above_1000000_fee">DStv fee above ₦1,000,000 (₦)</label><input id="price_dstv_above_1000000_fee" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">Approved setting: ₦500.</div></div>
+   <div class="pricing-field"><label for="price_gotv_fee">GOtv fee (₦)</label><input id="price_gotv_fee" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">Approved setting: ₦10.</div></div>
+   <div class="pricing-field"><label for="price_startimes_above_1000_fee">StarTimes fee above ₦1,000 (₦)</label><input id="price_startimes_above_1000_fee" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">Approved setting: ₦10.</div></div>
+   <div class="pricing-field"><label for="price_electricity_fee">Electricity fee (₦)</label><input id="price_electricity_fee" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">Approved setting: ₦15.</div></div>
+   <div class="pricing-field"><label for="price_exam_pin_fee">Exam PIN fee (₦)</label><input id="price_exam_pin_fee" type="number" min="0" max="10000" step="0.01"><div class="pricing-help">Approved setting: ₦20.</div></div>
   </div>
-  <div style="margin-top:20px">
+  <div id="pricingEditArea" style="margin-top:20px">
    <label for="pricingReason" style="display:block;font-size:11px;color:#b4c2d3;font-weight:700">Reason for this pricing change</label>
    <textarea id="pricingReason" class="reason-input" rows="3" maxlength="500" placeholder="Explain why you are changing these prices (at least 5 characters)"></textarea>
+   <div class="pricing-actions"><button class="btn btn-primary" id="savePricingButton">Save pricing settings</button><span id="pricingSaveStatus" class="panel-desc" aria-live="polite"></span></div>
   </div>
-  <div class="pricing-actions"><button class="btn btn-primary" id="savePricingButton">Save pricing settings</button><span id="pricingSaveStatus" class="panel-desc" aria-live="polite"></span></div>
+  <div id="agentPricingNotice" class="agent-readonly-note hidden">Read-only agent access: pricing can be viewed, but only the Super Admin can change prices.</div>
  </div>
 </section>
 
 <section id="auditTab" class="section">
  <div class="panel">
-  <div class="panel-head"><div><h2>Administrative audit log</h2><div class="panel-desc">Records of customer account-access and pricing changes.</div></div></div>
+  <div class="panel-head"><div><h2>Administrative audit log</h2><div class="panel-desc">Records of customer account-access, pricing and administrative changes.</div></div></div>
   <div class="table-wrap">
    <table><thead><tr><th>DATE</th><th>ACTION</th><th>CUSTOMER ID</th><th>REASON</th><th>RESULT</th></tr></thead>
    <tbody id="auditBody"><tr><td colspan="5" class="loading">Loading audit records...</td></tr></tbody></table>
@@ -313,7 +306,31 @@ tbody tr:hover{background:#192b43}
  </div>
 </section>
 
-<div class="footer">PanBill Super Admin · Secure business administration · © 2026</div>
+<section id="agentsTab" class="section super-admin-only hidden">
+ <div class="panel">
+  <div class="panel-head">
+   <div><h2>Appoint a PanBill agent</h2><div class="panel-desc">Search for an existing registered PanBill customer by email address.</div></div>
+  </div>
+  <div class="agent-role-note">Agents receive read-only access to platform information. They cannot suspend customers, change prices, manage wallets or appoint other agents.</div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap">
+   <input class="search" id="agentSearchEmail" type="email" placeholder="Enter registered customer's email">
+   <button class="btn btn-primary" id="agentSearchButton">Search customer</button>
+  </div>
+  <div id="agentSearchResults" style="margin-top:15px"></div>
+ </div>
+ <div class="panel">
+  <div class="panel-head">
+   <div><h2>Current agents</h2><div class="panel-desc">Manage users who currently have read-only administrative access.</div></div>
+   <button class="btn" id="reloadAgentsButton">↻ Refresh agents</button>
+  </div>
+  <div class="table-wrap">
+   <table><thead><tr><th>EMAIL</th><th>USER ID</th><th>APPOINTED</th><th>ACTION</th></tr></thead>
+   <tbody id="agentsBody"><tr><td colspan="4" class="loading">Loading agents...</td></tr></tbody></table>
+  </div>
+ </div>
+</section>
+
+<div class="footer">PanBill Admin Console · Secure business administration · © 2026</div>
 </div>
 </main>
 </div>
@@ -344,24 +361,23 @@ const SUPABASE_KEY="sb_publishable_Fn6FE75bdj11K39ZMxMRpA_EtFUrKTE";
 const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
 let customerPage=1,transactionPage=1,auditPage=1,activeTab="overview";
-let customersCache=[],transactionsCache=[],transactionTotal=0,auditTotal=0,transactionSearchTimer=null;
+let customersCache=[],transactionsCache=[],transactionTotal=0,auditTotal=0;
+let transactionSearchTimer=null,currentAdminRole=null,isSuperAdmin=false;
+let agentSearchResults=[];
 
 const $=id=>document.getElementById(id);
 
 function escapeHTML(v){
  return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 }
-
 function money(v){
  return "₦"+Number(v||0).toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2});
 }
-
 function date(v){
  if(!v)return "—";
  const d=new Date(v);
  return isNaN(d.getTime())?"—":d.toLocaleString("en-NG");
 }
-
 function showMessage(m,error=true){
  $("message").textContent=m||"";
  $("message").style.color=error?"#ff8585":"#45d9a4";
@@ -384,38 +400,79 @@ async function adminRequest(action,extra={}){
   }
   throw new Error(m);
  }
-
  if(!data||!data.success)throw new Error(data?.error||"Request failed.");
  return data;
 }
 
+/* The server verifies the signed-in user's actual role. */
+async function verifyAdminRole(){
+ const r=await adminRequest("session_info");
+ const role=String(
+  r.role||r.admin_role||r.admin?.role||r.user?.role||""
+ ).toLowerCase();
+
+ if(role!=="admin"&&role!=="agent"){
+  throw new Error("Your account does not have PanBill administrative access.");
+ }
+
+ currentAdminRole=role;
+ isSuperAdmin=role==="admin";
+
+ document.querySelectorAll(".super-admin-only").forEach(el=>{
+  el.classList.toggle("hidden",!isSuperAdmin);
+ });
+
+ $("brandRole").textContent=isSuperAdmin?"SUPER ADMIN":"READ-ONLY AGENT";
+ $("sessionLabel").innerHTML=isSuperAdmin
+  ?'<span class="dot"></span> Super Admin session'
+  :'<span class="dot"></span> Read-only agent session';
+
+ $("welcomeText").textContent=isSuperAdmin
+  ?"Monitor your platform and manage customer accounts."
+  :"Read-only access to PanBill platform information.";
+
+ $("pricingEditArea").classList.toggle("hidden",!isSuperAdmin);
+ $("agentPricingNotice").classList.toggle("hidden",isSuperAdmin);
+
+ if(!isSuperAdmin){
+  pricingFields.forEach(k=>{
+   const f=$("price_"+k);
+   if(f)f.disabled=true;
+  });
+  $("pricingNote").textContent="Read-only pricing view. Only the Super Admin can change service fees and wallet funding charges.";
+ }
+}
+
 function showTab(tab){
+ if(tab==="agents"&&!isSuperAdmin){
+  showMessage("Only the Super Admin can access Agent Management.");
+  return;
+ }
+
  activeTab=tab;
  const titles={
   overview:"Business Overview",
   customers:"Customer Management",
   transactions:"Transaction Monitoring",
   audit:"Administrative Audit Log",
-  pricing:"VTU Pricing Management"
+  pricing:"VTU Pricing Management",
+  agents:"Agent Management"
  };
-
  $("pageTitle").textContent=titles[tab]||"PanBill";
 
- ["overview","customers","transactions","pricing","audit"].forEach(n=>{
+ ["overview","customers","transactions","pricing","audit","agents"].forEach(n=>{
   $(n+"Tab").classList.toggle("active",n===tab);
  });
 
  document.querySelectorAll(".nav-btn[data-tab]").forEach(b=>{
   b.classList.toggle("active",b.dataset.tab===tab);
  });
-
  loadCurrentTab();
 }
 
 async function loadOverview(){
  const r=await adminRequest("overview");
  const o=r.overview||{};
-
  $("walletCount").textContent=Number(o.wallet_accounts||0).toLocaleString("en-NG");
  $("transactionCount").textContent=Number(o.total_transactions||0).toLocaleString("en-NG");
  $("successfulCount").textContent=Number(o.successful_transactions||0).toLocaleString("en-NG");
@@ -424,7 +481,6 @@ async function loadOverview(){
 
 function renderCustomers(){
  const s=$("customerSearch").value.trim().toLowerCase();
-
  const rows=customersCache.filter(c=>
   String(c.email||"").toLowerCase().includes(s)||
   String(c.id||"").toLowerCase().includes(s)
@@ -432,7 +488,6 @@ function renderCustomers(){
 
  $("customersBody").innerHTML=rows.map(c=>{
   const suspended=c.account_status==="suspended";
-
   return `<tr>
    <td>${escapeHTML(c.email||"No email")}</td>
    <td class="green">${money(c.wallet_balance)}</td>
@@ -450,24 +505,18 @@ function renderCustomers(){
 
 async function loadCustomers(){
  $("customersBody").innerHTML='<tr><td colspan="6" class="loading">Loading customers...</td></tr>';
-
  const r=await adminRequest("customers",{page:customerPage,perPage:50});
-
  customersCache=r.customers||[];
  renderCustomers();
-
  $("customersPage").textContent="Page "+customerPage;
  $("customersPrev").disabled=customerPage<=1;
  $("customersNext").disabled=customersCache.length<50;
 }
 
-/* FIXED TRANSACTION RENDERING: desktop table + mobile cards */
 function renderTransactions(){
-
  const rows=transactionsCache.map(t=>{
   const s=String(t.status||"unknown").toLowerCase();
   const cls=["successful","failed","pending"].includes(s)?s:"other";
-
   const id=escapeHTML(t.id);
   const ref=escapeHTML(t.reference||"—");
   const type=escapeHTML(t.type||"—");
@@ -477,78 +526,43 @@ function renderTransactions(){
 
   return {
    table:`<tr class="clickable-row" data-view-transaction="${id}" title="Open transaction details">
-    <td>${created}</td>
-    <td>${type}</td>
-    <td>${amount}</td>
+    <td>${created}</td><td>${type}</td><td>${amount}</td>
     <td><span class="status ${cls}">${escapeHTML(s)}</span></td>
-    <td>${ref}</td>
-    <td>${customer}</td>
+    <td>${ref}</td><td>${customer}</td>
     <td><button class="btn" type="button" data-open-transaction="${id}">View details</button></td>
    </tr>`,
-
    mobile:`<article class="mobile-transaction-card">
-    <div class="mobile-transaction-top">
-     <strong>${type}</strong>
-     <span class="status ${cls}">${escapeHTML(s)}</span>
-    </div>
-
+    <div class="mobile-transaction-top"><strong>${type}</strong><span class="status ${cls}">${escapeHTML(s)}</span></div>
     <div class="mobile-transaction-info">
-     <div>
-      <strong>AMOUNT</strong>
-      <span>${amount}</span>
-     </div>
-     <div>
-      <strong>DATE</strong>
-      <span>${created}</span>
-     </div>
-     <div>
-      <strong>REFERENCE</strong>
-      <span>${ref}</span>
-     </div>
-     <div>
-      <strong>CUSTOMER ID</strong>
-      <span>${customer}</span>
-     </div>
+     <div><strong>AMOUNT</strong><span>${amount}</span></div>
+     <div><strong>DATE</strong><span>${created}</span></div>
+     <div><strong>REFERENCE</strong><span>${ref}</span></div>
+     <div><strong>CUSTOMER ID</strong><span>${customer}</span></div>
     </div>
-
-    <button class="btn view-transaction-button"
-     type="button"
-     data-open-transaction="${id}">
-     View transaction details
-    </button>
+    <button class="btn view-transaction-button" type="button" data-open-transaction="${id}">View transaction details</button>
    </article>`
   };
  });
 
- $("transactionsBody").innerHTML=
-  rows.map(r=>r.table).join("")||
+ $("transactionsBody").innerHTML=rows.map(r=>r.table).join("")||
   '<tr><td colspan="7" class="empty">No transactions match your search and filter.</td></tr>';
-
- $("mobileTransactionsList").innerHTML=
-  rows.map(r=>r.mobile).join("")||
+ $("mobileTransactionsList").innerHTML=rows.map(r=>r.mobile).join("")||
   '<div class="empty">No transactions match your search and filter.</div>';
 
- // Desktop: clicking the transaction row opens details.
  $("transactionsBody").querySelectorAll("[data-view-transaction]").forEach(el=>{
   el.addEventListener("click",e=>{
    if(e.target.closest("[data-open-transaction]"))return;
    openTransactionDetail(el.dataset.viewTransaction);
   });
  });
-
- // Desktop: the View details button opens the details modal.
  $("transactionsBody").querySelectorAll("[data-open-transaction]").forEach(btn=>{
   btn.addEventListener("click",e=>{
    e.stopPropagation();
    openTransactionDetail(btn.dataset.openTransaction);
   });
  });
-
- // Mobile: the visible button opens the details modal.
  $("mobileTransactionsList").querySelectorAll("[data-open-transaction]").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-   openTransactionDetail(btn.dataset.openTransaction);
-  });
+  btn.addEventListener("click",()=>openTransactionDetail(btn.dataset.openTransaction));
  });
 }
 
@@ -565,7 +579,6 @@ async function loadTransactions(){
 
  transactionsCache=r.transactions||[];
  transactionTotal=Number(r.total||0);
-
  renderTransactions();
 
  $("transactionsPage").textContent=`Page ${transactionPage} · ${transactionTotal.toLocaleString("en-NG")} total`;
@@ -582,7 +595,6 @@ async function openTransactionDetail(id){
   const t=r.transaction||{};
   const s=String(t.status||"unknown").toLowerCase();
   const cls=["successful","failed","pending"].includes(s)?s:"other";
-
   let response=t.provider_response;
 
   if(response===null||response===undefined||response===""){
@@ -610,43 +622,30 @@ async function openTransactionDetail(id){
     <div class="detail-item"><strong>TRANSACTION DATE</strong><span>${date(t.created_at)}</span></div>
     <div class="detail-item"><strong>TRANSACTION ID</strong><span>${escapeHTML(t.id||"—")}</span></div>
    </div>
-
-   <div class="detail-item" style="margin-bottom:12px">
-    <strong>DESCRIPTION</strong>
-    <span>${escapeHTML(t.description||"No description stored.")}</span>
-   </div>
-
-   <div class="detail-item">
-    <strong>PROVIDER RESPONSE</strong>
-    <pre class="provider-response">${escapeHTML(response)}</pre>
-   </div>`;
+   <div class="detail-item" style="margin-bottom:12px"><strong>DESCRIPTION</strong><span>${escapeHTML(t.description||"No description stored.")}</span></div>
+   <div class="detail-item"><strong>PROVIDER RESPONSE</strong><pre class="provider-response">${escapeHTML(response)}</pre></div>`;
  }catch(e){
   $("transactionDetailContent").innerHTML=`<p class="red">${escapeHTML(e.message)}</p>`;
  }
 }
 
 const pricingFields=[
- "wallet_funding_fee_percent",
- "airtime_fee",
- "airtime_discount",
- "data_above_1_5gb_fee",
- "dstv_fee",
- "dstv_above_1000000_fee",
- "gotv_fee",
- "startimes_above_1000_fee",
- "electricity_fee",
- "exam_pin_fee"
+ "wallet_funding_fee_percent","airtime_fee","airtime_discount",
+ "data_above_1_5gb_fee","dstv_fee","dstv_above_1000000_fee",
+ "gotv_fee","startimes_above_1000_fee","electricity_fee","exam_pin_fee"
 ];
 
 async function loadPricing(){
  $("pricingSaveStatus").textContent="Loading current pricing...";
-
  const r=await adminRequest("get_pricing");
  const s=r.settings||{};
 
  pricingFields.forEach(k=>{
   const f=$("price_"+k);
-  if(f)f.value=Number(s[k]??0);
+  if(f){
+   f.value=Number(s[k]??0);
+   f.disabled=!isSuperAdmin;
+  }
  });
 
  $("pricingUpdated").textContent="Last updated: "+date(r.updated_at)+(r.updated_by?" · Admin ID: "+r.updated_by:"");
@@ -654,8 +653,12 @@ async function loadPricing(){
 }
 
 async function savePricing(){
- const b=$("savePricingButton");
- const out=$("pricingSaveStatus");
+ if(!isSuperAdmin){
+  showMessage("Only the Super Admin can change pricing.");
+  return;
+ }
+
+ const b=$("savePricingButton"),out=$("pricingSaveStatus");
  const reason=$("pricingReason").value.trim();
 
  if(reason.length<5||reason.length>500){
@@ -664,22 +667,17 @@ async function savePricing(){
  }
 
  const settings={};
-
  for(const k of pricingFields){
   const raw=$("price_"+k).value;
-
   if(raw.trim()===""){
    out.textContent="Complete every pricing field before saving.";
    return;
   }
-
   const v=Number(raw);
-
   if(!Number.isFinite(v)||v<0){
    out.textContent="Pricing values must be valid non-negative numbers.";
    return;
   }
-
   settings[k]=v;
  }
 
@@ -706,16 +704,13 @@ async function savePricing(){
 
 async function loadAuditLogs(){
  $("auditBody").innerHTML='<tr><td colspan="5" class="loading">Loading audit records...</td></tr>';
-
  const r=await adminRequest("audit_logs",{page:auditPage,perPage:50});
  const logs=r.audit_logs||[];
-
  auditTotal=Number(r.total||0);
 
  $("auditBody").innerHTML=logs.map(l=>{
   const o=l.details?.outcome||"recorded";
   const cls=o==="success"?"successful":o==="failed"?"failed":"pending";
-
   return `<tr>
    <td>${date(l.created_at)}</td>
    <td>${escapeHTML(l.action)}</td>
@@ -733,13 +728,13 @@ async function loadAuditLogs(){
 async function loadCurrentTab(){
  showMessage("");
  $("refreshButton").disabled=true;
-
  try{
   if(activeTab==="overview")await loadOverview();
   if(activeTab==="customers")await loadCustomers();
   if(activeTab==="transactions")await loadTransactions();
   if(activeTab==="audit")await loadAuditLogs();
   if(activeTab==="pricing")await loadPricing();
+  if(activeTab==="agents"&&isSuperAdmin)await loadAgents();
  }catch(e){
   showMessage(e.message);
  }finally{
@@ -753,7 +748,7 @@ async function openCustomerDetail(id){
 
  try{
   const r=await adminRequest("customer_detail",{userId:id});
-  const c=r.customer;
+  const c=r.customer||{};
   const tx=r.transactions||[];
   const suspended=c.account_status==="suspended";
 
@@ -769,10 +764,12 @@ async function openCustomerDetail(id){
     <div class="detail-item"><strong>PHONE</strong><span>${escapeHTML(c.phone||"Not provided")}</span></div>
    </div>
 
+   ${isSuperAdmin?`
    <div class="panel-head">
     <div><h2>Account access</h2><p class="panel-desc">Changes require a reason and are recorded.</p></div>
     <button class="btn ${suspended?"btn-primary":"btn-danger"}" id="toggleCustomerAccess">${suspended?"Reactivate account":"Suspend account"}</button>
-   </div>
+   </div>`:`
+   <div class="agent-readonly-note">Read-only agent access: customer account status can be viewed, but only the Super Admin can suspend or reactivate accounts.</div>`}
 
    <h2 style="margin:22px 0 10px">Recent transactions</h2>
    <div class="table-wrap">
@@ -791,59 +788,191 @@ async function openCustomerDetail(id){
    </div>
    <p class="panel-desc">Showing up to 50 recent transactions for this customer.</p>`;
 
-  $("toggleCustomerAccess").addEventListener("click",async()=>{
-   const next=suspended?"active":"suspended";
-   const reason=prompt("Enter the reason for "+next+" this account (10–500 characters):");
+  if(isSuperAdmin){
+   $("toggleCustomerAccess").addEventListener("click",async()=>{
+    const next=suspended?"active":"suspended";
+    const reason=prompt("Enter the reason for "+next+" this account (10–500 characters):");
+    if(reason===null)return;
+    if(reason.trim().length<10||reason.trim().length>500){
+     alert("Please enter a reason between 10 and 500 characters.");
+     return;
+    }
+    if(!confirm("Confirm "+next+" for "+(c.email||c.id)+"?"))return;
 
-   if(reason===null)return;
-
-   if(reason.trim().length<10||reason.trim().length>500){
-    alert("Please enter a reason between 10 and 500 characters.");
-    return;
-   }
-
-   if(!confirm("Confirm "+next+" for "+(c.email||c.id)+"?"))return;
-
-   const b=$("toggleCustomerAccess");
-   b.disabled=true;
-
-   try{
-    await adminRequest("set_customer_access",{
-     userId:c.id,
-     status:next,
-     reason:reason.trim()
-    });
-
-    alert("Customer account "+next+" successfully.");
-    $("customerModal").classList.add("hidden");
-    await loadCustomers();
-   }catch(e){
-    alert(e.message);
-    b.disabled=false;
-   }
-  });
-
+    const b=$("toggleCustomerAccess");
+    b.disabled=true;
+    try{
+     await adminRequest("set_customer_access",{userId:c.id,status:next,reason:reason.trim()});
+     alert("Customer account "+next+" successfully.");
+     $("customerModal").classList.add("hidden");
+     await loadCustomers();
+    }catch(e){
+     alert(e.message);
+     b.disabled=false;
+    }
+   });
+  }
  }catch(e){
   $("customerDetailContent").innerHTML=`<p class="red">${escapeHTML(e.message)}</p>`;
  }
 }
 
-function showDashboard(){
- $("loginPanel").classList.add("hidden");
- $("dashboard").classList.remove("hidden");
- showTab("overview");
+/* AGENT MANAGEMENT — Super Admin only */
+async function searchAgentCustomer(){
+ if(!isSuperAdmin)return;
+
+ const email=$("agentSearchEmail").value.trim().toLowerCase();
+ const output=$("agentSearchResults");
+
+ if(!email||!email.includes("@")){
+  output.innerHTML='<p class="red">Enter a valid customer email address.</p>';
+  return;
+ }
+
+ output.innerHTML='<div class="loading">Searching registered PanBill customers...</div>';
+ $("agentSearchButton").disabled=true;
+
+ try{
+  const r=await adminRequest("agent_search",{email});
+  let results=r.users||r.results||r.matches||[];
+  if(!Array.isArray(results))results=[];
+  if(!results.length&&r.user)results=[r.user];
+  if(!results.length&&r.customer)results=[r.customer];
+
+  agentSearchResults=results;
+
+  if(!results.length){
+   output.innerHTML='<p class="empty">No matching registered customer was found. Check the email address and try again.</p>';
+   return;
+  }
+
+  output.innerHTML=results.map((u,i)=>{
+   const uid=u.user_id||u.id||u.uid||"";
+   const mail=u.email||email;
+   const role=String(u.role||u.status||"").toLowerCase();
+   const alreadyAgent=role==="agent"||u.is_agent===true;
+   const alreadyAdmin=role==="admin"||u.is_admin===true;
+   const eligible=u.eligible===true||u.is_eligible===true||
+    role==="eligible"||role==="customer"||
+    (!alreadyAgent&&!alreadyAdmin&&!!uid);
+
+   let status="Eligible for appointment";
+   let button="";
+
+   if(alreadyAdmin)status="This user is already a Super Admin";
+   else if(alreadyAgent)status="This user is already an agent";
+   else if(eligible&&uid){
+    button=`<button class="btn btn-primary" data-appoint-agent="${i}">Appoint as agent</button>`;
+   }else{
+    status=u.message||"This account is not eligible for appointment";
+   }
+
+   return `<div class="agent-result">
+    <div><strong>${escapeHTML(mail)}</strong><small>${escapeHTML(status)}</small></div>
+    ${button}
+   </div>`;
+  }).join("");
+
+  output.querySelectorAll("[data-appoint-agent]").forEach(button=>{
+   button.addEventListener("click",()=>{
+    const u=agentSearchResults[Number(button.dataset.appointAgent)];
+    appointAgent(u.email||email);
+   });
+  });
+ }catch(e){
+  output.innerHTML=`<p class="red">${escapeHTML(e.message)}</p>`;
+ }finally{
+  $("agentSearchButton").disabled=false;
+ }
+}
+
+async function appointAgent(email){
+ if(!isSuperAdmin)return;
+ if(!confirm("Appoint "+email+" as a PanBill read-only agent?"))return;
+
+ $("agentSearchButton").disabled=true;
+ try{
+  const r=await adminRequest("agent_add",{email});
+  alert(r.message||"Agent appointed successfully.");
+  $("agentSearchResults").innerHTML="";
+  $("agentSearchEmail").value="";
+  await loadAgents();
+ }catch(e){
+  alert(e.message);
+ }finally{
+  $("agentSearchButton").disabled=false;
+ }
+}
+
+async function loadAgents(){
+ if(!isSuperAdmin)return;
+ $("agentsBody").innerHTML='<tr><td colspan="4" class="loading">Loading agents...</td></tr>';
+
+ try{
+  const r=await adminRequest("agent_list");
+  const agents=r.agents||r.users||[];
+
+  $("agentsBody").innerHTML=agents.map(a=>{
+   const id=a.user_id||a.id;
+   return `<tr>
+    <td>${escapeHTML(a.email||"Email unavailable")}</td>
+    <td>${escapeHTML(id||"—")}</td>
+    <td>${date(a.created_at)}</td>
+    <td><button class="btn btn-danger" data-remove-agent="${escapeHTML(id||"")}">Remove agent</button></td>
+   </tr>`;
+  }).join("")||'<tr><td colspan="4" class="empty">No agents appointed yet.</td></tr>';
+
+  $("agentsBody").querySelectorAll("[data-remove-agent]").forEach(button=>{
+   button.addEventListener("click",()=>removeAgent(button.dataset.removeAgent));
+  });
+ }catch(e){
+  $("agentsBody").innerHTML=`<tr><td colspan="4" class="red">${escapeHTML(e.message)}</td></tr>`;
+ }
+}
+
+async function removeAgent(userId){
+ if(!isSuperAdmin||!userId)return;
+ if(!confirm("Remove this user's PanBill agent access? Their normal customer account will remain active."))return;
+
+ try{
+  const r=await adminRequest("agent_remove",{userId});
+  alert(r.message||"Agent access removed.");
+  await loadAgents();
+ }catch(e){
+  alert(e.message);
+ }
+}
+
+async function showDashboard(){
+ try{
+  await verifyAdminRole();
+  $("loginPanel").classList.add("hidden");
+  $("dashboard").classList.remove("hidden");
+  showTab("overview");
+  return true;
+ }catch(e){
+  currentAdminRole=null;
+  isSuperAdmin=false;
+  $("loginMessage").textContent=e.message;
+  await client.auth.signOut();
+  showLogin();
+  return false;
+ }
 }
 
 function showLogin(){
+ currentAdminRole=null;
+ isSuperAdmin=false;
  $("dashboard").classList.add("hidden");
  $("customerModal").classList.add("hidden");
  $("transactionModal").classList.add("hidden");
  $("loginPanel").classList.remove("hidden");
+ document.querySelectorAll(".super-admin-only").forEach(el=>el.classList.add("hidden"));
+ $("brandRole").textContent="ADMIN CONSOLE";
 }
 
 $("loginForm").addEventListener("submit",async e=>{
  e.preventDefault();
-
  $("loginButton").disabled=true;
  $("loginButton").textContent="Verifying access...";
  $("loginMessage").textContent="";
@@ -853,10 +982,10 @@ $("loginForm").addEventListener("submit",async e=>{
    email:$("email").value.trim(),
    password:$("password").value
   });
-
   if(error)throw error;
 
-  showDashboard();
+  const ok=await showDashboard();
+  if(!ok)throw new Error($("loginMessage").textContent||"Administrative access could not be verified.");
  }catch(e){
   $("loginMessage").textContent=e.message;
  }finally{
@@ -876,86 +1005,71 @@ document.querySelectorAll(".nav-btn[data-tab]").forEach(b=>{
 });
 
 $("refreshButton").addEventListener("click",loadCurrentTab);
-$("reloadPricingButton").addEventListener("click",loadPricing);
+$("reloadPricingButton").addEventListener("click",()=>{
+ loadPricing().catch(e=>showMessage(e.message));
+});
 $("savePricingButton").addEventListener("click",savePricing);
 
-$("closeCustomerModal").addEventListener("click",()=>{
- $("customerModal").classList.add("hidden");
+$("agentSearchButton").addEventListener("click",searchAgentCustomer);
+$("agentSearchEmail").addEventListener("keydown",e=>{
+ if(e.key==="Enter"){
+  e.preventDefault();
+  searchAgentCustomer();
+ }
 });
+$("reloadAgentsButton").addEventListener("click",loadAgents);
 
-$("closeTransactionModal").addEventListener("click",()=>{
- $("transactionModal").classList.add("hidden");
-});
-
+$("closeCustomerModal").addEventListener("click",()=>$("customerModal").classList.add("hidden"));
+$("closeTransactionModal").addEventListener("click",()=>$("transactionModal").classList.add("hidden"));
 $("customerModal").addEventListener("click",e=>{
  if(e.target===$("customerModal"))$("customerModal").classList.add("hidden");
 });
-
 $("transactionModal").addEventListener("click",e=>{
  if(e.target===$("transactionModal"))$("transactionModal").classList.add("hidden");
 });
 
 $("customersPrev").addEventListener("click",()=>{
- if(customerPage>1){
-  customerPage--;
-  loadCustomers();
- }
+ if(customerPage>1){customerPage--;loadCustomers();}
 });
-
 $("customersNext").addEventListener("click",()=>{
- customerPage++;
- loadCustomers();
+ customerPage++;loadCustomers();
 });
-
 $("transactionsPrev").addEventListener("click",()=>{
- if(transactionPage>1){
-  transactionPage--;
-  loadTransactions();
- }
+ if(transactionPage>1){transactionPage--;loadTransactions();}
 });
-
 $("transactionsNext").addEventListener("click",()=>{
- if(transactionPage*50<transactionTotal){
-  transactionPage++;
-  loadTransactions();
- }
+ if(transactionPage*50<transactionTotal){transactionPage++;loadTransactions();}
 });
-
 $("auditPrev").addEventListener("click",()=>{
- if(auditPage>1){
-  auditPage--;
-  loadAuditLogs();
- }
+ if(auditPage>1){auditPage--;loadAuditLogs();}
 });
-
 $("auditNext").addEventListener("click",()=>{
- if(auditPage*50<auditTotal){
-  auditPage++;
-  loadAuditLogs();
- }
+ if(auditPage*50<auditTotal){auditPage++;loadAuditLogs();}
 });
 
 $("customerSearch").addEventListener("input",renderCustomers);
-
 $("transactionSearch").addEventListener("input",()=>{
  clearTimeout(transactionSearchTimer);
-
  transactionSearchTimer=setTimeout(()=>{
   transactionPage=1;
   loadTransactions().catch(e=>showMessage(e.message));
  },350);
 });
-
 $("transactionStatusFilter").addEventListener("change",()=>{
  transactionPage=1;
  loadTransactions().catch(e=>showMessage(e.message));
 });
 
 async function initialise(){
- const {data:{session}}=await client.auth.getSession();
-
- if(session)showDashboard();
- else showLogin();
+ try{
+  const {data:{session},error}=await client.auth.getSession();
+  if(error)throw error;
+  if(session)await showDashboard();
+  else showLogin();
+ }catch(e){
+  showLogin();
+  $("loginMessage").textContent=e.message;
+ }
 
  client.auth.onAuthStateChange((_event,session)=>{
   if(!session)showLogin();
