@@ -347,8 +347,23 @@ tbody tr:hover{background:#192b43}
    <div><h2>Marketplace delivery routes</h2><div class="panel-desc">Securely test the deployed marketplace-seller delivery-routes endpoint using your existing signed-in admin session.</div></div>
    <button class="btn btn-primary" id="reloadDeliveryRoutesButton" type="button">↻ Test / Load routes</button>
   </div>
-  <div class="pricing-note">This request uses the current PanBill admin session automatically. Your access token is not displayed or copied. Only accounts verified as role <strong>admin</strong> by the Edge Function can load these routes. This section currently performs a read-only test; it does not change delivery prices or enable checkout.</div>
-  <div id="deliveryRoutesStatus" class="panel-desc" role="status" aria-live="polite">Tap “Test / Load routes” to call the deployed marketplace-seller function.</div>
+  <div class="pricing-note">Delivery route changes are sent through the deployed marketplace-seller Edge Function using your signed-in Super Admin session. The server verifies your admin role and records successful price changes in the pricing audit log. Saving routes does not enable checkout.</div>
+  <div class="panel" style="background:#101d31;margin:16px 0">
+   <div class="panel-head"><div><h2>Create delivery route</h2><div class="panel-desc">Set a delivery fee for one origin, destination and parcel size.</div></div></div>
+   <div class="pricing-grid">
+    <div class="pricing-field"><label for="deliveryOriginState">Origin state</label><input id="deliveryOriginState" maxlength="100" required value="Abia"></div>
+    <div class="pricing-field"><label for="deliveryOriginLga">Origin LGA</label><input id="deliveryOriginLga" maxlength="100" required value="Isuikwuato"></div>
+    <div class="pricing-field"><label for="deliveryOriginCity">Origin town / city (optional)</label><input id="deliveryOriginCity" maxlength="100" value="Uturu"></div>
+    <div class="pricing-field"><label for="deliveryDestinationState">Destination state</label><input id="deliveryDestinationState" maxlength="100" required value="Rivers"></div>
+    <div class="pricing-field"><label for="deliveryDestinationLga">Destination LGA</label><input id="deliveryDestinationLga" maxlength="100" required value="Port Harcourt"></div>
+    <div class="pricing-field"><label for="deliveryDestinationCity">Destination town / city (optional)</label><input id="deliveryDestinationCity" maxlength="100" value="Port Harcourt"></div>
+    <div class="pricing-field"><label for="deliveryParcelSize">Parcel size</label><select id="deliveryParcelSize"><option value="small">Small</option><option value="medium" selected>Medium</option><option value="large">Large</option></select></div>
+    <div class="pricing-field"><label for="deliveryFee">Delivery fee (₦)</label><input id="deliveryFee" type="number" min="0" max="100000000" step="0.01" required value="3500"></div>
+   </div>
+   <div class="pricing-field" style="margin-top:14px"><label for="deliveryRouteReason">Reason for this pricing change</label><textarea id="deliveryRouteReason" class="reason-input" rows="2" maxlength="500">Initial route pricing setup</textarea><div class="pricing-help">Enter at least 5 characters. This reason is stored in the pricing audit log.</div></div>
+   <div class="pricing-actions"><button class="btn btn-primary" id="saveDeliveryRouteButton" type="button">Save delivery route</button><span id="deliveryRouteSaveStatus" class="panel-desc" role="status" aria-live="polite"></span></div>
+  </div>
+  <div id="deliveryRoutesStatus" class="panel-desc" role="status" aria-live="polite">Tap “Test / Load routes” to load routes saved on the server.</div>
   <div class="table-wrap" style="margin-top:14px">
    <table>
     <thead><tr><th>ORIGIN</th><th>DESTINATION</th><th>PARCEL</th><th>DELIVERY FEE</th><th>STATUS</th><th>UPDATED</th></tr></thead>
@@ -891,6 +906,53 @@ async function marketplaceSellerDeliveryRequest(body){
  return data;
 }
 
+async function saveMarketplaceDeliveryRoute(){
+ if(!isSuperAdmin)throw new Error("Only the Super Admin can save delivery routes.");
+ const button=$("saveDeliveryRouteButton"),status=$("deliveryRouteSaveStatus");
+ const value=id=>$(id).value.trim();
+ const payload={
+  action:"admin_delivery_route_save",
+  origin_state:value("deliveryOriginState"),
+  origin_lga:value("deliveryOriginLga"),
+  origin_city:value("deliveryOriginCity"),
+  destination_state:value("deliveryDestinationState"),
+  destination_lga:value("deliveryDestinationLga"),
+  destination_city:value("deliveryDestinationCity"),
+  parcel_size:$("deliveryParcelSize").value,
+  delivery_fee:Number($("deliveryFee").value),
+  is_active:true,
+  reason:value("deliveryRouteReason")
+ };
+ if(!payload.origin_state||payload.origin_lga.length<2||!payload.destination_state||payload.destination_lga.length<2){
+  status.textContent="Enter both states and LGAs. Each LGA must contain at least 2 characters.";
+  return;
+ }
+ if(!Number.isFinite(payload.delivery_fee)||payload.delivery_fee<0||payload.delivery_fee>100000000){
+  status.textContent="Enter a valid delivery fee between ₦0 and ₦100,000,000.";
+  return;
+ }
+ if(payload.reason.length<5||payload.reason.length>500){
+  status.textContent="Enter a reason between 5 and 500 characters.";
+  return;
+ }
+ if(!confirm(`Save this ACTIVE ${payload.parcel_size} route for ₦${payload.delivery_fee.toLocaleString("en-NG")}?\n\n${payload.origin_lga}, ${payload.origin_state} → ${payload.destination_lga}, ${payload.destination_state}`))return;
+ button.disabled=true;
+ button.textContent="Saving route…";
+ status.textContent="Sending the route to the secure PanBill backend…";
+ try{
+  const result=await marketplaceSellerDeliveryRequest(payload);
+  status.textContent=result.message||"Delivery route saved and audit entry recorded.";
+  showMessage("Delivery route saved successfully.",false);
+  await loadMarketplaceDeliveryRoutes();
+ }catch(error){
+  status.textContent=error.message||"Could not save the delivery route.";
+  showMessage(status.textContent);
+ }finally{
+  button.disabled=false;
+  button.textContent="Save delivery route";
+ }
+}
+
 async function loadMarketplaceDeliveryRoutes(){
  if(!isSuperAdmin)throw new Error("Only the Super Admin can access marketplace delivery pricing.");
  const body=$("deliveryRoutesBody"),status=$("deliveryRoutesStatus"),button=$("reloadDeliveryRoutesButton");
@@ -1259,6 +1321,7 @@ $("reloadMarketplaceSellersButton").addEventListener("click",()=>loadMarketplace
 $("reloadMarketplaceCodButton").addEventListener("click",()=>loadMarketplaceCodSellers().catch(e=>showMessage(e.message)));
 $("reloadMarketplaceDispatchButton").addEventListener("click",()=>loadMarketplaceDispatchLocations().catch(e=>showMessage(e.message)));
 $("reloadDeliveryRoutesButton").addEventListener("click",()=>loadMarketplaceDeliveryRoutes());
+$("saveDeliveryRouteButton").addEventListener("click",saveMarketplaceDeliveryRoute);
 
 $("closeCustomerModal").addEventListener("click",()=>$("customerModal").classList.add("hidden"));
 $("closeTransactionModal").addEventListener("click",()=>$("transactionModal").classList.add("hidden"));
