@@ -334,6 +334,10 @@ tbody tr:hover{background:#192b43}
   </div>
   <p class="panel-desc" style="margin-top:14px">This setting only grants seller eligibility. Checkout must still verify that every item is physical and that all sellers in the order support Payment on Delivery.</p>
  </div>
+ <div class="panel" style="margin-top:18px">
+  <div class="panel-head"><div><h2>Seller dispatch location reviews</h2><div class="panel-desc">Approve or reject seller dispatch cities. Only approved locations can be used for route-based delivery pricing.</div></div><button class="btn" id="reloadMarketplaceDispatchButton">↻ Refresh dispatch reviews</button></div>
+  <div class="table-wrap"><table><thead><tr><th>BUSINESS</th><th>CONTACT</th><th>DISPATCH STATE</th><th>DISPATCH CITY</th><th>SUBMITTED</th><th>ACTIONS</th></tr></thead><tbody id="marketplaceDispatchBody"><tr><td colspan="6" class="loading">Loading pending dispatch locations...</td></tr></tbody></table></div>
+ </div>
 </section>
 
 <section id="agentsTab" class="section super-admin-only hidden">
@@ -766,7 +770,7 @@ async function loadCurrentTab(){
   if(activeTab==="audit")await loadAuditLogs();
   if(activeTab==="pricing")await loadPricing();
   if(activeTab==="agents"&&isSuperAdmin)await loadAgents();
-  if(activeTab==="marketplace"&&isSuperAdmin){await loadMarketplaceSellers();await loadMarketplaceCodSellers();}
+  if(activeTab==="marketplace"&&isSuperAdmin){await loadMarketplaceSellers();await loadMarketplaceCodSellers();await loadMarketplaceDispatchLocations();}
  }catch(e){
   showMessage(e.message);
  }finally{
@@ -958,6 +962,31 @@ async function setMarketplaceSellerCod(sellerUserId,enabled){
   alert(result.message||"Seller Payment on Delivery setting updated.");
   await loadMarketplaceCodSellers();
  }catch(e){alert(e.message);}
+}
+
+/* SELLER DISPATCH LOCATION REVIEWS — Super Admin only */
+async function loadMarketplaceDispatchLocations(){
+ if(!isSuperAdmin)return;
+ const body=$("marketplaceDispatchBody");
+ body.innerHTML='<tr><td colspan="6" class="loading">Loading pending dispatch locations...</td></tr>';
+ try{
+  const result=await marketplaceAdminRequest({action:"pending_dispatch_locations"});
+  const sellers=Array.isArray(result.sellers)?result.sellers:[];
+  if(!sellers.length){body.innerHTML='<tr><td colspan="6" class="empty">There are no pending dispatch locations.</td></tr>';return;}
+  body.innerHTML=sellers.map(s=>`<tr><td><strong>${escapeHTML(s.business_name||"Seller")}</strong><br><small>${escapeHTML(s.slug||"")}</small></td><td>${escapeHTML(s.contact_email||"—")}<br>${escapeHTML(s.contact_phone||"")}</td><td>${escapeHTML(s.dispatch_state||"—")}</td><td>${escapeHTML(s.dispatch_city||"—")}</td><td>${date(s.updated_at||s.created_at)}</td><td><button class="btn btn-primary" data-dispatch-review="approved" data-seller-id="${escapeHTML(s.user_id)}">Approve</button> <button class="btn btn-danger" data-dispatch-review="rejected" data-seller-id="${escapeHTML(s.user_id)}">Reject</button></td></tr>`).join("");
+  body.querySelectorAll("[data-dispatch-review]").forEach(button=>button.addEventListener("click",()=>reviewMarketplaceDispatchLocation(button.dataset.sellerId,button.dataset.dispatchReview)));
+ }catch(e){body.innerHTML=`<tr><td colspan="6" class="red">${escapeHTML(e.message)}</td></tr>`;}
+}
+async function reviewMarketplaceDispatchLocation(sellerUserId,decision){
+ if(!isSuperAdmin||!sellerUserId)return;
+ const row=[...$("marketplaceDispatchBody").querySelectorAll("tr")].find(r=>r.querySelector(`[data-seller-id="${CSS.escape(sellerUserId)}"]`));
+ const businessName=row?.querySelector("strong")?.textContent||"this seller";
+ let reason=prompt(`${decision==="approved"?"Optional approval note":"Reason for rejecting"} ${businessName} (maximum 500 characters):`,"");
+ if(reason===null)return;
+ if(decision==="rejected"&&!reason.trim()){alert("Please enter a reason when rejecting a dispatch location.");return;}
+ if(!confirm(`${decision==="approved"?"Approve":"Reject"} the dispatch location for ${businessName}?`))return;
+ try{const result=await marketplaceAdminRequest({action:"review_dispatch_location",seller_user_id:sellerUserId,decision,reason});alert(result.message||"Dispatch location review saved.");await loadMarketplaceDispatchLocations();}
+ catch(e){alert(e.message);}
 }
 
 /* AGENT MANAGEMENT — Super Admin only */
@@ -1163,6 +1192,7 @@ $("agentSearchEmail").addEventListener("keydown",e=>{
 $("reloadAgentsButton").addEventListener("click",loadAgents);
 $("reloadMarketplaceSellersButton").addEventListener("click",()=>loadMarketplaceSellers().catch(e=>showMessage(e.message)));
 $("reloadMarketplaceCodButton").addEventListener("click",()=>loadMarketplaceCodSellers().catch(e=>showMessage(e.message)));
+$("reloadMarketplaceDispatchButton").addEventListener("click",()=>loadMarketplaceDispatchLocations().catch(e=>showMessage(e.message)));
 
 $("closeCustomerModal").addEventListener("click",()=>$("customerModal").classList.add("hidden"));
 $("closeTransactionModal").addEventListener("click",()=>$("transactionModal").classList.add("hidden"));
