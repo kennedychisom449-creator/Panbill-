@@ -192,6 +192,7 @@ tbody tr:hover{background:#192b43}
   <button class="nav-btn" data-tab="pricing"><span class="nav-icon">₦</span> VTU Pricing</button>
   <button class="nav-btn" data-tab="audit"><span class="nav-icon">⌑</span> Audit log</button>
   <button class="nav-btn super-admin-only hidden" data-tab="marketplace"><span class="nav-icon">▣</span> Marketplace Sellers</button>
+  <button class="nav-btn super-admin-only hidden" data-tab="deliveryPricing"><span class="nav-icon">🚚</span> Delivery Pricing</button>
   <button class="nav-btn super-admin-only hidden" data-tab="agents"><span class="nav-icon">♙</span> Agent Management</button>
  </nav>
  <div class="sidebar-bottom">
@@ -340,6 +341,23 @@ tbody tr:hover{background:#192b43}
  </div>
 </section>
 
+<section id="deliveryPricingTab" class="section super-admin-only hidden">
+ <div class="panel">
+  <div class="panel-head">
+   <div><h2>Marketplace delivery routes</h2><div class="panel-desc">Securely test the deployed marketplace-seller delivery-routes endpoint using your existing signed-in admin session.</div></div>
+   <button class="btn btn-primary" id="reloadDeliveryRoutesButton" type="button">↻ Test / Load routes</button>
+  </div>
+  <div class="pricing-note">This request uses the current PanBill admin session automatically. Your access token is not displayed or copied. Only accounts verified as role <strong>admin</strong> by the Edge Function can load these routes. This section currently performs a read-only test; it does not change delivery prices or enable checkout.</div>
+  <div id="deliveryRoutesStatus" class="panel-desc" role="status" aria-live="polite">Tap “Test / Load routes” to call the deployed marketplace-seller function.</div>
+  <div class="table-wrap" style="margin-top:14px">
+   <table>
+    <thead><tr><th>ORIGIN</th><th>DESTINATION</th><th>PARCEL</th><th>DELIVERY FEE</th><th>STATUS</th><th>UPDATED</th></tr></thead>
+    <tbody id="deliveryRoutesBody"><tr><td colspan="6" class="empty">No routes loaded yet.</td></tr></tbody>
+   </table>
+  </div>
+ </div>
+</section>
+
 <section id="agentsTab" class="section super-admin-only hidden">
  <div class="panel">
   <div class="panel-head">
@@ -478,7 +496,7 @@ async function verifyAdminRole(){
 }
 
 function showTab(tab){
- if((tab==="agents"||tab==="marketplace")&&!isSuperAdmin){
+ if((tab==="agents"||tab==="marketplace"||tab==="deliveryPricing")&&!isSuperAdmin){
   showMessage("Only the Super Admin can access this section.");
   return;
  }
@@ -491,11 +509,12 @@ function showTab(tab){
   audit:"Administrative Audit Log",
   pricing:"VTU Pricing Management",
   agents:"Agent Management",
-  marketplace:"Marketplace Seller Applications"
+  marketplace:"Marketplace Seller Applications",
+  deliveryPricing:"Marketplace Delivery Pricing"
  };
  $("pageTitle").textContent=titles[tab]||"PanBill";
 
- ["overview","customers","transactions","pricing","audit","agents","marketplace"].forEach(n=>{
+ ["overview","customers","transactions","pricing","audit","agents","marketplace","deliveryPricing"].forEach(n=>{
   $(n+"Tab").classList.toggle("active",n===tab);
  });
 
@@ -771,6 +790,7 @@ async function loadCurrentTab(){
   if(activeTab==="pricing")await loadPricing();
   if(activeTab==="agents"&&isSuperAdmin)await loadAgents();
   if(activeTab==="marketplace"&&isSuperAdmin){await loadMarketplaceSellers();await loadMarketplaceCodSellers();await loadMarketplaceDispatchLocations();}
+  if(activeTab==="deliveryPricing"&&isSuperAdmin)await loadMarketplaceDeliveryRoutes();
  }catch(e){
   showMessage(e.message);
  }finally{
@@ -851,6 +871,51 @@ async function openCustomerDetail(id){
  }catch(e){
   $("customerDetailContent").innerHTML=`<p class="red">${escapeHTML(e.message)}</p>`;
  }
+}
+
+/* DELIVERY ROUTE TEST — uses the existing Supabase session; never exposes the access token. */
+async function marketplaceSellerDeliveryRequest(body){
+ if(!isSuperAdmin)throw new Error("Only the Super Admin can access marketplace delivery pricing.");
+ const {data:{session},error:sessionError}=await client.auth.getSession();
+ if(sessionError)throw sessionError;
+ if(!session)throw new Error("Your session has expired. Please sign in again.");
+ const {data,error}=await client.functions.invoke("marketplace-seller",{body});
+ if(error){
+  let message=error.message||"Marketplace delivery request failed.";
+  if(error.context&&typeof error.context.json==="function"){
+   try{const result=await error.context.json();if(result.error)message=result.error;}catch(_){}
+  }
+  throw new Error(message);
+ }
+ if(!data||data.success===false)throw new Error(data?.error||"Marketplace delivery request failed.");
+ return data;
+}
+
+async function loadMarketplaceDeliveryRoutes(){
+ if(!isSuperAdmin)throw new Error("Only the Super Admin can access marketplace delivery pricing.");
+ const body=$("deliveryRoutesBody"),status=$("deliveryRoutesStatus"),button=$("reloadDeliveryRoutesButton");
+ body.innerHTML='<tr><td colspan="6" class="loading">Calling marketplace-seller…</td></tr>';
+ status.textContent="Checking your admin session and requesting delivery routes…";
+ button.disabled=true;
+ try{
+  const result=await marketplaceSellerDeliveryRequest({action:"admin_delivery_routes_list"});
+  const routes=Array.isArray(result.routes)?result.routes:[];
+  if(!routes.length){
+   body.innerHTML='<tr><td colspan="6" class="empty">The request succeeded. No delivery routes have been created yet.</td></tr>';
+  }else{
+   body.innerHTML=routes.map(route=>{
+    const origin=[route.origin_lga,route.origin_state,route.origin_city].filter(Boolean).join(", ");
+    const destination=[route.destination_lga,route.destination_state,route.destination_city].filter(Boolean).join(", ");
+    return `<tr><td>${escapeHTML(origin||"—")}</td><td>${escapeHTML(destination||"—")}</td><td>${escapeHTML(route.parcel_size||"—")}</td><td>${money(route.delivery_fee)}</td><td><span class="status ${route.is_active?"active":"pending"}">${route.is_active?"Active":"Inactive"}</span></td><td>${date(route.updated_at||route.created_at)}</td></tr>`;
+   }).join("");
+  }
+  status.textContent=`Success: marketplace-seller accepted your authenticated admin session. ${routes.length} route(s) returned.`;
+  showMessage("Delivery routes endpoint test succeeded.",false);
+ }catch(error){
+  body.innerHTML=`<tr><td colspan="6" class="red">${escapeHTML(error.message||"Could not load delivery routes.")}</td></tr>`;
+  status.textContent="Test failed. Read the message in the table and check the deployed Edge Function if needed.";
+  showMessage(error.message||"Could not load delivery routes.");
+ }finally{button.disabled=false;}
 }
 
 /* MARKETPLACE SELLER MANAGEMENT — Super Admin only */
@@ -1193,6 +1258,7 @@ $("reloadAgentsButton").addEventListener("click",loadAgents);
 $("reloadMarketplaceSellersButton").addEventListener("click",()=>loadMarketplaceSellers().catch(e=>showMessage(e.message)));
 $("reloadMarketplaceCodButton").addEventListener("click",()=>loadMarketplaceCodSellers().catch(e=>showMessage(e.message)));
 $("reloadMarketplaceDispatchButton").addEventListener("click",()=>loadMarketplaceDispatchLocations().catch(e=>showMessage(e.message)));
+$("reloadDeliveryRoutesButton").addEventListener("click",()=>loadMarketplaceDeliveryRoutes());
 
 $("closeCustomerModal").addEventListener("click",()=>$("customerModal").classList.add("hidden"));
 $("closeTransactionModal").addEventListener("click",()=>$("transactionModal").classList.add("hidden"));
