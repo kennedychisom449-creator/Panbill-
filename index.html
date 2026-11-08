@@ -376,6 +376,9 @@ input,select,textarea{background:#07152f;color:var(--ink);border-color:#ffffff28
 <button id="home-marketplace-shortcut" class="service-card market-service-shortcut" type="button" aria-label="Open Marketplace">
   <span class="service-icon" aria-hidden="true">🛍</span><strong>Marketplace</strong><small>Shop products</small>
 </button>
+<button id="home-history-shortcut" class="service-card history-service-shortcut" type="button" aria-label="Open transaction history">
+  <span class="service-icon" aria-hidden="true">◷</span><strong>History</strong><small>View transactions</small>
+</button>
 <button class="service-card" data-service="airtime" type="button"><span class="service-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm3 14h4"/></svg></span><strong>Airtime</strong><small>All mobile networks</small></button>
 <button class="service-card" data-service="data" type="button"><span class="service-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9a13 13 0 0 1 18 0M6.5 12.5a8 8 0 0 1 11 0M10 16a3 3 0 0 1 4 0M12 20h.01"/></svg></span><strong>Data</strong><small>Internet bundles</small></button>
 <button class="service-card" data-service="tv" type="button"><span class="service-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="m8 3 4 3 4-3M8 22h8"/></svg></span><strong>TV</strong><small>GOtv, DStv & more</small></button>
@@ -527,7 +530,7 @@ input,select,textarea{background:#07152f;color:var(--ink);border-color:#ffffff28
  <p class="settings-footnote">Only settings and controls currently supported by PanBill are shown here.</p>
 </section>
 
-<div class="two-col"><section class="panel" id="transaction-panel"><div class="section-head" style="margin-top:0"><h2>Recent transactions</h2><button id="refresh-transactions" class="text-button" type="button">Refresh</button></div><div id="transaction-filters" class="tx-filter-bar" role="group" aria-label="Filter transactions">
+<div class="two-col" id="history-area"><section class="panel" id="transaction-panel"><div class="section-head" style="margin-top:0"><h2>Recent transactions</h2><button id="refresh-transactions" class="text-button" type="button">Refresh</button></div><div id="transaction-filters" class="tx-filter-bar" role="group" aria-label="Filter transactions">
 <button class="tx-filter" type="button" data-tx-filter="all" aria-pressed="true">All</button>
 <button class="tx-filter" type="button" data-tx-filter="successful" aria-pressed="false">Successful</button>
 <button class="tx-filter" type="button" data-tx-filter="pending" aria-pressed="false">Pending</button>
@@ -544,7 +547,7 @@ input,select,textarea{background:#07152f;color:var(--ink);border-color:#ffffff28
  </section>
 </div>
 <footer class="footer">PanBill · Add money, pay bills, shop and market every day.<br>© <span id="year"></span> PanBill. All rights reserved.</footer></main>
-<nav class="bottom-nav" aria-label="Main navigation"><button id="nav-home" type="button"><span>⌂</span>Home</button><button id="nav-services" type="button"><span>▦</span>Services</button><button id="nav-market" type="button" aria-label="Open marketplace"><span>🛍</span>Market</button><button id="nav-quick" class="nav-quick" type="button" aria-label="Quick actions"><span>＋</span>Quick</button><button id="nav-wallet" type="button"><span>▣</span>Wallet</button><button id="nav-transactions" type="button"><span>◷</span>History</button><button id="nav-settings" type="button"><span>⚙</span>Settings</button></nav>
+<nav class="bottom-nav" aria-label="Main navigation"><button id="nav-home" type="button"><span>⌂</span>Home</button><button id="nav-services" type="button"><span>▦</span>Services</button><button id="nav-market" type="button" aria-label="Open marketplace"><span>🛍</span>Market</button><button id="nav-wallet" type="button"><span>▣</span>Wallet</button><button id="nav-transactions" type="button"><span>◷</span>History</button><button id="nav-settings" type="button"><span>⚙</span>Settings</button></nav>
 <div id="auth-overlay" class="auth-layer"><div class="auth-card"><div class="auth-brand"><span class="brand-mark">P</span> PanBill</div><section id="auth-seasonal-greeting" class="seasonal-card auth-seasonal" aria-live="polite" aria-label="PanBill seasonal greeting"><div class="seasonal-copy"><div class="seasonal-kicker" data-season-kicker>SEASONAL GREETINGS</div><h2 class="seasonal-title" data-season-title>Wishing you joy</h2><p class="seasonal-message" data-season-message>Warm wishes from PanBill.</p></div><div class="seasonal-art" aria-hidden="true"><span class="season-main" data-season-art>✦</span><span class="season-sparkles">✧ ✦</span></div></section><h2 id="auth-heading">Welcome back</h2><p id="auth-subtitle" class="auth-sub">Sign in to continue to your account.</p><div class="tabs"><button id="login-tab" class="active" type="button">Log in</button><button id="signup-tab" type="button">Create account</button></div><form id="auth-form"><div id="name-field" hidden><label for="full-name">Full name</label><input id="full-name" autocomplete="name" placeholder="Your name"></div><div id="email-wrap"><label for="email">Email address</label><input id="email" type="email" autocomplete="email" required placeholder="you@example.com"></div><div id="password-wrap"><label for="password">Password</label><div class="password-wrap"><input id="password" type="password" minlength="6" autocomplete="current-password" required placeholder="Enter your password"><button id="show-password" class="pill" type="button" aria-label="Show password">Show</button></div></div><div id="forgot-row" class="auth-links"><span class="muted">Keep your account secure</span><button id="forgot-button" class="text-button" type="button">Forgot password?</button></div><button id="auth-submit" class="gold-btn" type="submit" style="width:100%;margin-top:10px">Log in</button><p id="auth-message" class="auth-message" role="alert"></p></form><div id="biometric-note" class="biometric-note"><span class="bio-icon" aria-hidden="true">◎</span><div class="passkey-copy"><strong style="font-size:13px">Sign in with fingerprint or passkey</strong><small id="passkey-login-help">Use your device fingerprint, face unlock, screen lock or saved passkey.</small></div><button id="passkey-login-button" class="gold-btn passkey-action" type="button">Sign in</button></div><p class="auth-note">Your password is protected by Supabase authentication. Never share your password or verification links.</p></div></div>
 <div id="reset-overlay" class="modal-backdrop" hidden><section class="modal"><div class="modal-top"><h2 id="reset-title">Reset password</h2><button id="close-reset" class="close" type="button">Close</button></div><p id="reset-description" class="muted" style="font-size:13px">Enter your account email and we’ll send a secure reset link.</p><form id="reset-form"><div id="reset-email-field"><label for="reset-email">Email address</label><input id="reset-email" type="email" autocomplete="email" required placeholder="you@example.com"></div><div id="new-password-field" hidden><label for="new-password">New password</label><input id="new-password" type="password" minlength="6" autocomplete="new-password" placeholder="At least 6 characters"></div><button id="reset-submit" class="gold-btn" type="submit" style="width:100%;margin-top:17px">Send reset link</button></form><div id="reset-message" class="status" role="status"></div></section></div>
 <div id="account-overlay" class="modal-backdrop" hidden><section class="modal" aria-labelledby="account-settings-title"><div class="modal-top"><h2 id="account-settings-title">Account Settings</h2><button id="close-account" class="close" type="button">Close</button></div><p id="account-email" class="muted">Sign in to view account details.</p><form id="account-settings-form"><h3 style="margin:18px 0 4px">Personal information</h3><label for="settings-full-name">Full name</label><input id="settings-full-name" type="text" autocomplete="name" maxlength="100" placeholder="Enter your full name" required><label for="settings-phone">Contact phone number</label><input id="settings-phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="25" placeholder="e.g. 08012345678"><p class="muted" style="font-size:11px;margin:6px 0">Contact number only — it is not SMS-verified and is not used for phone login.</p><button id="save-account-settings" class="gold-btn" type="submit" style="width:100%;margin-top:10px">Save changes</button></form><div id="account-settings-message" class="status" role="status" aria-live="polite"></div><section class="passkey-settings"><strong>Biometric security</strong><p class="muted" style="font-size:12px;margin:6px 0 10px">Register a fresh passkey for panbill.com.ng. Your fingerprint or face data stays on your device.</p><button id="register-passkey-button" class="gold-btn" type="button">Register fingerprint / passkey</button><div id="passkey-register-message" class="status" role="status" aria-live="polite"></div></section><button id="account-reset-password" class="outline-btn" type="button">Send password reset link</button><div id="account-message" class="status"></div></section></div>
@@ -932,7 +935,7 @@ main.wrap[data-view="settings"] #settings-dashboard{display:block!important}
 (()=> {
  const main=document.querySelector('main.wrap');
  if(!main)return;
- const navIds=['nav-home','nav-services','nav-market','nav-quick','nav-wallet','nav-transactions','nav-settings'];
+ const navIds=['nav-home','nav-services','nav-market','nav-wallet','nav-transactions','nav-settings'];
  const activate=(id)=>navIds.forEach(key=>{const el=document.getElementById(key);if(el)el.classList.toggle('nav-active',key===id)});
  const setView=(view)=>{
   main.dataset.view=view;
@@ -1122,4 +1125,38 @@ main.wrap[data-view="market"] .jm-product-title{overflow-wrap:anywhere}
 }
 @media(prefers-reduced-motion:reduce){body.service-dialog-open::before{backdrop-filter:none}}
 </style>
+
+<style id="panbill-clean-vtu-home">
+/* Keep the VTU home uncluttered; transaction history opens only when requested. */
+main.wrap:not([data-view="history"]) #history-area{display:none!important}
+main.wrap[data-view="history"]{max-width:900px;min-height:calc(100vh - 72px);padding-top:18px}
+main.wrap[data-view="history"]> :not(#history-area):not(#product-detail-layer):not(#marketplace-cart-layer):not(#seller-marketplace-panel):not(#seller-tools):not(#my-digital-purchases):not(#settings-dashboard){display:none!important}
+main.wrap[data-view="history"] #history-area{display:block!important;width:100%;margin:0}
+main.wrap[data-view="history"] #history-area>#transaction-panel{display:block!important;width:100%;max-width:100%}
+main.wrap[data-view="history"] #history-area>section:not(#transaction-panel){display:none!important}
+#home-history-shortcut{cursor:pointer}
+#home-history-shortcut .service-icon{display:grid;place-items:center;font-size:25px}
+.bottom-nav{grid-template-columns:repeat(6,minmax(0,1fr))!important}
+.bottom-nav .nav-quick{display:none!important}
+@media(max-width:760px){
+ main.wrap[data-view="history"]{padding:14px 12px 90px}
+ main.wrap:not([data-view="history"]):not([data-view="market"]):not([data-view="settings"]) #history-area{display:none!important}
+ .bottom-nav button{font-size:10px!important;padding:5px 1px!important}
+}
+</style>
+<script id="panbill-history-shortcut-controller">
+(()=>{
+ const main=document.querySelector('main.wrap');
+ if(!main)return;
+ const openHistory=()=>{
+  main.dataset.view='history';
+  document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.toggle('nav-active',b.id==='nav-transactions'));
+  window.scrollTo({top:0,behavior:'smooth'});
+ };
+ document.getElementById('home-history-shortcut')?.addEventListener('click',openHistory);
+ document.getElementById('nav-transactions')?.addEventListener('click',e=>{e.stopImmediatePropagation();openHistory()},true);
+ document.getElementById('nav-home')?.addEventListener('click',()=>{main.dataset.view='home'},true);
+})();
+</script>
+
 </body></html>
