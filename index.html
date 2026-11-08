@@ -367,7 +367,7 @@ input,select,textarea{background:#07152f;color:var(--ink);border-color:#ffffff28
 
 </style></head><body>
 <div aria-label="PanBill is loading" aria-live="polite" id="panbill-loading-screen" role="status"><div aria-hidden="true" class="panbill-loader-mark">P</div><div class="panbill-loader-name">PanBill</div><div class="panbill-loader-caption">One app. All your bills.</div><div aria-hidden="true" class="panbill-loader-ring"></div></div>
-<header class="app-header"><div class="brand"><span class="brand-mark">P</span> PanBill</div><div class="header-actions"><span class="muted" hidden="" id="header-user" style="font-size:12px"></span><button class="pill" hidden="" id="logout-button" type="button">Log out</button></div></header>
+<header class="app-header"><div class="brand"><span class="brand-mark">P</span> PanBill</div><div class="header-actions"><span class="muted" hidden="" id="header-user" style="font-size:12px"></span><button aria-hidden="true" class="pill" hidden="" id="logout-button" type="button">Log out</button></div></header>
 <main class="wrap"><section class="hero"><div class="hero-copy"><div class="eyebrow">Simple • Secure • Convenient</div><h1>Your bills,<br/><span>beautifully handled.</span></h1><p>Recharge airtime, buy data, pay bills, add money to your wallet, shop and explore the marketplace every day — all in one secure app.</p><div class="trust"><span>✦ Secure account</span><span>✦ Clear transactions</span><span>✦ Fast checkout</span></div></div><div aria-label="PanBill animated seasonal background" class="portrait-card" role="img"></div></section>
 <div class="signed-greeting"><div><div class="eyebrow">YOUR PANBILL DASHBOARD</div><h2 id="greeting">Welcome to PanBill <span aria-hidden="true" class="greeting-spark">✦</span></h2><div class="muted" id="account-status" style="font-size:13px">Sign in to access your wallet.</div></div><span aria-hidden="true" class="greeting-decoration">✧</span><button aria-label="Open account settings" class="outline-btn" id="open-account" type="button">Settings</button></div>
 <section aria-label="PanBill seasonal greeting" aria-live="polite" class="seasonal-card" id="dashboard-seasonal-greeting"><div class="seasonal-copy"><div class="seasonal-kicker" data-season-kicker="">SEASONAL GREETINGS</div><h2 class="seasonal-title" data-season-title="">Wishing you joy</h2><p class="seasonal-message" data-season-message="">Warm wishes from PanBill.</p></div><div aria-hidden="true" class="seasonal-art"><span class="season-main" data-season-art="">✦</span><span class="season-sparkles">✧ ✦</span></div></section>
@@ -523,7 +523,7 @@ input,select,textarea{background:#07152f;color:var(--ink);border-color:#ffffff28
 <button class="settings-logout" id="settings-logout" type="button">Log out</button>
 <p class="settings-footnote">Only settings and controls currently supported by PanBill are shown here.</p>
 </section>
-<div class="two-col" id="history-area"><section class="panel" id="transaction-panel"><div class="section-head" style="margin-top:0"><h2>Transaction history</h2><button class="text-button" id="refresh-transactions" type="button">Refresh</button></div><div aria-label="Filter transactions" class="tx-filter-bar" id="transaction-filters" role="group">
+<div class="two-col" id="history-area"><button aria-label="Back to VTU dashboard" class="history-back-home" id="history-back-home" type="button">← Back to Home</button><section class="panel" id="transaction-panel"><div class="section-head" style="margin-top:0"><h2>Transaction history</h2><button class="text-button" id="refresh-transactions" type="button">Refresh</button></div><div aria-label="Filter transactions" class="tx-filter-bar" id="transaction-filters" role="group">
 <button aria-pressed="true" class="tx-filter" data-tx-filter="all" type="button">All</button>
 <button aria-pressed="false" class="tx-filter" data-tx-filter="successful" type="button">Successful</button>
 <button aria-pressed="false" class="tx-filter" data-tx-filter="pending" type="button">Pending</button>
@@ -1194,4 +1194,28 @@ main.wrap[data-view="market"] > #my-digital-purchases {
 main.wrap[data-view="market"] > #my-digital-purchases[hidden] {
   display: block !important;
 }
-</style></body></html>
+</style><style id="panbill-home-settings-only-and-history-back">
+/* Bottom navigation: only Home and Settings remain visible. */
+.bottom-nav{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.bottom-nav #nav-home,.bottom-nav #nav-settings{display:flex!important}
+.bottom-nav #nav-services,.bottom-nav #nav-market,.bottom-nav #nav-wallet,.bottom-nav #nav-transactions,.bottom-nav #nav-quick{display:none!important}
+/* Logout is available only through the Settings page. */
+#logout-button{display:none!important}
+/* Transaction History has its own clear route back to the VTU dashboard. */
+main.wrap[data-view="history"] #history-area{display:block!important;width:100%;margin:0}
+main.wrap[data-view="history"] #history-back-home{display:inline-flex!important;align-items:center;gap:8px;margin:0 0 14px;padding:10px 14px;border:1px solid #d6deeb;border-radius:10px;background:#fff;color:#07152f;font-weight:700;cursor:pointer}
+main.wrap:not([data-view="history"]) #history-back-home{display:none!important}
+</style><script id="panbill-history-back-navigation">
+(()=>{
+ const main=document.querySelector('main.wrap');
+ const back=document.getElementById('history-back-home');
+ if(!main||!back)return;
+ back.addEventListener('click',()=>{
+  main.dataset.view='home';
+  const area=document.getElementById('history-area');
+  if(area){area.hidden=false;area.style.removeProperty('display')}
+  document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.toggle('nav-active',b.id==='nav-home'));
+  window.scrollTo({top:0,behavior:'smooth'});
+ });
+})();
+</script></body></html>
