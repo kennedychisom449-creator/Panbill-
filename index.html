@@ -449,6 +449,134 @@ main.wrap[data-view="market"] #marketplace-category-nav .marketplace-category-ch
 }
 </style>
 
+
+<style id="panbill-cart-viewport-and-category-interaction">
+/* Keep the complete cart dialog within the phone viewport; scroll its contents internally. */
+#marketplace-cart-layer {
+  align-items: center !important;
+  justify-content: center !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+  padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom)) !important;
+}
+#marketplace-cart-layer .product-detail-card {
+  display: flex !important;
+  flex-direction: column !important;
+  width: min(100%, 760px) !important;
+  max-height: calc(100dvh - 24px) !important;
+  max-height: calc(100vh - 24px) !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 14px !important;
+  border-radius: 14px !important;
+}
+#marketplace-cart-layer .product-detail-top {
+  position: sticky;
+  top: -14px;
+  z-index: 3;
+  flex: 0 0 auto;
+  padding: 10px 0;
+  background: #0b1e3d;
+  border-bottom: 1px solid #ffffff20;
+}
+#marketplace-cart-layer .cart-items {
+  flex: 0 1 auto;
+  min-height: 42px;
+  max-height: min(24dvh, 190px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 3px;
+}
+#marketplace-cart-layer .delivery-address-panel {
+  flex: 0 0 auto;
+  margin: 12px 0;
+  padding: 12px;
+}
+#marketplace-cart-layer .cart-summary {
+  flex: 0 0 auto;
+  margin-top: 10px;
+  padding-top: 12px;
+}
+@media (max-width: 600px) {
+  #marketplace-cart-layer {
+    align-items: flex-start !important;
+    padding-top: max(10px, env(safe-area-inset-top)) !important;
+  }
+  #marketplace-cart-layer .product-detail-card {
+    width: 100% !important;
+    max-height: calc(100dvh - 20px) !important;
+    max-height: calc(100vh - 20px) !important;
+    padding: 12px !important;
+    border-radius: 12px !important;
+  }
+  #marketplace-cart-layer .product-detail-top {
+    top: -12px;
+  }
+  #marketplace-cart-layer .cart-items {
+    max-height: 20dvh;
+  }
+  #marketplace-cart-layer .delivery-address-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+/* Re-assert the category tiles after later storefront styles and keep labels wrapped. */
+main.wrap[data-view="market"] #customer-marketplace #marketplace-category-nav {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 9px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+  padding: 3px 0 7px !important;
+}
+main.wrap[data-view="market"] #customer-marketplace #marketplace-category-nav .marketplace-category-chip {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  min-height: 76px !important;
+  height: auto !important;
+  padding: 9px 7px !important;
+  white-space: normal !important;
+  text-align: center !important;
+  overflow-wrap: anywhere !important;
+  line-height: 1.3 !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
+main.wrap[data-view="market"] #customer-marketplace #marketplace-category-nav .marketplace-category-chip span {
+  display: block !important;
+  max-width: 100% !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  text-align: center !important;
+}
+main.wrap[data-view="market"] #customer-marketplace #marketplace-category-nav .marketplace-category-chip span:first-child {
+  font-size: 21px !important;
+  line-height: 1.1 !important;
+}
+@media (min-width: 520px) {
+  main.wrap[data-view="market"] #customer-marketplace #marketplace-category-nav {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+@media (min-width: 760px) {
+  main.wrap[data-view="market"] #customer-marketplace #marketplace-category-nav {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}
+@media (min-width: 1100px) {
+  main.wrap[data-view="market"] #customer-marketplace #marketplace-category-nav {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  }
+}
+</style>
+
 </head><body>
 <div aria-label="PanBill is loading" aria-live="polite" id="panbill-loading-screen" role="status"><div aria-hidden="true" class="panbill-loader-mark">P</div><div class="panbill-loader-name">PanBill</div><div class="panbill-loader-caption">One app. All your bills.</div><div aria-hidden="true" class="panbill-loader-ring"></div></div>
 <header class="app-header"><div class="brand"><span class="brand-mark">P</span> PanBill</div><div class="header-actions"><span class="muted" hidden="" id="header-user" style="font-size:12px"></span><button aria-hidden="true" class="pill" hidden="" id="logout-button" type="button">Log out</button></div></header>
@@ -1382,6 +1510,50 @@ main.wrap:not([data-view="history"]) #history-back-home{display:none!important}
     openHistory();
   }, true);
 })();
+</script>
+
+
+<script id="panbill-category-click-repair">
+/* Capture category taps before any older handler, apply the filter, and always
+   render a clear product list or an explicit no-products message. */
+document.addEventListener('click', function(event) {
+  const nav = document.getElementById('marketplace-category-nav');
+  const button = event.target && event.target.closest
+    ? event.target.closest('button[data-category]')
+    : null;
+  if (!nav || !button || !nav.contains(button)) return;
+
+  event.preventDefault();
+  event.stopImmediatePropagation();
+
+  const select = document.getElementById('marketplace-category');
+  const search = document.getElementById('marketplace-search');
+  if (!select) return;
+
+  const categoryId = button.dataset.category || '';
+  select.value = categoryId;
+  if (search) search.value = '';
+  if (typeof marketplaceSavedOnly !== 'undefined') marketplaceSavedOnly = false;
+  if (typeof syncMarketplaceCategoryNav === 'function') syncMarketplaceCategoryNav();
+  if (typeof updateMarketplaceWishlistUI === 'function') updateMarketplaceWishlistUI();
+  if (typeof renderMarketplaceProducts === 'function') renderMarketplaceProducts();
+
+  const category = (typeof marketplaceCategories !== 'undefined'
+    ? marketplaceCategories.find(item => String(item.id) === String(categoryId))
+    : null);
+  const label = category ? category.name : 'All products';
+  const matches = categoryId && typeof marketplaceProducts !== 'undefined'
+    ? marketplaceProducts.filter(product => String(product.category_id || '') === String(categoryId)).length
+    : (typeof marketplaceProducts !== 'undefined' ? marketplaceProducts.length : 0);
+
+  if (typeof setMarketplaceMessage === 'function') {
+    setMarketplaceMessage(categoryId
+      ? (matches ? matches + ' product(s) in ' + label + '.' : 'No products are available in ' + label + ' yet.')
+      : (matches ? matches + ' product(s) available.' : 'No products are available yet.'));
+  }
+  const grid = document.getElementById('marketplace-products');
+  if (grid) grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}, true);
 </script>
 
 </body></html>
