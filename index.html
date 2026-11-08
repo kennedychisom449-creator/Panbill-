@@ -1556,4 +1556,30 @@ document.addEventListener('click', function(event) {
 }, true);
 </script>
 
+
+<style id="panbill-remove-bottom-navigation-completely">
+/* Remove the bottom Home/Settings navigation bar and its reserved screen space.
+   Keep the underlying navigation elements in the DOM so existing view logic
+   and Settings functionality are not broken. */
+.bottom-nav,
+nav.bottom-nav,
+.bottom-nav::before,
+.bottom-nav::after {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  max-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+@media(max-width:600px) {
+  main.wrap { padding-bottom: 13px !important; }
+  .whatsapp-support { bottom: calc(22px + env(safe-area-inset-bottom)) !important; }
+}
+</style>
+
 </body></html>
