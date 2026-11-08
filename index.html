@@ -376,7 +376,7 @@ input,select,textarea{background:#07152f;color:var(--ink);border-color:#ffffff28
 <button id="home-marketplace-shortcut" class="service-card market-service-shortcut" type="button" aria-label="Open Marketplace">
   <span class="service-icon" aria-hidden="true">🛍</span><strong>Marketplace</strong><small>Shop products</small>
 </button>
-<button id="home-history-shortcut" class="service-card history-service-shortcut" type="button" aria-label="Open transaction history">
+<button id="home-history-shortcut" class="service-card history-service-shortcut" type="button" aria-label="Open transaction history" onclick="(function(){var m=document.querySelector('main.wrap'),a=document.getElementById('history-area'),t=document.getElementById('transaction-panel');if(!m||!a||!t)return;m.setAttribute('data-view','history');a.hidden=false;a.style.setProperty('display','block','important');t.style.setProperty('display','block','important');window.scrollTo({top:0,behavior:'smooth'});})();">
   <span class="service-icon" aria-hidden="true">◷</span><strong>History</strong><small>View transactions</small>
 </button>
 <button class="service-card" data-service="airtime" type="button"><span class="service-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm3 14h4"/></svg></span><strong>Airtime</strong><small>All mobile networks</small></button>
@@ -1130,7 +1130,10 @@ main.wrap[data-view="market"] .jm-product-title{overflow-wrap:anywhere}
 /* Keep the VTU home uncluttered; transaction history opens only when requested. */
 main.wrap:not([data-view="history"]) #history-area{display:none!important}
 main.wrap[data-view="history"]{max-width:900px;min-height:calc(100vh - 72px);padding-top:18px}
-main.wrap[data-view="history"]> :not(#history-area):not(#product-detail-layer):not(#marketplace-cart-layer):not(#seller-marketplace-panel):not(#seller-tools):not(#my-digital-purchases):not(#settings-dashboard){display:none!important}
+main.wrap[data-view="history"]> :not(#history-area):not(#transaction-detail-overlay):not(#product-detail-layer):not(#marketplace-cart-layer):not(#seller-marketplace-panel):not(#seller-tools):not(#my-digital-purchases):not(#settings-dashboard){display:none!important}
+/* Transaction details must remain visible above the history screen. */
+main.wrap[data-view="history"]>#transaction-detail-overlay{display:flex!important;z-index:20!important}
+#transaction-detail-overlay[hidden]{display:none!important}
 main.wrap[data-view="history"] #history-area{display:block!important;width:100%;margin:0}
 main.wrap[data-view="history"] #history-area>#transaction-panel{display:block!important;width:100%;max-width:100%}
 main.wrap[data-view="history"] #history-area>section:not(#transaction-panel){display:none!important}
@@ -1150,6 +1153,10 @@ main.wrap[data-view="history"] #history-area>section:not(#transaction-panel){dis
  if(!main)return;
  const openHistory=()=>{
   main.dataset.view='history';
+  const area=document.getElementById('history-area');
+  const panel=document.getElementById('transaction-panel');
+  if(area){area.hidden=false;area.style.setProperty('display','block','important')}
+  if(panel)panel.style.setProperty('display','block','important');
   document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.toggle('nav-active',b.id==='nav-transactions'));
   window.scrollTo({top:0,behavior:'smooth'});
  };
