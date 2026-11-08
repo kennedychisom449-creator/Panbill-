@@ -365,7 +365,17 @@ input,select,textarea{background:#07152f;color:var(--ink);border-color:#ffffff28
   #wallet-panel .wallet-fee-note{font-size:11px!important}
 }
 
-</style></head><body>
+</style>
+<style id="panbill-history-home-visibility-fix">
+main.wrap:not([data-view="history"]) #history-area {
+  display: none !important;
+}
+main.wrap[data-view="history"] #history-area {
+  display: block !important;
+}
+</style>
+
+</head><body>
 <div aria-label="PanBill is loading" aria-live="polite" id="panbill-loading-screen" role="status"><div aria-hidden="true" class="panbill-loader-mark">P</div><div class="panbill-loader-name">PanBill</div><div class="panbill-loader-caption">One app. All your bills.</div><div aria-hidden="true" class="panbill-loader-ring"></div></div>
 <header class="app-header"><div class="brand"><span class="brand-mark">P</span> PanBill</div><div class="header-actions"><span class="muted" hidden="" id="header-user" style="font-size:12px"></span><button aria-hidden="true" class="pill" hidden="" id="logout-button" type="button">Log out</button></div></header>
 <main class="wrap"><section class="hero"><div class="hero-copy"><div class="eyebrow">Simple • Secure • Convenient</div><h1>Your bills,<br/><span>beautifully handled.</span></h1><p>Recharge airtime, buy data, pay bills, add money to your wallet, shop and explore the marketplace every day — all in one secure app.</p><div class="trust"><span>✦ Secure account</span><span>✦ Clear transactions</span><span>✦ Fast checkout</span></div></div><div aria-label="PanBill animated seasonal background" class="portrait-card" role="img"></div></section>
@@ -1206,17 +1216,64 @@ main.wrap[data-view="history"] #history-area{display:block!important;width:100%;
 main.wrap[data-view="history"] #history-back-home{display:inline-flex!important;align-items:center;gap:8px;margin:0 0 14px;padding:10px 14px;border:1px solid #d6deeb;border-radius:10px;background:#fff;color:#07152f;font-weight:700;cursor:pointer}
 main.wrap:not([data-view="history"]) #history-back-home{display:none!important}
 </style><script id="panbill-history-back-navigation">
-(()=>{
- const main=document.querySelector('main.wrap');
- const back=document.getElementById('history-back-home');
- if(!main||!back)return;
- back.addEventListener('click',()=>{
-  main.dataset.view='home';
-  const area=document.getElementById('history-area');
-  if(area){area.hidden=false;area.style.removeProperty('display')}
-  document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.toggle('nav-active',b.id==='nav-home'));
-  window.scrollTo({top:0,behavior:'smooth'});
- });
+(() => {
+  const main = document.querySelector('main.wrap');
+  const back = document.getElementById('history-back-home');
+  const area = document.getElementById('history-area');
+  if (!main || !back || !area) return;
+
+  const showHome = () => {
+    main.dataset.view = 'home';
+    area.hidden = true;
+    area.style.setProperty('display', 'none', 'important');
+    document.querySelectorAll('.bottom-nav button').forEach(button => {
+      button.classList.toggle('nav-active', button.id === 'nav-home');
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const showHistory = () => {
+    main.dataset.view = 'history';
+    area.hidden = false;
+    area.style.setProperty('display', 'block', 'important');
+    const panel = document.getElementById('transaction-panel');
+    if (panel) {
+      panel.hidden = false;
+      panel.style.setProperty('display', 'block', 'important');
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  back.addEventListener('click', event => {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    showHome();
+  }, true);
+
+  const walletButton = document.getElementById('wallet-history-button');
+  if (walletButton) {
+    walletButton.addEventListener('click', event => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      showHistory();
+    }, true);
+  }
+
+  const homeShortcut = document.getElementById('home-history-shortcut');
+  if (homeShortcut) {
+    homeShortcut.addEventListener('click', event => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      showHistory();
+    }, true);
+  }
+
+  const homeButton = document.getElementById('nav-home');
+  if (homeButton) {
+    homeButton.addEventListener('click', () => {
+      window.setTimeout(showHome, 0);
+    }, true);
+  }
 })();
 </script>
 <script id="panbill-wallet-transaction-history-navigation">
