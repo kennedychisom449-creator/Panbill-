@@ -613,6 +613,7 @@ main.wrap[data-view="market"] #customer-marketplace #marketplace-category-nav .m
 <p class="provider-footnote">More networks, TV operators, electricity distribution companies and exam products appear when supported by the live catalogue.</p>
 </section>
 <section class="marketplace-panel" id="customer-marketplace">
+<button aria-label="Back to PanBill Home" class="marketplace-back-home" id="marketplace-back-home" type="button"><span aria-hidden="true">←</span> Back to Home</button>
 <div aria-label="PanBill seller options" class="seller-shortcuts marketplace-seller-shortcuts" hidden="">
 <button class="seller-shortcut" id="open-become-seller" type="button"><span aria-hidden="true" class="seller-shortcut-icon">♙</span><span><strong>Become a Seller</strong><small>Apply to sell on PanBill</small></span><span aria-hidden="true" class="seller-shortcut-arrow">›</span></button>
 <button class="seller-shortcut" id="open-add-product" type="button"><span aria-hidden="true" class="seller-shortcut-icon">＋</span><span><strong>Add a Product</strong><small>For approved sellers</small></span><span aria-hidden="true" class="seller-shortcut-arrow">›</span></button>
@@ -1581,5 +1582,30 @@ nav.bottom-nav,
   .whatsapp-support { bottom: calc(22px + env(safe-area-inset-bottom)) !important; }
 }
 </style>
+
+<style id="panbill-marketplace-back-home-button">
+/* A clear route back to the main VTU dashboard after opening Marketplace. */
+#marketplace-back-home{display:none}
+main.wrap[data-view="market"] #marketplace-back-home{display:inline-flex;align-items:center;justify-content:center;gap:9px;margin:12px 14px 2px;padding:10px 15px;min-height:40px;border:1px solid #dfe2e8;border-radius:6px;background:#fff;color:#343b4b;font-size:13px;font-weight:750;cursor:pointer;box-shadow:0 1px 2px #00000008}
+main.wrap[data-view="market"] #marketplace-back-home:hover{border-color:#f68b1e;color:#d96e08}
+main.wrap[data-view="market"] #marketplace-back-home:focus-visible{outline:3px solid #f6bd82;outline-offset:2px}
+@media(max-width:600px){main.wrap[data-view="market"] #marketplace-back-home{margin:10px 12px 0;padding:9px 13px;min-height:38px}}
+</style>
+<script id="panbill-marketplace-back-home-navigation">
+(()=>{
+ const main=document.querySelector('main.wrap');
+ const back=document.getElementById('marketplace-back-home');
+ if(!main||!back)return;
+ back.addEventListener('click',event=>{
+  event.preventDefault();
+  event.stopPropagation();
+  main.dataset.view='home';
+  document.querySelectorAll('.bottom-nav button').forEach(button=>{
+   button.classList.toggle('nav-active',button.id==='nav-home');
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+ });
+})();
+</script>
 
 </body></html>
