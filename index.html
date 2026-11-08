@@ -1132,8 +1132,8 @@ main.wrap:not([data-view="history"]) #history-area{display:none!important}
 main.wrap[data-view="history"]{max-width:900px;min-height:calc(100vh - 72px);padding-top:18px}
 main.wrap[data-view="history"]> :not(#history-area):not(#transaction-detail-overlay):not(#product-detail-layer):not(#marketplace-cart-layer):not(#seller-marketplace-panel):not(#seller-tools):not(#my-digital-purchases):not(#settings-dashboard){display:none!important}
 /* Transaction details must remain visible above the history screen. */
-main.wrap[data-view="history"]>#transaction-detail-overlay{display:flex!important;z-index:20!important}
-#transaction-detail-overlay[hidden]{display:none!important}
+main.wrap[data-view="history"]>#transaction-detail-overlay:not([hidden]){display:flex!important;z-index:20!important}
+main.wrap[data-view="history"]>#transaction-detail-overlay[hidden]{display:none!important}
 main.wrap[data-view="history"] #history-area{display:block!important;width:100%;margin:0}
 main.wrap[data-view="history"] #history-area>#transaction-panel{display:block!important;width:100%;max-width:100%}
 main.wrap[data-view="history"] #history-area>section:not(#transaction-panel){display:none!important}
