@@ -242,6 +242,64 @@ input,select,textarea{background:#07152f;color:var(--ink);border-color:#ffffff28
 .transaction{border-color:var(--line)}.tx-icon{background:#f2c15d18;color:var(--gold2)}.tx-info small,.tx-right small{color:var(--muted)}.tx-status.successful{background:#4ed6a020;color:#7ff0bd}.tx-status.pending{background:#f2c15d20;color:#ffe09a}.tx-status.failed{background:#ff8d9120;color:#ffb0b3}.tx-status.unknown{background:#ffffff12;color:#c6d1e5}.tx-filter{background:#ffffff08;color:var(--muted);border-color:var(--line)}.tx-filter[aria-pressed="true"]{background:linear-gradient(135deg,var(--gold2),#e4ac3f);color:#101b30;border-color:var(--gold)}.modal{background:#0b1e3d;color:var(--ink);border-color:var(--line)}.modal-top h2{color:var(--ink)}.close{background:#ffffff0a;color:#fff;border-color:var(--line)}.bottom-nav{background:#07152ff5;border-top:1px solid var(--line);box-shadow:0 -3px 15px #0003}.bottom-nav button{color:var(--muted)}.footer{color:#7f91b1}.whatsapp-support{box-shadow:0 8px 26px #0007}#panbill-loading-screen{background:radial-gradient(circle at 50% 42%,#123c58 0%,#07152f 60%,#041027 100%)}
 @media(max-width:760px){.wrap{padding:14px 12px 42px}.app-header{padding-left:14px;padding-right:14px}.hero{gap:10px}.portrait-card{min-height:155px;border-radius:14px}.hero-copy{padding:10px 2px}.hero h1{font-size:34px}.marketplace-panel{padding:14px!important}.marketplace-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.marketplace-card{padding:9px}.marketplace-card>img{height:145px}.marketplace-card h3{font-size:13px}.marketplace-card .marketplace-price{font-size:16px}.marketplace-intro{padding:15px}.marketplace-toolbar{grid-template-columns:1fr}.provider-hub{padding:13px}.section-head h2{font-size:18px}}@media(max-width:380px){.marketplace-card>img{height:118px}.marketplace-card{padding:7px}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 
+
+
+/* PANBILL STOREFRONT REDESIGN — Jumia-inspired shopping layout, PanBill navy/gold identity */
+@media (min-width: 761px){
+  main.wrap{max-width:1360px;padding:18px 22px 48px;display:flex;flex-direction:column}
+  #customer-marketplace{order:-10;width:100%;margin:10px 0 30px;padding:0;background:transparent;border:0;box-shadow:none;overflow:visible}
+  main.wrap>.hero{order:0}
+  main.wrap>.signed-greeting{order:1}
+  main.wrap>#dashboard-seasonal-greeting{order:2}
+  #customer-marketplace>.section-head{padding:14px 18px;margin:0 0 14px!important;background:linear-gradient(100deg,#102b4c,#0b1d3a);border:1px solid #f2c15d45;border-radius:15px}
+  #customer-marketplace .marketplace-intro{min-height:190px;padding:30px 34px;border-radius:18px;background:radial-gradient(circle at 82% 20%,#f2c15d35,transparent 25%),linear-gradient(105deg,#0c284b 0%,#102e55 58%,#07152f 100%);border:1px solid #f2c15d55;box-shadow:0 16px 36px #0003}
+  #customer-marketplace .marketplace-intro h3{font-size:clamp(28px,3.4vw,42px);letter-spacing:-1px;max-width:650px}
+  #customer-marketplace .marketplace-intro p{font-size:15px;max-width:560px}
+  #customer-marketplace .marketplace-intro-mark{width:76px;height:76px;flex-basis:76px;font-size:38px;border-radius:22px}
+  #customer-marketplace .marketplace-category-nav{padding:16px 2px;margin:0;gap:10px}
+  #customer-marketplace .marketplace-category-chip{border-radius:11px;padding:12px 17px;background:#10264a;border-color:#ffffff22}
+  #customer-marketplace .marketplace-toolbar{grid-template-columns:minmax(0,1fr) 260px;margin:4px 0 15px}
+  #customer-marketplace .marketplace-toolbar input{border-radius:12px;background:#fff;color:#15213a;border:1px solid #d5dbe6;min-height:54px}
+  #customer-marketplace .marketplace-toolbar input::placeholder{color:#68758b}
+  #customer-marketplace .marketplace-toolbar select{border-radius:12px;min-height:54px}
+  #customer-marketplace .marketplace-specials{min-height:90px;margin:12px 0 24px;padding:20px 24px;border-radius:14px;background:linear-gradient(100deg,#4a3718,#172b4d 76%);}
+  #customer-marketplace .marketplace-products-heading{padding:0 2px;margin:24px 0 15px}
+  #customer-marketplace .marketplace-products-heading h3{font-size:23px}
+  #customer-marketplace .marketplace-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+  #customer-marketplace .marketplace-card{padding:12px;border-radius:13px;background:#0c2042;border:1px solid #ffffff24;box-shadow:0 5px 18px #0002;transition:transform .18s,border-color .18s,box-shadow .18s}
+  #customer-marketplace .marketplace-card:hover{transform:translateY(-4px);border-color:#f2c15d99;box-shadow:0 14px 28px #0004}
+  #customer-marketplace .marketplace-card>img{height:225px;background:#f4f6fa;border-radius:9px;object-fit:contain;padding:8px}
+  #customer-marketplace .marketplace-card h3{font-size:15px;line-height:1.4;min-height:42px}
+  #customer-marketplace .marketplace-card .marketplace-price{font-size:21px;color:var(--gold2)}
+  #customer-marketplace .marketplace-card p{font-size:12px}
+}
+@media(max-width:760px){
+  main.wrap{display:flex;flex-direction:column;padding:12px 12px 86px}
+  #customer-marketplace{order:-10;width:100%;margin:4px 0 22px;padding:0;background:transparent;border:0;box-shadow:none}
+  main.wrap>.hero{order:0}
+  main.wrap>.signed-greeting{order:1}
+  main.wrap>#dashboard-seasonal-greeting{order:2}
+  #customer-marketplace>.section-head{padding:12px;margin:0 0 10px!important;background:#10264a;border:1px solid #f2c15d40;border-radius:12px}
+  #customer-marketplace .marketplace-intro{min-height:150px;padding:18px 16px;border-radius:14px;background:radial-gradient(circle at 88% 15%,#f2c15d35,transparent 28%),linear-gradient(110deg,#102e55,#07152f);border:1px solid #f2c15d55}
+  #customer-marketplace .marketplace-intro h3{font-size:23px;line-height:1.15}
+  #customer-marketplace .marketplace-intro p{font-size:12px}
+  #customer-marketplace .marketplace-intro-mark{width:48px;height:48px;flex-basis:48px;font-size:25px}
+  #customer-marketplace .marketplace-category-nav{padding:12px 1px;gap:7px}
+  #customer-marketplace .marketplace-category-chip{padding:9px 12px;border-radius:10px;background:#10264a}
+  #customer-marketplace .marketplace-toolbar{margin:4px 0 12px;gap:8px}
+  #customer-marketplace .marketplace-toolbar input{background:#fff;color:#15213a;border-color:#d5dbe6;min-height:48px}
+  #customer-marketplace .marketplace-toolbar input::placeholder{color:#68758b}
+  #customer-marketplace .marketplace-specials{padding:13px 14px;margin:8px 0 17px;border-radius:12px}
+  #customer-marketplace .marketplace-products-heading{margin:18px 0 11px}
+  #customer-marketplace .marketplace-products-heading h3{font-size:19px}
+  #customer-marketplace .marketplace-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  #customer-marketplace .marketplace-card{padding:8px;border-radius:11px;background:#0c2042;border:1px solid #ffffff24;box-shadow:0 4px 12px #0002}
+  #customer-marketplace .marketplace-card>img{height:145px;background:#f4f6fa;object-fit:contain;padding:6px;border-radius:8px}
+  #customer-marketplace .marketplace-card h3{font-size:12px;line-height:1.35;min-height:34px}
+  #customer-marketplace .marketplace-card .marketplace-price{font-size:16px;color:var(--gold2)}
+  #customer-marketplace .marketplace-card p{font-size:10px}
+}
+
 </style></head><body>
 <div id="panbill-loading-screen" role="status" aria-live="polite" aria-label="PanBill is loading"><div class="panbill-loader-mark" aria-hidden="true">P</div><div class="panbill-loader-name">PanBill</div><div class="panbill-loader-caption">One app. All your bills.</div><div class="panbill-loader-ring" aria-hidden="true"></div></div>
 
