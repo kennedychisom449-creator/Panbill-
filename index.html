@@ -1218,4 +1218,39 @@ main.wrap:not([data-view="history"]) #history-back-home{display:none!important}
   window.scrollTo({top:0,behavior:'smooth'});
  });
 })();
-</script></body></html>
+</script>
+<script id="panbill-wallet-transaction-history-navigation">
+(() => {
+  const main = document.querySelector('main.wrap');
+  const button = document.getElementById('wallet-history-button');
+  if (!main || !button) return;
+
+  const openHistory = () => {
+    main.dataset.view = 'history';
+    const area = document.getElementById('history-area');
+    const panel = document.getElementById('transaction-panel');
+
+    if (area) {
+      area.hidden = false;
+      area.style.setProperty('display', 'block', 'important');
+    }
+    if (panel) {
+      panel.hidden = false;
+      panel.style.setProperty('display', 'block', 'important');
+    }
+
+    document.querySelectorAll('.bottom-nav button').forEach(item => {
+      item.classList.toggle('nav-active', item.id === 'nav-home' ? false : false);
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  button.addEventListener('click', event => {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    openHistory();
+  }, true);
+})();
+</script>
+
+</body></html>
