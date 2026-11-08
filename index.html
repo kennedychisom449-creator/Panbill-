@@ -300,6 +300,70 @@ input,select,textarea{background:#07152f;color:var(--ink);border-color:#ffffff28
   #customer-marketplace .marketplace-card p{font-size:10px}
 }
 
+
+/* Wallet visibility enhancement — keeps existing wallet data and actions */
+#wallet-panel.wallet{
+  display:block;
+  padding:clamp(21px,3vw,30px);
+  min-height:220px;
+  border:1px solid #f2c15d;
+  border-radius:23px;
+  color:#f7f9ff;
+  background:
+    radial-gradient(circle at 92% 8%,#f2c15d26,transparent 31%),
+    linear-gradient(125deg,#102d59 0%,#0b2147 58%,#07152f 100%);
+  box-shadow:0 16px 38px #0005,0 0 0 3px #f2c15d16;
+}
+#wallet-panel.wallet:after{
+  right:20px;bottom:-48px;font-size:185px;color:#f2c15d0c;
+}
+#wallet-panel .wallet-top{align-items:center;margin-bottom:4px}
+#wallet-panel .wallet-label{
+  color:#ffe4a0;font-size:14px;font-weight:900;
+  letter-spacing:1.15px;line-height:1.35;
+}
+#wallet-panel #toggle-balance{
+  width:43px;height:43px;display:grid;place-items:center;
+  border:1px solid #ffe4a078!important;border-radius:13px;
+  background:#ffffff12;color:#ffe4a0!important;font-size:20px;
+}
+#wallet-panel .balance{
+  color:#fff;font-size:clamp(39px,6vw,52px);
+  font-weight:950;letter-spacing:-1.6px;line-height:1.15;
+  margin:10px 0 22px;text-shadow:0 2px 16px #0003;
+}
+#wallet-panel .wallet-actions{gap:11px}
+#wallet-panel .wallet-actions button{
+  min-height:58px;padding:10px 8px;border:1px solid #ffe4a04d;
+  border-radius:14px;background:#ffffff12;color:#fff;
+  font-size:13px;font-weight:850;transition:background .15s,transform .15s;
+}
+#wallet-panel .wallet-actions button:first-child{
+  background:linear-gradient(135deg,#ffe4a0,#f2c15d);
+  border-color:#ffe4a0;color:#10203d;
+  box-shadow:0 7px 20px #f2c15d30;
+}
+#wallet-panel .wallet-actions button:active{transform:scale(.98)}
+#wallet-panel .wallet-actions .ico{font-size:21px;margin-bottom:2px}
+#wallet-panel #wallet-message{
+  color:#e5edff!important;font-size:13px!important;font-weight:600;
+  margin-top:15px!important;
+}
+#wallet-panel .wallet-fee-note{
+  color:#c8d5ed!important;font-size:12px!important;
+  border-top:1px solid #ffffff20;padding-top:9px;margin-top:9px!important;
+}
+@media(max-width:600px){
+  #wallet-panel.wallet{padding:20px 17px;border-radius:19px;min-height:0}
+  #wallet-panel .wallet-label{font-size:12px;letter-spacing:.8px}
+  #wallet-panel .balance{font-size:clamp(36px,10vw,44px);margin:10px 0 19px}
+  #wallet-panel .wallet-actions{grid-template-columns:1.15fr 1fr 1fr;gap:7px}
+  #wallet-panel .wallet-actions button{min-height:59px;padding:9px 3px;font-size:11px}
+  #wallet-panel .wallet-actions .ico{font-size:19px}
+  #wallet-panel #wallet-message{font-size:12px!important}
+  #wallet-panel .wallet-fee-note{font-size:11px!important}
+}
+
 </style></head><body>
 <div id="panbill-loading-screen" role="status" aria-live="polite" aria-label="PanBill is loading"><div class="panbill-loader-mark" aria-hidden="true">P</div><div class="panbill-loader-name">PanBill</div><div class="panbill-loader-caption">One app. All your bills.</div><div class="panbill-loader-ring" aria-hidden="true"></div></div>
 
