@@ -308,6 +308,7 @@ input,select,textarea{background:#07152f;color:var(--ink);border-color:#ffffff28
 <div class="signed-greeting"><div><div class="eyebrow">YOUR PANBILL DASHBOARD</div><h2 id="greeting">Welcome to PanBill <span class="greeting-spark" aria-hidden="true">✦</span></h2><div id="account-status" class="muted" style="font-size:13px">Sign in to access your wallet.</div></div><span class="greeting-decoration" aria-hidden="true">✧</span><button id="open-account" class="outline-btn" type="button" aria-label="Open account settings">Settings</button></div>
 <section id="dashboard-seasonal-greeting" class="seasonal-card" aria-live="polite" aria-label="PanBill seasonal greeting"><div class="seasonal-copy"><div class="seasonal-kicker" data-season-kicker>SEASONAL GREETINGS</div><h2 class="seasonal-title" data-season-title>Wishing you joy</h2><p class="seasonal-message" data-season-message>Warm wishes from PanBill.</p></div><div class="seasonal-art" aria-hidden="true"><span class="season-main" data-season-art>✦</span><span class="season-sparkles">✧ ✦</span></div></section>
 <section id="wallet-panel" class="panel wallet" hidden><div class="wallet-top"><span class="wallet-label">AVAILABLE WALLET BALANCE</span><button id="toggle-balance" class="pill" style="color:#101b30;border-color:#07152f30" type="button" aria-label="Hide balance">◉</button></div><div id="wallet-balance" class="balance">₦••••••</div><div class="wallet-actions"><button id="fund-wallet-button" type="button"><span class="ico">＋</span>Add Money</button><button id="wallet-history-button" type="button"><span class="ico">↗</span>Transactions</button><button id="refresh-wallet" type="button"><span class="ico">⟳</span>Refresh</button></div><div id="wallet-message" style="font-size:12px;margin-top:12px;position:relative;z-index:1">Wallet information loads after sign-in.</div><div class="wallet-fee-note" style="font-size:11px;margin-top:7px;position:relative;z-index:1;color:#26334a">Wallet funding fee: 0.5% of the amount added.</div></section>
+<button id="home-marketplace-shortcut" class="home-market-shortcut" type="button"><span class="home-market-icon" aria-hidden="true">🛍</span><span class="home-market-copy"><strong>Shop the PanBill Marketplace</strong><small>Discover products from trusted sellers</small></span><span class="home-market-arrow" aria-hidden="true">›</span></button>
 <div class="section-head"><h2>Pay a bill</h2><span class="muted" style="font-size:12px">Choose a service</span></div><section class="services" aria-label="VTU services">
 <button class="service-card" data-service="airtime" type="button"><span class="service-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm3 14h4"/></svg></span><strong>Airtime</strong><small>All mobile networks</small></button>
 <button class="service-card" data-service="data" type="button"><span class="service-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9a13 13 0 0 1 18 0M6.5 12.5a8 8 0 0 1 11 0M10 16a3 3 0 0 1 4 0M12 20h.01"/></svg></span><strong>Data</strong><small>Internet bundles</small></button>
@@ -452,7 +453,7 @@ input,select,textarea{background:#07152f;color:var(--ink);border-color:#ffffff28
  </section>
 </div>
 <footer class="footer">PanBill · Add money, pay bills, shop and market every day.<br>© <span id="year"></span> PanBill. All rights reserved.</footer></main>
-<nav class="bottom-nav"><button id="nav-home" type="button"><span>⌂</span>Home</button><button id="nav-services" type="button"><span>▦</span>Services</button><button id="nav-wallet" type="button"><span>▣</span>Wallet</button><button id="nav-transactions" type="button"><span>◷</span>History</button></nav>
+<nav class="bottom-nav" aria-label="Main navigation"><button id="nav-home" type="button"><span>⌂</span>Home</button><button id="nav-services" type="button"><span>▦</span>Services</button><button id="nav-market" type="button" aria-label="Open marketplace"><span>🛍</span>Market</button><button id="nav-quick" class="nav-quick" type="button" aria-label="Quick actions"><span>＋</span>Quick</button><button id="nav-wallet" type="button"><span>▣</span>Wallet</button><button id="nav-transactions" type="button"><span>◷</span>History</button></nav>
 <div id="auth-overlay" class="auth-layer"><div class="auth-card"><div class="auth-brand"><span class="brand-mark">P</span> PanBill</div><section id="auth-seasonal-greeting" class="seasonal-card auth-seasonal" aria-live="polite" aria-label="PanBill seasonal greeting"><div class="seasonal-copy"><div class="seasonal-kicker" data-season-kicker>SEASONAL GREETINGS</div><h2 class="seasonal-title" data-season-title>Wishing you joy</h2><p class="seasonal-message" data-season-message>Warm wishes from PanBill.</p></div><div class="seasonal-art" aria-hidden="true"><span class="season-main" data-season-art>✦</span><span class="season-sparkles">✧ ✦</span></div></section><h2 id="auth-heading">Welcome back</h2><p id="auth-subtitle" class="auth-sub">Sign in to continue to your account.</p><div class="tabs"><button id="login-tab" class="active" type="button">Log in</button><button id="signup-tab" type="button">Create account</button></div><form id="auth-form"><div id="name-field" hidden><label for="full-name">Full name</label><input id="full-name" autocomplete="name" placeholder="Your name"></div><div id="email-wrap"><label for="email">Email address</label><input id="email" type="email" autocomplete="email" required placeholder="you@example.com"></div><div id="password-wrap"><label for="password">Password</label><div class="password-wrap"><input id="password" type="password" minlength="6" autocomplete="current-password" required placeholder="Enter your password"><button id="show-password" class="pill" type="button" aria-label="Show password">Show</button></div></div><div id="forgot-row" class="auth-links"><span class="muted">Keep your account secure</span><button id="forgot-button" class="text-button" type="button">Forgot password?</button></div><button id="auth-submit" class="gold-btn" type="submit" style="width:100%;margin-top:10px">Log in</button><p id="auth-message" class="auth-message" role="alert"></p></form><div id="biometric-note" class="biometric-note"><span class="bio-icon" aria-hidden="true">◎</span><div class="passkey-copy"><strong style="font-size:13px">Sign in with fingerprint or passkey</strong><small id="passkey-login-help">Use your device fingerprint, face unlock, screen lock or saved passkey.</small></div><button id="passkey-login-button" class="gold-btn passkey-action" type="button">Sign in</button></div><p class="auth-note">Your password is protected by Supabase authentication. Never share your password or verification links.</p></div></div>
 <div id="reset-overlay" class="modal-backdrop" hidden><section class="modal"><div class="modal-top"><h2 id="reset-title">Reset password</h2><button id="close-reset" class="close" type="button">Close</button></div><p id="reset-description" class="muted" style="font-size:13px">Enter your account email and we’ll send a secure reset link.</p><form id="reset-form"><div id="reset-email-field"><label for="reset-email">Email address</label><input id="reset-email" type="email" autocomplete="email" required placeholder="you@example.com"></div><div id="new-password-field" hidden><label for="new-password">New password</label><input id="new-password" type="password" minlength="6" autocomplete="new-password" placeholder="At least 6 characters"></div><button id="reset-submit" class="gold-btn" type="submit" style="width:100%;margin-top:17px">Send reset link</button></form><div id="reset-message" class="status" role="status"></div></section></div>
 <div id="account-overlay" class="modal-backdrop" hidden><section class="modal" aria-labelledby="account-settings-title"><div class="modal-top"><h2 id="account-settings-title">Account Settings</h2><button id="close-account" class="close" type="button">Close</button></div><p id="account-email" class="muted">Sign in to view account details.</p><form id="account-settings-form"><h3 style="margin:18px 0 4px">Personal information</h3><label for="settings-full-name">Full name</label><input id="settings-full-name" type="text" autocomplete="name" maxlength="100" placeholder="Enter your full name" required><label for="settings-phone">Contact phone number</label><input id="settings-phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="25" placeholder="e.g. 08012345678"><p class="muted" style="font-size:11px;margin:6px 0">Contact number only — it is not SMS-verified and is not used for phone login.</p><button id="save-account-settings" class="gold-btn" type="submit" style="width:100%;margin-top:10px">Save changes</button></form><div id="account-settings-message" class="status" role="status" aria-live="polite"></div><section class="passkey-settings"><strong>Biometric security</strong><p class="muted" style="font-size:12px;margin:6px 0 10px">Register a fresh passkey for panbill.com.ng. Your fingerprint or face data stays on your device.</p><button id="register-passkey-button" class="gold-btn" type="button">Register fingerprint / passkey</button><div id="passkey-register-message" class="status" role="status" aria-live="polite"></div></section><button id="account-reset-password" class="outline-btn" type="button">Send password reset link</button><div id="account-message" class="status"></div></section></div>
@@ -672,4 +673,70 @@ async function init(){try{if(!window.supabase){authMessage('Supabase library fai
 /* Keep provider tiles readable if a remote brand asset is temporarily unavailable. */
 document.querySelectorAll('.provider-mark.logo-mark img').forEach(function(img){img.addEventListener('error',function(){var mark=img.closest('.provider-mark');if(mark){mark.classList.remove('logo-mark');mark.textContent=img.alt.replace(/ original logo| logo/i,'');}} ,{once:true});});
 </script>
+
+<style id="panbill-app-navigation-redesign">
+/* PanBill: compact VTU-first home with a separate marketplace destination */
+main.wrap{max-width:1120px;padding-top:16px}
+main.wrap:not([data-view="market"]) #customer-marketplace{display:none!important}
+main.wrap[data-view="market"]{max-width:1120px;min-height:calc(100vh - 70px);padding-top:12px}
+main.wrap[data-view="market"]> :not(#customer-marketplace):not(#product-detail-layer):not(#marketplace-cart-layer):not(#seller-marketplace-panel):not(#seller-tools):not(#my-digital-purchases){display:none!important}
+main.wrap[data-view="market"] #customer-marketplace{display:block!important;margin:0;padding:0;border:0;background:transparent;box-shadow:none}
+.home-market-shortcut{width:100%;display:flex;align-items:center;gap:13px;text-align:left;margin:18px 0 20px;padding:14px 16px;border:1px solid #f2c15d66;border-radius:16px;background:linear-gradient(105deg,#102b4c,#0b1d3a);color:var(--ink);box-shadow:0 8px 22px #0002}
+.home-market-icon{width:45px;height:45px;display:grid;place-items:center;flex:0 0 45px;border-radius:13px;background:#f2c15d1c;color:var(--gold2);font-size:23px}
+.home-market-copy{display:grid;gap:2px;min-width:0;flex:1}.home-market-copy strong{font-size:14px}.home-market-copy small{font-size:11px;color:var(--muted)}.home-market-arrow{font-size:27px;color:var(--gold2)}
+#customer-marketplace .section-head{align-items:center;margin:0 0 14px!important;padding:13px 15px;border:1px solid #f2c15d45;border-radius:15px;background:linear-gradient(100deg,#102b4c,#0b1d3a)}
+#customer-marketplace .marketplace-intro{min-height:130px;padding:20px 22px;border-radius:17px;background:radial-gradient(circle at 85% 25%,#f2c15d35,transparent 25%),linear-gradient(105deg,#0c284b,#102e55 58%,#07152f);border:1px solid #f2c15d55}
+#customer-marketplace .marketplace-intro h3{font-size:clamp(23px,4vw,32px);margin:5px 0}
+#customer-marketplace .marketplace-toolbar{grid-template-columns:minmax(0,1fr) minmax(125px,210px);gap:9px;margin:13px 0}
+#customer-marketplace .marketplace-toolbar input{background:#fff;color:#17243b;border-color:#d5dbe6;min-height:48px}
+#customer-marketplace .marketplace-toolbar input::placeholder{color:#68758b}
+#customer-marketplace .marketplace-category-nav{display:flex;gap:8px;overflow-x:auto;padding:10px 1px;scrollbar-width:thin}
+#customer-marketplace .marketplace-category-chip{flex:0 0 auto;border:1px solid #ffffff25;background:#10264a;color:var(--ink);border-radius:999px;padding:9px 13px}
+#customer-marketplace .marketplace-category-chip.active{background:linear-gradient(135deg,var(--gold2),#e4ac3f);color:#101b30;border-color:transparent}
+#customer-marketplace .marketplace-specials{margin:10px 0 17px;padding:14px 17px;border-radius:13px;background:linear-gradient(100deg,#4a3718,#172b4d 76%)}
+#customer-marketplace .marketplace-products-heading{margin:18px 0 12px}
+#customer-marketplace .marketplace-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+#customer-marketplace .marketplace-card{padding:9px;border-radius:13px;background:#0c2042;border:1px solid #ffffff24}
+#customer-marketplace .marketplace-card>img{height:145px;object-fit:contain;padding:5px;background:#f4f6fa}
+#customer-marketplace .marketplace-card h3{font-size:13px;line-height:1.35;min-height:35px}
+#customer-marketplace .marketplace-card .marketplace-price{font-size:16px;color:var(--gold2)}
+.bottom-nav{grid-template-columns:repeat(6,minmax(0,1fr));padding:6px 2px calc(6px + env(safe-area-inset-bottom));background:#07152ff5;border-top:1px solid #f2c15d35}
+.bottom-nav button{font-size:10px;white-space:nowrap;padding:4px 1px}.bottom-nav button span{font-size:18px;line-height:1.25}
+.bottom-nav button.nav-active{color:var(--gold2);font-weight:900}
+.bottom-nav .nav-quick span{width:35px;height:35px;margin:-11px auto 2px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--gold2),#e4ac3f);color:#07152f;font-size:25px;box-shadow:0 4px 13px #0005}
+@media(min-width:761px){.bottom-nav{display:none}.home-market-shortcut{max-width:520px}}
+@media(max-width:600px){main.wrap{padding:12px 13px 100px}.hero{gap:8px}.hero-copy{padding:8px 2px}.hero h1{font-size:30px}.portrait-card{min-height:115px}.signed-greeting{margin:12px 0;padding:15px;min-height:100px}.seasonal-card{margin:10px 0 13px}.wallet{padding:16px}.services{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.service-card{padding:11px 5px}.service-icon{width:39px;height:39px;font-size:19px}.home-market-shortcut{margin:13px 0 15px;padding:12px}.bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:30}.marketplace-panel{border-radius:0}.marketplace-intro{margin-bottom:9px}}
+@media(max-width:380px){.bottom-nav button{font-size:9px}.bottom-nav button span{font-size:16px}.bottom-nav .nav-quick span{width:31px;height:31px}}
+</style>
+<script id="panbill-app-navigation-controller">
+(()=>{
+ const main=document.querySelector('main.wrap');
+ if(!main)return;
+ const setView=(view)=>{
+   main.dataset.view=view;
+   document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.remove('nav-active'));
+   const active=document.getElementById(view==='market'?'nav-market':view==='services'?'nav-services':'nav-home');
+   if(active)active.classList.add('nav-active');
+   if(view==='market'){
+     const market=document.getElementById('customer-marketplace');
+     if(market)market.scrollIntoView({block:'start',behavior:'auto'});
+   }else if(view==='services'){
+     const services=document.querySelector('.services');
+     if(services)services.scrollIntoView({block:'start',behavior:'smooth'});
+   }else window.scrollTo({top:0,behavior:'smooth'});
+ };
+ document.getElementById('nav-market')?.addEventListener('click',()=>setView('market'));
+ document.getElementById('home-marketplace-shortcut')?.addEventListener('click',()=>setView('market'));
+ document.getElementById('nav-home')?.addEventListener('click',()=>setView('home'));
+ document.getElementById('nav-services')?.addEventListener('click',()=>setView('services'));
+ document.getElementById('nav-quick')?.addEventListener('click',()=>{
+   setView('home');
+   const first=document.querySelector('.services button');
+   if(first){first.scrollIntoView({behavior:'smooth',block:'center'});first.focus({preventScroll:true});}
+ });
+ main.dataset.view='home';
+ document.getElementById('nav-home')?.classList.add('nav-active');
+})();
+</script>
+
 </body></html>
