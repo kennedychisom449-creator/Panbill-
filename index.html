@@ -109,68 +109,50 @@
 
 
 /* PanBill spacious marketplace refresh — presentation only; existing IDs and workflows stay intact. */
-:root{--page:#f4f6f9;--surface:#fff;--ink:#172033;--muted:#687386;--line:#e5e9f0;--navy:#07152f;--navy2:#0b2147;--gold:#f2c15d;--gold2:#ffe4a0}
+/* Spacious layout update — original PanBill navy and gold theme preserved */
 html{scroll-padding-top:90px}
-body{background:#f4f6f9;color:#172033}
-.app-header{padding:12px max(18px,calc((100vw - 1380px)/2));background:#fff;color:#172033;border-bottom:1px solid #e7eaf0;box-shadow:0 2px 12px #18243a0a}
-.app-header .muted{color:#647084!important}
 .wrap{max-width:1380px;padding:28px 22px 64px}
+.app-header{padding:14px max(18px,calc((100vw - 1380px)/2))}
 .hero{grid-template-columns:1.1fr .9fr;gap:30px;margin-bottom:24px}
 .hero-copy{padding:38px 12px}
-.hero h1{font-size:clamp(38px,5vw,62px);color:#172033}
-.hero p{color:#647084;font-size:16px;line-height:1.75}
-.trust{color:#526075}
+.hero h1{font-size:clamp(38px,5vw,62px)}
 .portrait-card{min-height:300px;border-radius:18px}
 .signed-greeting{margin:18px 0 16px;padding:25px 26px;min-height:132px}
 .seasonal-card{margin:16px 0 24px}
-.panel{background:#fff;color:#172033;border:1px solid #e7eaf0;border-radius:16px;box-shadow:0 5px 22px #1720330a;padding:24px}
-.panel p,.muted{color:#687386}
+.panel{border-radius:16px;padding:24px}
 .section-head{margin:34px 0 17px}
-.section-head h2{font-size:23px;color:#172033;letter-spacing:-.35px}
 .services{grid-template-columns:repeat(5,minmax(0,1fr));gap:16px}
-.service-card{background:#fff;color:#172033;border:1px solid #e6eaf0;border-radius:16px;padding:21px 14px;min-height:128px;box-shadow:0 4px 16px #17203308}
-.service-card:hover{transform:translateY(-3px);border-color:#e5b44e;box-shadow:0 9px 24px #17203312}
-.service-card small{color:#7a8494}
-.marketplace-panel{margin:34px 0 26px;padding:25px;background:#fff;border:1px solid #e6eaf0;border-radius:18px;box-shadow:0 5px 24px #17203309}
+.service-card{border-radius:16px;padding:21px 14px;min-height:128px}
+.marketplace-panel{margin:34px 0 26px;padding:25px;border-radius:18px}
 .marketplace-panel .section-head{align-items:center;margin-bottom:20px}
-.marketplace-panel .section-head h2{font-size:27px;color:#172033}
 .marketplace-toolbar{display:grid;grid-template-columns:minmax(0,1fr) 240px;gap:12px;margin:18px 0 20px}
-.marketplace-toolbar input,.marketplace-toolbar select{background:#fff;color:#172033;border:1px solid #dce2eb;min-height:54px;border-radius:12px;padding:14px 16px}
+.marketplace-toolbar input,.marketplace-toolbar select{min-height:54px;border-radius:12px;padding:14px 16px}
 .marketplace-toolbar input{font-size:16px}
-.marketplace-toolbar input::placeholder{color:#8791a1}
 .marketplace-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
-.marketplace-card{background:#fff;color:#172033;border:1px solid #e8ebf0;border-radius:14px;padding:13px;min-width:0;box-shadow:0 3px 14px #17203308;transition:transform .16s,box-shadow .16s,border-color .16s;display:flex;flex-direction:column;gap:5px}
-.marketplace-card:hover,.marketplace-card:focus-visible{transform:translateY(-3px);border-color:#e5b44e;box-shadow:0 12px 26px #17203313;outline:none}
-.marketplace-card>img{width:100%;height:210px;object-fit:contain;background:#f7f8fa;border-radius:10px;margin-bottom:8px}
-.marketplace-card h3{font-size:15px;line-height:1.45;margin:3px 0;color:#222d40;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:43px}
-.marketplace-card p{font-size:12px;color:#7a8494;margin:3px 0}
-.marketplace-card .marketplace-price{font-size:19px;font-weight:850;color:#172033;margin-top:auto;padding-top:5px}
-.marketplace-empty{grid-column:1/-1;padding:34px 16px;text-align:center;color:#687386;background:#f8f9fb;border:1px dashed #d9dfe8;border-radius:12px}
-.gold-btn{box-shadow:none}
-.outline-btn{border-color:#d8a83e;color:#75520d}
-input,select,textarea{background:#fff;color:#172033;border-color:#dce2eb}
-input::placeholder,textarea::placeholder{color:#8791a1}
-label{color:#3a4659}
-select option{background:#fff;color:#172033}
-.transaction{color:#172033}
-.tx-info small,.tx-right small{color:#758093}
-.footer{color:#7a8494}
-.product-detail-card{background:#fff;color:#172033;border-color:#e5e9ef}
-.product-detail-description,.product-detail-card .muted{color:#687386}
-.product-detail-close{color:#4e5b70}
-.cart-row{border-bottom-color:#e8ebf0}
-.cart-row strong,.cart-row-price{color:#172033}
-.cart-row small{color:#778294}
-.delivery-address-panel{background:#f8f9fb;border-color:#e5e9ef}
-.delivery-address-panel p{color:#687386}
-.delivery-address-notice{color:#687386}
+.marketplace-card{border-radius:14px;padding:13px;min-width:0;display:flex;flex-direction:column;gap:5px}
+.marketplace-card>img{width:100%;height:210px;object-fit:contain;border-radius:10px;margin-bottom:8px}
+.marketplace-card h3{font-size:15px;line-height:1.45;margin:3px 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:43px}
+.marketplace-card p{font-size:12px;margin:3px 0}
+.marketplace-card .marketplace-price{font-size:19px;font-weight:850;margin-top:auto;padding-top:5px}
+.marketplace-empty{grid-column:1/-1;padding:34px 16px;text-align:center;border-radius:12px}
 #service-panel,#transaction-panel,#my-digital-purchases,#seller-marketplace-panel{scroll-margin-top:88px}
-#service-panel input,#service-panel select,#seller-marketplace-panel input,#seller-marketplace-panel select,#seller-marketplace-panel textarea,#account-overlay input,#reset-overlay input{background:#fff;color:#172033}
-.bottom-nav{background:#fff;border-top:1px solid #e4e8ef;box-shadow:0 -4px 18px #1720330b}
-.bottom-nav button{color:#536075}
 @media(max-width:1050px){.marketplace-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.wrap{max-width:1000px}}
 @media(max-width:760px){.wrap{padding:18px 14px 82px}.hero{grid-template-columns:1fr;gap:12px}.hero-copy{padding:18px 4px 8px}.hero h1{font-size:clamp(35px,9vw,48px)}.portrait-card{min-height:180px}.services{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.service-card{padding:15px 8px;min-height:112px}.marketplace-panel{padding:16px 12px;margin:24px 0}.marketplace-toolbar{grid-template-columns:1fr;gap:9px}.marketplace-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.marketplace-card{padding:9px;border-radius:12px}.marketplace-card>img{height:155px}.marketplace-card h3{font-size:13px;min-height:38px}.marketplace-card .marketplace-price{font-size:16px}.marketplace-panel .section-head{align-items:flex-start;flex-direction:column}.marketplace-panel .section-head>div:last-child{width:100%;justify-content:space-between}.panel{padding:17px}.section-head{margin:26px 0 13px}}
 @media(max-width:390px){.marketplace-card>img{height:125px}.services{grid-template-columns:repeat(2,minmax(0,1fr))}.signed-greeting{padding:18px 15px}.signed-greeting .outline-btn{padding:8px 10px}}
+
+
+/* PanBill marketplace polish — original navy and gold identity retained */
+.marketplace-panel{background:linear-gradient(145deg,#0d2346 0%,#081832 72%);border:1px solid #e9bb5845;box-shadow:0 20px 48px #0003}
+.marketplace-intro{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:20px 22px;margin:2px 0 18px;border:1px solid #f2c15d50;border-radius:17px;background:radial-gradient(circle at 90% 10%,#f2c15d2b,transparent 34%),linear-gradient(110deg,#142e55,#0a1b38)}
+.marketplace-intro h3{margin:0 0 5px;font-size:clamp(18px,3vw,23px);color:#fff}.marketplace-intro p{margin:0;color:#c2cde0;font-size:13px}.marketplace-intro-mark{width:54px;height:54px;flex:0 0 54px;display:grid;place-items:center;border-radius:17px;background:linear-gradient(145deg,var(--gold2),#d79c31);color:#07152f;font-size:27px;box-shadow:0 9px 24px #f2c15d25}
+.marketplace-category-nav{display:flex;gap:9px;overflow-x:auto;padding:3px 1px 12px;margin:0 0 12px;scrollbar-width:thin;scrollbar-color:#b98a35 #ffffff10}
+.marketplace-category-chip{flex:0 0 auto;display:flex;align-items:center;gap:8px;border:1px solid #ffffff24;background:#ffffff08;color:#eaf0fb;border-radius:999px;padding:10px 15px;font-weight:750;font-size:12px;transition:.18s ease}
+.marketplace-category-chip span{font-size:16px}.marketplace-category-chip:hover,.marketplace-category-chip.active{background:linear-gradient(135deg,#ffe4a0,#e4ac3f);border-color:#ffe4a0;color:#101b30;transform:translateY(-1px)}
+.marketplace-specials{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:10px 0 20px;padding:15px 18px;border-radius:15px;border:1px solid #f2c15d55;background:linear-gradient(100deg,#493719,#17294a 78%);position:relative;overflow:hidden}
+.marketplace-specials:after{content:'✦';position:absolute;right:20%;top:-25px;font-size:85px;color:#f2c15d18;pointer-events:none}.marketplace-specials strong{display:block;color:var(--gold2);font-size:15px}.marketplace-specials p{margin:3px 0 0;color:#d3dced;font-size:12px}.marketplace-specials-tag{white-space:nowrap;border:1px solid #f2c15d80;border-radius:999px;padding:7px 11px;color:var(--gold2);font-size:10px;font-weight:850;letter-spacing:1px}
+.marketplace-products-heading{display:flex;justify-content:space-between;align-items:end;gap:10px;margin:18px 0 12px}.marketplace-products-heading h3{margin:0;color:#fff;font-size:19px}.marketplace-products-heading p{margin:3px 0 0;color:var(--muted);font-size:12px}
+.marketplace-card{background:linear-gradient(155deg,#142b50,#0a1b37);border:1px solid #ffffff1b;box-shadow:0 9px 24px #0002;transition:transform .18s,border-color .18s,box-shadow .18s}.marketplace-card:hover{transform:translateY(-4px);border-color:#e9bb58a0;box-shadow:0 16px 30px #0004}.marketplace-card>img{background:#fff;padding:8px}.marketplace-card .marketplace-price{color:var(--gold2)}
+@media(max-width:760px){.marketplace-intro{padding:16px}.marketplace-category-chip{padding:9px 12px}.marketplace-specials{align-items:flex-start}.marketplace-specials-tag{font-size:9px}.marketplace-products-heading h3{font-size:17px}}
 
 </style></head><body>
 <div id="panbill-loading-screen" role="status" aria-live="polite" aria-label="PanBill is loading"><div class="panbill-loader-mark" aria-hidden="true">P</div><div class="panbill-loader-name">PanBill</div><div class="panbill-loader-caption">One app. All your bills.</div><div class="panbill-loader-ring" aria-hidden="true"></div></div>
@@ -184,7 +166,11 @@ select option{background:#fff;color:#172033}
 
 <section id="customer-marketplace" class="marketplace-panel">
  <div class="section-head" style="margin-top:0"><div><div class="eyebrow">SHOP ON PANBILL</div><h2>Marketplace</h2><p class="muted" style="font-size:13px;margin:5px 0">Discover products listed by approved PanBill sellers.</p></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button id="marketplace-cart-open" class="gold-btn" type="button">🛒 Cart (<span id="marketplace-cart-count">0</span>)</button><button id="marketplace-refresh" class="outline-btn" type="button">Refresh</button></div></div>
+ <div class="marketplace-intro"><div><div class="eyebrow">THE PANBILL SHOP</div><h3>Find something you'll love</h3><p>Shop trusted finds from PanBill sellers, all in one place.</p></div><div class="marketplace-intro-mark" aria-hidden="true">✦</div></div>
+ <nav id="marketplace-category-nav" class="marketplace-category-nav" aria-label="Shop by category"><button type="button" class="marketplace-category-chip active" data-category=""><span>✦</span> All products</button></nav>
  <div class="marketplace-toolbar"><input id="marketplace-search" type="search" placeholder="Search products…" aria-label="Search marketplace products"><select id="marketplace-category" aria-label="Filter by category"><option value="">All categories</option></select></div>
+ <div class="marketplace-specials"><div><strong>Special offers</strong><p>Discover available deals and seller promotions as they arrive.</p></div><span class="marketplace-specials-tag">DEALS & FINDS</span></div>
+ <div class="marketplace-products-heading"><div><h3>Featured products</h3><p>Discover products from PanBill sellers</p></div><span class="eyebrow">DISCOVER</span></div>
  <div id="marketplace-message" class="seller-status" role="status" aria-live="polite">Loading marketplace products…</div>
  <div id="marketplace-products" class="marketplace-grid"><div class="marketplace-empty">Loading products…</div></div>
 </section>
@@ -384,8 +370,8 @@ function closeMarketplaceProduct(){ $('product-detail-layer').classList.remove('
 $('product-detail-close').addEventListener('click',closeMarketplaceProduct);$('product-detail-layer').addEventListener('click',e=>{if(e.target===$('product-detail-layer'))closeMarketplaceProduct()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('product-detail-layer').classList.contains('open'))closeMarketplaceProduct()});
 $('product-detail-add').addEventListener('click',()=>{const p=selectedMarketplaceProduct;if(!p)return;const qty=Number($('product-detail-quantity').value);const stock=Number(p.stock_quantity)||0;if(!Number.isInteger(qty)||qty<1||qty>stock){$('product-detail-cart-message').textContent='Please enter a quantity between 1 and '+stock+'.';return}const existing=panbillCart.find(item=>item.product_id===p.id);if(existing){if(existing.quantity+qty>stock){$('product-detail-cart-message').textContent='That quantity is more than the available stock.';return}existing.quantity+=qty;existing.seller_id=p.seller_id||existing.seller_id||null;existing.product_type=p.product_type||existing.product_type||'physical'}else panbillCart.push({product_id:p.id,seller_id:p.seller_id||null,name:p.name,product_type:p.product_type||'physical',unit_price:Number(p.price),quantity:qty});renderMarketplaceCart();$('product-detail-cart-message').textContent='Added to your cart. '+cartItemCount()+' item(s) in cart.';});
 function renderMarketplaceProducts(){const grid=$('marketplace-products');if(!grid)return;grid.replaceChildren();const term=$('marketplace-search').value.trim().toLowerCase();const category=$('marketplace-category').value;const products=marketplaceProducts.filter(p=>(!category||p.category_id===category)&&(!term||[p.name,p.description].some(v=>String(v||'').toLowerCase().includes(term))));if(!products.length){const empty=document.createElement('div');empty.className='marketplace-empty';empty.textContent=marketplaceProducts.length?'No products match your search.':'No products are available yet. Please check again later.';grid.append(empty);return}for(const product of products){const card=document.createElement('article');card.className='marketplace-card';card.tabIndex=0;card.setAttribute('role','button');card.setAttribute('aria-label','View details for '+(product.name||'product'));card.addEventListener('click',()=>openMarketplaceProduct(product));card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openMarketplaceProduct(product)}});const image=Array.isArray(product.images)?product.images.find(url=>typeof url==='string'&&url.startsWith('https://')):'';if(image){const img=document.createElement('img');img.src=image;img.alt=product.name||'Product';img.loading='lazy';img.referrerPolicy='no-referrer';img.onerror=()=>img.remove();card.append(img)}const title=document.createElement('h3');title.textContent=product.name||'Product';card.append(title);const price=document.createElement('div');price.className='marketplace-price';price.textContent='₦'+Number(product.price||0).toLocaleString('en-NG',{maximumFractionDigits:2});card.append(price);const stock=document.createElement('p');stock.textContent=Number(product.stock_quantity)>0?'In stock':'Out of stock';card.append(stock);if(product.description){const desc=document.createElement('p');desc.textContent=String(product.description).slice(0,150);card.append(desc)}const type=document.createElement('p');type.textContent=product.product_type==='digital'?'Digital product':'Physical product';card.append(type);const hint=document.createElement('p');hint.className='muted';hint.textContent='Tap to view details';card.append(hint);grid.append(card)}}
-async function loadCustomerMarketplace(){setMarketplaceMessage('Loading marketplace products…');$('marketplace-refresh').disabled=true;try{if(!authClient)throw Error('Marketplace is starting. Please refresh shortly.');const [cats,items]=await Promise.all([authClient.from('marketplace_categories').select('id,name').eq('is_active',true).order('display_order',{ascending:true}),authClient.from('marketplace_products').select('id,seller_id,category_id,name,description,price,stock_quantity,images,product_type,parcel_size,digital_delivery_mode,digital_delivery_url,status,created_at').eq('status','active').gt('stock_quantity',0).order('created_at',{ascending:false}).limit(100)]);if(cats.error)throw cats.error;if(items.error)throw items.error;marketplaceCategories=Array.isArray(cats.data)?cats.data:[];marketplaceProducts=Array.isArray(items.data)?items.data:[];const select=$('marketplace-category');const chosen=select.value;select.replaceChildren(new Option('All categories',''));marketplaceCategories.forEach(c=>select.add(new Option(c.name,c.id)));if(marketplaceCategories.some(c=>c.id===chosen))select.value=chosen;renderMarketplaceProducts();setMarketplaceMessage(marketplaceProducts.length?marketplaceProducts.length+' product(s) available.':'No products are available yet. Approved sellers can add products from their Seller Workspace.')}catch(error){marketplaceProducts=[];renderMarketplaceProducts();setMarketplaceMessage(error.message||'Could not load marketplace products. Please refresh.',true)}finally{$('marketplace-refresh').disabled=false}}
-$('marketplace-refresh').addEventListener('click',loadCustomerMarketplace);$('marketplace-search').addEventListener('input',renderMarketplaceProducts);$('marketplace-category').addEventListener('change',renderMarketplaceProducts);
+async function loadCustomerMarketplace(){setMarketplaceMessage('Loading marketplace products…');$('marketplace-refresh').disabled=true;try{if(!authClient)throw Error('Marketplace is starting. Please refresh shortly.');const [cats,items]=await Promise.all([authClient.from('marketplace_categories').select('id,name').eq('is_active',true).order('display_order',{ascending:true}),authClient.from('marketplace_products').select('id,seller_id,category_id,name,description,price,stock_quantity,images,product_type,parcel_size,digital_delivery_mode,digital_delivery_url,status,created_at').eq('status','active').gt('stock_quantity',0).order('created_at',{ascending:false}).limit(100)]);if(cats.error)throw cats.error;if(items.error)throw items.error;marketplaceCategories=Array.isArray(cats.data)?cats.data:[];marketplaceProducts=Array.isArray(items.data)?items.data:[];const select=$('marketplace-category');const chosen=select.value;select.replaceChildren(new Option('All categories',''));marketplaceCategories.forEach(c=>select.add(new Option(c.name,c.id)));if(marketplaceCategories.some(c=>c.id===chosen))select.value=chosen;renderMarketplaceCategoryNav();renderMarketplaceProducts();setMarketplaceMessage(marketplaceProducts.length?marketplaceProducts.length+' product(s) available.':'No products are available yet. Approved sellers can add products from their Seller Workspace.')}catch(error){marketplaceProducts=[];renderMarketplaceProducts();setMarketplaceMessage(error.message||'Could not load marketplace products. Please refresh.',true)}finally{$('marketplace-refresh').disabled=false}}
+function renderMarketplaceCategoryNav(){const nav=$('marketplace-category-nav');if(!nav)return;nav.replaceChildren();const all=document.createElement('button');all.type='button';all.className='marketplace-category-chip';all.dataset.category='';all.innerHTML='<span>✦</span> All products';nav.append(all);const icons=[['phone','📱'],['computer','💻'],['fashion','👗'],['home','🏠'],['accessor','👜'],['digital','⚡'],['beauty','✨']];marketplaceCategories.forEach(c=>{const name=String(c.name||'').trim();if(!name)return;const key=name.toLowerCase();let icon='🛍️';for(const [part,emoji] of icons){if(key.includes(part)){icon=emoji;break}}const b=document.createElement('button');b.type='button';b.className='marketplace-category-chip';b.dataset.category=c.id;b.innerHTML='<span aria-hidden="true">'+icon+'</span> '+name;nav.append(b)});const more=document.createElement('button');more.type='button';more.className='marketplace-category-chip';more.dataset.category='';more.innerHTML='<span>＋</span> More';nav.append(more);syncMarketplaceCategoryNav()}function syncMarketplaceCategoryNav(){const selected=$('marketplace-category')?.value||'';document.querySelectorAll('#marketplace-category-nav .marketplace-category-chip').forEach(b=>b.classList.toggle('active',b.dataset.category===selected&&(!b.textContent.includes('More'))))} $('marketplace-category-nav').addEventListener('click',e=>{const b=e.target.closest('button[data-category]');if(!b)return;$('marketplace-category').value=b.dataset.category||'';syncMarketplaceCategoryNav();renderMarketplaceProducts()});$('marketplace-refresh').addEventListener('click',loadCustomerMarketplace);$('marketplace-search').addEventListener('input',renderMarketplaceProducts);$('marketplace-category').addEventListener('change',()=>{syncMarketplaceCategoryNav();renderMarketplaceProducts()});
 
 function showSignedIn(session){currentSession=session||null;restoreMarketplaceCartForSession(currentSession);updateMarketplaceCheckoutButton();$('wallet-panel').hidden=!currentSession;$('auth-overlay').hidden=!!currentSession;$('logout-button').hidden=!currentSession;$('header-user').hidden=!currentSession;$('header-user').textContent=currentSession?(currentSession.user.email||'Account'):'';$('account-status').textContent=currentSession?'Signed in as '+(currentSession.user.email||'Account')+'.':'Sign in to access your wallet and transactions.';const firstName=(currentSession?.user?.user_metadata?.full_name||currentSession?.user?.email?.split('@')[0]||'').trim().split(/\s+/)[0];const hour=new Date().getHours();const timeGreeting=hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';$('greeting').replaceChildren(document.createTextNode((currentSession?timeGreeting+(firstName?', '+firstName:''):'Welcome to PanBill')+' '));const greetingSpark=document.createElement('span');greetingSpark.className='greeting-spark';greetingSpark.setAttribute('aria-hidden','true');greetingSpark.textContent='✦';$('greeting').append(greetingSpark);$('account-email').textContent=currentSession?(currentSession.user.email||'Account'):'You are not signed in.';if(currentSession){loadWallet();checkBackend();loadSellerApplication();$('my-digital-purchases').hidden=false;loadDigitalPurchases()}else{$('my-digital-purchases').hidden=true;$('seller-marketplace-panel').hidden=true;$('wallet-message').textContent='Sign in to load your wallet.';$('transaction-history').textContent='Sign in to view your transactions.'}}
 async function invoke(body){if(!authClient||!currentSession)throw Error('Please sign in first.');const r=await authClient.functions.invoke('super-responder',{body});if(r.error){let extra='';try{extra=await r.error.context?.json?.().then(x=>x.error||x.message||'').catch(()=> '')}catch{}throw Error(extra||r.data?.error||r.error.message||'Backend request failed.')}if(r.data?.error)throw Error(r.data.error);return r.data||{}}
