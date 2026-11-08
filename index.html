@@ -536,7 +536,8 @@ main.wrap[data-view="history"] #history-area {
 <div class="settings-row settings-static"><span class="settings-row-icon">₦</span><span><strong>Wallet &amp; payments</strong><small>Wallet funding and payment activity are available from Home and History.</small></span></div>
 <button class="settings-row" id="settings-about" type="button" aria-expanded="false" aria-controls="settings-about-details"><span class="settings-row-icon">ⓘ</span><span><strong>About PanBill</strong><small>Learn about PanBill services.</small></span><span class="settings-chevron" aria-hidden="true">›</span></button><p class="settings-about-details" id="settings-about-details" hidden>PanBill brings together airtime, data, bill payments, wallet services and a marketplace for products from approved sellers.</p>
 </div>
-<button class="settings-logout" id="settings-logout" type="button">Log out</button>
+<button class="settings-logout" id="settings-logout" type="button"><span aria-hidden="true">↪</span> Log out of PanBill</button>
+<p class="settings-logout-status" id="settings-logout-status" role="status" aria-live="polite" hidden></p>
 <p class="settings-footnote">Only settings and controls currently supported by PanBill are shown here.</p>
 </section>
 <div class="two-col" id="history-area"><button aria-label="Back to VTU dashboard" class="history-back-home" id="history-back-home" type="button">← Back to Home</button><section class="panel" id="transaction-panel"><div class="section-head" style="margin-top:0"><h2>Transaction history</h2><button class="text-button" id="refresh-transactions" type="button">Refresh</button></div><div aria-label="Filter transactions" class="tx-filter-bar" id="transaction-filters" role="group">
@@ -936,7 +937,7 @@ main.wrap[data-view="settings"] #settings-dashboard{display:block!important}
 .settings-row-icon{width:38px;height:38px;display:grid;place-items:center;flex:0 0 38px;border-radius:12px;background:#f2c15d18;color:var(--gold2);font-size:19px}
 .settings-chevron{font-size:24px;color:var(--gold2)}
 .settings-static{cursor:default}
-.settings-logout{width:100%;padding:13px;border:1px solid #ff8d9166;border-radius:13px;background:#ff8d9110;color:#ffb0b3;font-weight:800}
+.settings-logout{display:block!important;width:100%;min-height:48px;margin:12px 0 0;padding:13px;border:1px solid #ff8d9166;border-radius:13px;background:#ff8d9110;color:#ffb0b3;font-weight:800;text-align:center;cursor:pointer}.settings-logout-status{margin:8px 2px;color:var(--muted);font-size:12px}.settings-logout-status:not([hidden]){display:block}
 .settings-footnote{font-size:11px;color:var(--muted);text-align:center;margin:13px 0}
 .bottom-nav{grid-template-columns:repeat(7,minmax(0,1fr));}
 .bottom-nav button{font-size:9px;min-width:0;padding:4px 0;white-space:nowrap}
@@ -972,7 +973,23 @@ main.wrap[data-view="settings"] #settings-dashboard{display:block!important}
  document.getElementById('nav-settings')?.addEventListener('click',()=>setView('settings'));
  document.getElementById('settings-open-account')?.addEventListener('click',()=>document.getElementById('open-account')?.click());
  document.getElementById('settings-security')?.addEventListener('click',()=>document.getElementById('open-account')?.click());
- document.getElementById('settings-logout')?.addEventListener('click',()=>document.getElementById('logout-button')?.click());
+ const settingsLogout=document.getElementById('settings-logout');
+ const settingsLogoutStatus=document.getElementById('settings-logout-status');
+ settingsLogout?.addEventListener('click',async()=>{
+  if(!window.authClient && typeof authClient==='undefined'){if(settingsLogoutStatus){settingsLogoutStatus.hidden=false;settingsLogoutStatus.textContent='Authentication is not ready. Please refresh and try again.';}return;}
+  settingsLogout.disabled=true;
+  if(settingsLogoutStatus){settingsLogoutStatus.hidden=false;settingsLogoutStatus.textContent='Signing you out securely…';}
+  try{
+   const client=typeof authClient!=='undefined'?authClient:window.authClient;
+   if(!client?.auth?.signOut)throw new Error('Secure sign-out is unavailable. Please refresh and try again.');
+   const {error}=await client.auth.signOut();
+   if(error)throw error;
+   if(settingsLogoutStatus)settingsLogoutStatus.textContent='You have been signed out.';
+  }catch(error){
+   if(settingsLogoutStatus)settingsLogoutStatus.textContent=error?.message||'Could not sign out. Please try again.';
+   settingsLogout.disabled=false;
+  }
+ });
  main.dataset.view='home';
  activate('nav-home');
 })();
@@ -1391,4 +1408,27 @@ main.wrap[data-view="market"]{padding-bottom:24px!important}
 })();
 </script>
 
+
+<style id="panbill-final-bottom-navigation-removal">
+/* Keep the legacy navigation markup for existing JavaScript hooks, but never render its bottom bar or reserved space. */
+nav.bottom-nav, .bottom-nav, #nav-home, #nav-services, #nav-market, #nav-wallet, #nav-transactions, #nav-settings {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  max-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+main.wrap { padding-bottom: 24px !important; }
+@media (max-width: 600px) { main.wrap { padding-bottom: 18px !important; } }
+</style>
+
 </body></html>
+
+<style id="panbill-settings-logout-visible-final">
+#settings-dashboard #settings-logout{display:block!important;visibility:visible!important;opacity:1!important;position:relative!important;z-index:2!important}
+#settings-dashboard #settings-logout-status:not([hidden]){display:block!important}
+</style>
