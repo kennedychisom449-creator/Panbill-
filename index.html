@@ -385,7 +385,7 @@ main.wrap[data-view="history"] #history-area {
 <div aria-label="PanBill is loading" aria-live="polite" id="panbill-loading-screen" role="status"><div aria-hidden="true" class="panbill-loader-mark">P</div><div class="panbill-loader-name">PanBill</div><div class="panbill-loader-caption">One app. All your bills.</div><div aria-hidden="true" class="panbill-loader-ring"></div></div>
 <header class="app-header"><div class="brand"><span class="brand-mark">P</span> PanBill</div><div class="header-actions"><span class="muted" hidden="" id="header-user" style="font-size:12px"></span><button class="pill" id="settings-top-button" type="button" aria-label="Open Settings">⚙ Settings</button><button aria-hidden="true" class="pill" hidden="" id="logout-button" type="button">Log out</button></div></header>
 <main class="wrap"><section class="hero"><div class="hero-copy"><div class="eyebrow">Simple • Secure • Convenient</div><h1>Your bills,<br/><span>beautifully handled.</span></h1><p>Recharge airtime, buy data, pay bills, add money to your wallet, shop and explore the marketplace every day — all in one secure app.</p><div class="trust"><span>✦ Secure account</span><span>✦ Clear transactions</span><span>✦ Fast checkout</span></div></div><div aria-label="PanBill animated seasonal background" class="portrait-card" role="img"></div></section>
-<div class="signed-greeting"><div><div class="eyebrow">YOUR PANBILL DASHBOARD</div><h2 id="greeting">Welcome to PanBill <span aria-hidden="true" class="greeting-spark">✦</span></h2><div class="muted" id="account-status" style="font-size:13px">Sign in to access your wallet.</div></div><span aria-hidden="true" class="greeting-decoration">✧</span><button aria-label="Open account settings" class="outline-btn" id="open-account" type="button">Settings</button></div>
+<div class="signed-greeting"><div><div class="eyebrow">YOUR PANBILL DASHBOARD</div><h2 id="greeting">Welcome to PanBill <span aria-hidden="true" class="greeting-spark">✦</span></h2><div class="muted" id="account-status" style="font-size:13px">Sign in to access your wallet.</div></div><span aria-hidden="true" class="greeting-decoration">✧</span><button aria-label="Open account settings" class="outline-btn" id="open-account" type="button" hidden="">Settings</button></div>
 <section aria-label="PanBill seasonal greeting" aria-live="polite" class="seasonal-card" id="dashboard-seasonal-greeting"><div class="seasonal-copy"><div class="seasonal-kicker" data-season-kicker="">SEASONAL GREETINGS</div><h2 class="seasonal-title" data-season-title="">Wishing you joy</h2><p class="seasonal-message" data-season-message="">Warm wishes from PanBill.</p></div><div aria-hidden="true" class="seasonal-art"><span class="season-main" data-season-art="">✦</span><span class="season-sparkles">✧ ✦</span></div></section>
 <section class="panel wallet" hidden="" id="wallet-panel"><div class="wallet-top"><span class="wallet-label">AVAILABLE WALLET BALANCE</span><button aria-label="Hide balance" class="pill" id="toggle-balance" style="color:#101b30;border-color:#07152f30" type="button">◉</button></div><div class="balance" id="wallet-balance">₦••••••</div><div class="wallet-actions"><button id="fund-wallet-button" type="button"><span class="ico">＋</span>Add Money</button><button id="wallet-history-button" type="button"><span class="ico">↗</span>Transactions</button><button id="refresh-wallet" type="button"><span class="ico">⟳</span>Refresh</button></div><div id="wallet-message" style="font-size:12px;margin-top:12px;position:relative;z-index:1">Wallet information loads after sign-in.</div><div class="wallet-fee-note" style="font-size:11px;margin-top:7px;position:relative;z-index:1;color:#26334a">Wallet funding fee: 0.5% of the amount added.</div></section>
 <div class="section-head"><h2>Pay a bill</h2><span class="muted" style="font-size:12px">Choose a service</span></div><section aria-label="VTU services" class="services">
@@ -421,7 +421,14 @@ main.wrap[data-view="history"] #history-area {
 <button class="seller-shortcut" id="open-become-seller" type="button"><span aria-hidden="true" class="seller-shortcut-icon">♙</span><span><strong>Become a Seller</strong><small>Apply to sell on PanBill</small></span><span aria-hidden="true" class="seller-shortcut-arrow">›</span></button>
 <button class="seller-shortcut" id="open-add-product" type="button"><span aria-hidden="true" class="seller-shortcut-icon">＋</span><span><strong>Add a Product</strong><small>For approved sellers</small></span><span aria-hidden="true" class="seller-shortcut-arrow">›</span></button>
 </div>
-<div class="section-head" style="margin-top:0"><div><div class="eyebrow">SHOP ON PANBILL</div><h2>Marketplace</h2><p class="muted" style="font-size:13px;margin:5px 0">Discover products listed by approved PanBill sellers.</p></div><div class="marketplace-heading-actions"><button class="outline-btn" id="marketplace-home-button" type="button">← Home</button><button class="gold-btn" id="marketplace-cart-open" type="button">🛒 Cart (<span id="marketplace-cart-count">0</span>)</button><button class="outline-btn" id="marketplace-refresh" type="button">Refresh</button></div></div>
+<div class="section-head" style="margin-top:0"><div><div class="eyebrow">SHOP ON PANBILL</div><h2>Marketplace</h2><p class="muted" style="font-size:13px;margin:5px 0">Discover products listed by approved PanBill sellers.</p></div><div class="marketplace-heading-actions"><button class="outline-btn" id="marketplace-home-button" type="button">← Home</button><button class="outline-btn" id="marketplace-settings-toggle" type="button" aria-expanded="false" aria-controls="marketplace-settings-panel">⚙ Settings</button><button class="gold-btn" id="marketplace-cart-open" type="button">🛒 Cart (<span id="marketplace-cart-count">0</span>)</button><button class="outline-btn" id="marketplace-refresh" type="button">Refresh</button></div></div>
+<section class="marketplace-settings-panel" id="marketplace-settings-panel" hidden aria-labelledby="marketplace-settings-title">
+ <div class="marketplace-settings-heading"><div><div class="eyebrow">MARKETPLACE ACCOUNT</div><h3 id="marketplace-settings-title">Marketplace Settings</h3><p>Manage your seller access and product listings.</p></div><button class="outline-btn" id="marketplace-settings-close" type="button">Back to Marketplace</button></div>
+ <div class="marketplace-settings-actions">
+  <button class="marketplace-settings-action" id="marketplace-settings-become-seller" type="button"><span class="marketplace-settings-icon" aria-hidden="true">♙</span><span><strong>Become a Seller</strong><small>Apply for a PanBill seller account and get your business reviewed.</small></span><span aria-hidden="true" class="settings-chevron">›</span></button>
+  <button class="marketplace-settings-action" id="marketplace-settings-add-product" type="button"><span class="marketplace-settings-icon" aria-hidden="true">＋</span><span><strong>Add a Product</strong><small>Open your existing product listing tools. Seller approval is required.</small></span><span aria-hidden="true" class="settings-chevron">›</span></button>
+ </div>
+</section>
 <div class="jm-market-topline"><span>Welcome to PanBill Marketplace</span><span>Shop from approved PanBill sellers</span></div>
 <div class="jm-market-hero">
 <div class="jm-hero-copy"><span class="jm-hero-kicker">DISCOVER MORE. SHOP BETTER.</span><h3>Everything you need, in one place.</h3><p>Explore products from sellers across Nigeria and shop with confidence on PanBill.</p><button class="jm-hero-cta" id="jm-shop-now" type="button">Start shopping <span aria-hidden="true">→</span></button></div>
@@ -1426,9 +1433,58 @@ main.wrap { padding-bottom: 24px !important; }
 @media (max-width: 600px) { main.wrap { padding-bottom: 18px !important; } }
 </style>
 
+
+<script id="panbill-marketplace-settings-controller">
+(()=>{
+ const panel=document.getElementById('marketplace-settings-panel');
+ const toggle=document.getElementById('marketplace-settings-toggle');
+ const close=document.getElementById('marketplace-settings-close');
+ if(!panel||!toggle)return;
+ const setOpen=(open)=>{
+  panel.hidden=!open;
+  toggle.setAttribute('aria-expanded',String(open));
+  toggle.textContent=open?'✕ Close Settings':'⚙ Settings';
+  if(open)panel.scrollIntoView({behavior:'smooth',block:'start'});
+ };
+ toggle.addEventListener('click',()=>setOpen(panel.hidden));
+ close?.addEventListener('click',()=>setOpen(false));
+ document.getElementById('marketplace-settings-become-seller')?.addEventListener('click',()=>{
+  setOpen(false);
+  document.getElementById('open-become-seller')?.click();
+ });
+ document.getElementById('marketplace-settings-add-product')?.addEventListener('click',()=>{
+  setOpen(false);
+  document.getElementById('open-add-product')?.click();
+ });
+})();
+</script>
 </body></html>
 
 <style id="panbill-settings-logout-visible-final">
 #settings-dashboard #settings-logout{display:block!important;visibility:visible!important;opacity:1!important;position:relative!important;z-index:2!important}
 #settings-dashboard #settings-logout-status:not([hidden]){display:block!important}
+</style>
+
+<style id="panbill-marketplace-settings-and-category-fit">
+/* Keep the central VTU shortcut out of the dashboard while preserving its existing profile action. */
+#open-account{display:none!important}
+main.wrap[data-view="market"] .marketplace-seller-shortcuts{display:none!important}
+/* Category tiles fit the available width and wrap long category names instead of overflowing. */
+#marketplace-category-nav.marketplace-category-nav{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;overflow:visible!important;padding:3px 1px 12px;margin:0 0 12px;scrollbar-width:none}
+#marketplace-category-nav .marketplace-category-chip{box-sizing:border-box;display:flex;align-items:center;justify-content:flex-start;gap:7px;width:100%;min-width:0;min-height:58px;padding:10px 11px;border-radius:13px;white-space:normal;overflow-wrap:anywhere;word-break:normal;line-height:1.3;text-align:left;font-size:12px;flex:none}
+#marketplace-category-nav .marketplace-category-chip span{flex:0 0 auto;font-size:17px;line-height:1}
+.marketplace-settings-panel{margin:12px 0 18px;padding:16px;border:1px solid #f2c15d55;border-radius:17px;background:linear-gradient(145deg,#10264a,#0a1b38);box-shadow:0 10px 26px #0002}
+.marketplace-settings-panel[hidden]{display:none!important}
+.marketplace-settings-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.marketplace-settings-heading h3{margin:4px 0;color:#fff;font-size:19px}
+.marketplace-settings-heading p{margin:4px 0;color:#c2cde0;font-size:12px}
+.marketplace-settings-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.marketplace-settings-action{display:flex;align-items:center;gap:11px;min-width:0;min-height:76px;padding:12px;border:1px solid #ffffff20;border-radius:13px;background:#ffffff08;color:#fff;text-align:left;cursor:pointer}
+.marketplace-settings-action>span:nth-child(2){display:grid;gap:4px;min-width:0;flex:1}
+.marketplace-settings-action strong{font-size:13px}
+.marketplace-settings-action small{font-size:11px;line-height:1.4;color:#c2cde0}
+.marketplace-settings-icon{width:38px;height:38px;display:grid;place-items:center;flex:0 0 38px;border-radius:11px;background:#f2c15d18;color:#f2c15d;font-size:20px}
+.marketplace-settings-action:hover{border-color:#f2c15d99;background:#f2c15d12}
+@media(max-width:760px){#marketplace-category-nav.marketplace-category-nav{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#marketplace-category-nav .marketplace-category-chip{min-height:56px;padding:9px;font-size:11px}.marketplace-settings-actions{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:360px){#marketplace-category-nav .marketplace-category-chip{gap:6px;padding:8px;font-size:10px}}
 </style>
