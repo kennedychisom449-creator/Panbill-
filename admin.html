@@ -193,6 +193,7 @@ tbody tr:hover{background:#192b43}
   <button class="nav-btn" data-tab="audit"><span class="nav-icon">⌑</span> Audit log</button>
   <button class="nav-btn super-admin-only hidden" data-tab="marketplace"><span class="nav-icon">▣</span> Marketplace Sellers</button>
   <button class="nav-btn super-admin-only hidden" data-tab="deliveryPricing"><span class="nav-icon">🚚</span> Delivery Pricing</button>
+  <button class="nav-btn super-admin-only hidden" data-tab="pickupPoints"><span class="nav-icon">📍</span> Collection Centres</button>
   <button class="nav-btn super-admin-only hidden" data-tab="agents"><span class="nav-icon">♙</span> Agent Management</button>
  </nav>
  <div class="sidebar-bottom">
@@ -373,6 +374,36 @@ tbody tr:hover{background:#192b43}
  </div>
 </section>
 
+
+<section id="pickupPointsTab" class="section super-admin-only hidden">
+ <div class="panel">
+  <div class="panel-head">
+   <div><h2>PanBill-owned collection centres</h2><div class="panel-desc">Create and manage the official PanBill pickup locations customers can select during marketplace checkout. Only active centres are shown to customers.</div></div>
+   <button class="btn" id="reloadPickupPointsButton" type="button">↻ Refresh centres</button>
+  </div>
+  <div class="pricing-note">These centres are managed by PanBill administrators. This does not create a partner-shop registration flow. Saving and activation are verified by the database using your signed-in administrator account.</div>
+  <div class="panel" style="background:#101d31;margin:16px 0">
+   <div class="panel-head"><div><h2 id="pickupPointFormTitle">Add a collection centre</h2><div class="panel-desc">Enter the public address and customer contact details.</div></div></div>
+   <input id="pickupPointId" type="hidden">
+   <div class="pricing-grid">
+    <div class="pricing-field"><label for="pickupPointName">Centre name</label><input id="pickupPointName" maxlength="120" required placeholder="e.g. PanBill Port Harcourt Centre"></div>
+    <div class="pricing-field"><label for="pickupPointPhone">Public phone number</label><input id="pickupPointPhone" maxlength="30" required type="tel" placeholder="080... or +234..."></div>
+    <div class="pricing-field"><label for="pickupPointState">State</label><input id="pickupPointState" maxlength="100" required placeholder="Rivers"></div>
+    <div class="pricing-field"><label for="pickupPointLga">LGA</label><input id="pickupPointLga" maxlength="100" required placeholder="Port Harcourt"></div>
+    <div class="pricing-field"><label for="pickupPointCity">Town / city</label><input id="pickupPointCity" maxlength="100" required placeholder="Port Harcourt"></div>
+    <div class="pricing-field"><label for="pickupPointContact">Contact person (optional)</label><input id="pickupPointContact" maxlength="120" placeholder="Centre attendant"></div>
+   </div>
+   <div class="pricing-field" style="margin-top:14px"><label for="pickupPointAddress">Full street address</label><textarea id="pickupPointAddress" class="reason-input" rows="2" maxlength="500" required placeholder="Enter the complete collection-centre address"></textarea></div>
+   <div class="pricing-field" style="margin-top:14px"><label for="pickupPointInstructions">Customer collection instructions (optional)</label><textarea id="pickupPointInstructions" class="reason-input" rows="2" maxlength="1000" placeholder="Opening hours, landmark or collection guidance"></textarea></div>
+   <div class="pricing-field" style="margin-top:14px"><label for="pickupPointReason">Reason for this change</label><textarea id="pickupPointReason" class="reason-input" rows="2" maxlength="500" required placeholder="At least 5 characters; recorded in the audit log"></textarea></div>
+   <label style="display:flex;align-items:center;gap:9px;margin-top:14px"><input id="pickupPointActive" type="checkbox"> Make this centre active and visible to customers</label>
+   <div class="pricing-actions"><button class="btn btn-primary" id="savePickupPointButton" type="button">Save collection centre</button><button class="btn" id="cancelPickupPointEditButton" type="button">Clear form</button><span id="pickupPointSaveStatus" class="panel-desc" role="status" aria-live="polite"></span></div>
+  </div>
+  <div class="panel-head"><div><h2>Managed collection centres</h2><div class="panel-desc">Inactive centres remain in this admin list but are not offered at checkout.</div></div></div>
+  <div class="table-wrap"><table><thead><tr><th>CENTRE</th><th>LOCATION</th><th>CONTACT</th><th>STATUS</th><th>UPDATED</th><th>ACTIONS</th></tr></thead><tbody id="pickupPointsBody"><tr><td colspan="6" class="loading">Load collection centres to begin.</td></tr></tbody></table></div>
+ </div>
+</section>
+
 <section id="agentsTab" class="section super-admin-only hidden">
  <div class="panel">
   <div class="panel-head">
@@ -511,7 +542,7 @@ async function verifyAdminRole(){
 }
 
 function showTab(tab){
- if((tab==="agents"||tab==="marketplace"||tab==="deliveryPricing")&&!isSuperAdmin){
+ if((tab==="agents"||tab==="marketplace"||tab==="deliveryPricing"||tab==="pickupPoints")&&!isSuperAdmin){
   showMessage("Only the Super Admin can access this section.");
   return;
  }
@@ -525,11 +556,12 @@ function showTab(tab){
   pricing:"VTU Pricing Management",
   agents:"Agent Management",
   marketplace:"Marketplace Seller Applications",
-  deliveryPricing:"Marketplace Delivery Pricing"
+  deliveryPricing:"Marketplace Delivery Pricing",
+  pickupPoints:"PanBill Collection Centres"
  };
  $("pageTitle").textContent=titles[tab]||"PanBill";
 
- ["overview","customers","transactions","pricing","audit","agents","marketplace","deliveryPricing"].forEach(n=>{
+ ["overview","customers","transactions","pricing","audit","agents","marketplace","deliveryPricing","pickupPoints"].forEach(n=>{
   $(n+"Tab").classList.toggle("active",n===tab);
  });
 
@@ -806,6 +838,7 @@ async function loadCurrentTab(){
   if(activeTab==="agents"&&isSuperAdmin)await loadAgents();
   if(activeTab==="marketplace"&&isSuperAdmin){await loadMarketplaceSellers();await loadMarketplaceCodSellers();await loadMarketplaceDispatchLocations();}
   if(activeTab==="deliveryPricing"&&isSuperAdmin)await loadMarketplaceDeliveryRoutes();
+  if(activeTab==="pickupPoints"&&isSuperAdmin)await loadPickupPoints();
  }catch(e){
   showMessage(e.message);
  }finally{
@@ -978,6 +1011,100 @@ async function loadMarketplaceDeliveryRoutes(){
   status.textContent="Test failed. Read the message in the table and check the deployed Edge Function if needed.";
   showMessage(error.message||"Could not load delivery routes.");
  }finally{button.disabled=false;}
+}
+
+/* PANBILL COLLECTION CENTRES — Super Admin only. Database RPCs verify auth.uid() and admin role. */
+function clearPickupPointForm(){
+ ["pickupPointId","pickupPointName","pickupPointPhone","pickupPointState","pickupPointLga","pickupPointCity","pickupPointContact","pickupPointAddress","pickupPointInstructions","pickupPointReason"].forEach(id=>$(id).value="");
+ $("pickupPointActive").checked=false;
+ $("pickupPointFormTitle").textContent="Add a collection centre";
+ $("savePickupPointButton").textContent="Save collection centre";
+ $("pickupPointSaveStatus").textContent="";
+}
+
+async function loadPickupPoints(){
+ if(!isSuperAdmin)throw new Error("Only the Super Admin can manage collection centres.");
+ const body=$("pickupPointsBody");
+ body.innerHTML='<tr><td colspan="6" class="loading">Loading PanBill collection centres...</td></tr>';
+ try{
+  const {data,error}=await client.rpc("marketplace_admin_list_pickup_points");
+  if(error)throw error;
+  const points=Array.isArray(data)?data:[];
+  if(!points.length){body.innerHTML='<tr><td colspan="6" class="empty">No collection centres have been created yet.</td></tr>';return;}
+  body.innerHTML=points.map(point=>{
+   const location=[point.city,point.lga,point.state].filter(Boolean).join(", ");
+   const status=point.is_active?"Active":"Inactive";
+   return `<tr>
+    <td><strong>${escapeHTML(point.name||"—")}</strong><div class="panel-desc">${escapeHTML(point.address||"")}</div></td>
+    <td>${escapeHTML(location||"—")}</td>
+    <td>${escapeHTML(point.phone||"—")}<div class="panel-desc">${escapeHTML(point.contact_name||"")}</div></td>
+    <td><span class="status ${point.is_active?"active":"pending"}">${status}</span></td>
+    <td>${date(point.updated_at||point.created_at)}</td>
+    <td><button class="btn" type="button" data-edit-pickup="${escapeHTML(point.id)}">Edit</button> <button class="btn" type="button" data-toggle-pickup="${escapeHTML(point.id)}">${point.is_active?"Deactivate":"Activate"}</button></td>
+   </tr>`;
+  }).join("");
+  body.querySelectorAll("[data-edit-pickup]").forEach(button=>button.addEventListener("click",()=>{
+   const point=points.find(item=>item.id===button.dataset.editPickup);if(!point)return;
+   $("pickupPointId").value=point.id;
+   $("pickupPointName").value=point.name||"";
+   $("pickupPointPhone").value=point.phone||"";
+   $("pickupPointState").value=point.state||"";
+   $("pickupPointLga").value=point.lga||"";
+   $("pickupPointCity").value=point.city||"";
+   $("pickupPointContact").value=point.contact_name||"";
+   $("pickupPointAddress").value=point.address||"";
+   $("pickupPointInstructions").value=point.instructions||"";
+   $("pickupPointActive").checked=!!point.is_active;
+   $("pickupPointReason").value="";
+   $("pickupPointFormTitle").textContent="Edit collection centre";
+   $("savePickupPointButton").textContent="Save centre changes";
+   $("pickupPointSaveStatus").textContent="Editing: "+(point.name||"collection centre");
+   $("pickupPointName").focus();
+  }));
+  body.querySelectorAll("[data-toggle-pickup]").forEach(button=>button.addEventListener("click",async()=>{
+   const point=points.find(item=>item.id===button.dataset.togglePickup);if(!point)return;
+   const action=point.is_active?"deactivate":"activate";
+   if(!confirm(`${action==="activate"?"Activate":"Deactivate"} ${point.name}? ${action==="deactivate"?"Customers will no longer see this centre at checkout.":"Customers will be able to select this centre at checkout."}`))return;
+   const reason=prompt("Enter the reason for this change (at least 5 characters):",action==="activate"?"Collection centre approved for customer pickup":"Collection centre temporarily unavailable");
+   if(reason===null)return;
+   if(reason.trim().length<5){alert("Please enter a reason of at least 5 characters.");return;}
+   button.disabled=true;
+   try{
+    const args={p_pickup_point_id:point.id,p_name:point.name,p_address:point.address,p_city:point.city,p_lga:point.lga,p_state:point.state,p_phone:point.phone,p_contact_name:point.contact_name||"",p_instructions:point.instructions||"",p_is_active:!point.is_active,p_reason:reason.trim()};
+    const {error}=await client.rpc("marketplace_admin_save_pickup_point",args);if(error)throw error;
+    showMessage(`Collection centre ${action}d successfully.`,false);await loadPickupPoints();
+   }catch(error){showMessage(error.message||"Could not update collection centre.");button.disabled=false;}
+  }));
+ }catch(error){body.innerHTML=`<tr><td colspan="6" class="red">${escapeHTML(error.message||"Could not load collection centres.")}</td></tr>`;throw error;}
+}
+
+async function savePickupPoint(){
+ if(!isSuperAdmin){showMessage("Only the Super Admin can manage collection centres.");return;}
+ const button=$("savePickupPointButton"),status=$("pickupPointSaveStatus");
+ const reason=$("pickupPointReason").value.trim();
+ const required=["pickupPointName","pickupPointPhone","pickupPointState","pickupPointLga","pickupPointCity","pickupPointAddress"];
+ for(const id of required){if(!$(id).value.trim()){status.textContent="Please complete all required centre details.";$(id).focus();return;}}
+ if(reason.length<5){status.textContent="Enter a reason of at least 5 characters.";$("pickupPointReason").focus();return;}
+ const args={
+  p_pickup_point_id:$("pickupPointId").value||null,
+  p_name:$("pickupPointName").value.trim(),
+  p_address:$("pickupPointAddress").value.trim(),
+  p_city:$("pickupPointCity").value.trim(),
+  p_lga:$("pickupPointLga").value.trim(),
+  p_state:$("pickupPointState").value.trim(),
+  p_phone:$("pickupPointPhone").value.trim(),
+  p_contact_name:$("pickupPointContact").value.trim(),
+  p_instructions:$("pickupPointInstructions").value.trim(),
+  p_is_active:$("pickupPointActive").checked,
+  p_reason:reason
+ };
+ button.disabled=true;status.textContent="Saving securely...";
+ try{
+  const {data,error}=await client.rpc("marketplace_admin_save_pickup_point",args);if(error)throw error;
+  status.textContent="Collection centre saved successfully.";showMessage(data?.message||"Collection centre saved successfully.",false);
+  clearPickupPointForm();await loadPickupPoints();
+ }catch(error){status.textContent=error.message||"Could not save collection centre.";showMessage(status.textContent);}
+ finally{button.disabled=false;}
 }
 
 /* MARKETPLACE SELLER MANAGEMENT — Super Admin only */
@@ -1322,6 +1449,9 @@ $("reloadMarketplaceCodButton").addEventListener("click",()=>loadMarketplaceCodS
 $("reloadMarketplaceDispatchButton").addEventListener("click",()=>loadMarketplaceDispatchLocations().catch(e=>showMessage(e.message)));
 $("reloadDeliveryRoutesButton").addEventListener("click",()=>loadMarketplaceDeliveryRoutes());
 $("saveDeliveryRouteButton").addEventListener("click",saveMarketplaceDeliveryRoute);
+$("reloadPickupPointsButton").addEventListener("click",()=>loadPickupPoints().catch(e=>showMessage(e.message)));
+$("savePickupPointButton").addEventListener("click",savePickupPoint);
+$("cancelPickupPointEditButton").addEventListener("click",clearPickupPointForm);
 
 $("closeCustomerModal").addEventListener("click",()=>$("customerModal").classList.add("hidden"));
 $("closeTransactionModal").addEventListener("click",()=>$("transactionModal").classList.add("hidden"));
