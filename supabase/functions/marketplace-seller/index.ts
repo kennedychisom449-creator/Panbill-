@@ -851,11 +851,51 @@ Deno.serve(async (req) => {
 
     if (action === "products_list") {
       const { data, error } = await adminClient.from("marketplace_products")
-        .select("id, seller_id, category_id, name, slug, description, price, stock_quantity, images, product_type, status, created_at, updated_at, parcel_size, digital_delivery_mode, digital_delivery_url")
+        .select("id, seller_id, category_id, name, slug, description, price, regular_price, discount_percent, stock_quantity, images, product_type, status, created_at, updated_at, parcel_size, digital_delivery_mode, digital_delivery_url")
         .eq("seller_id", user.id).order("created_at", { ascending: false });
 
       if (error) throw error;
       return respond({ success: true, products: data ?? [] });
+    }
+
+    if (action === "seller_discount_set") {
+      const productId = cleanText(body.product_id, 80);
+      const discountPercent = Number(body.discount_percent);
+      if (!productId) return respond({ success: false, error: "Product ID is required." }, 400);
+      if (!Number.isInteger(discountPercent) || discountPercent < 0 || discountPercent > 90) {
+        return respond({ success: false, error: "Choose a whole-number discount from 0% to 90%. Use 0% to remove the discount." }, 400);
+      }
+
+      const { data: sellerProfile, error: sellerError } = await adminClient.from("marketplace_sellers")
+        .select("status").eq("user_id", user.id).maybeSingle();
+      if (sellerError) throw sellerError;
+      if (sellerProfile?.status !== "approved") return respond({ success: false, error: "An approved seller account is required to manage promotions." }, 403);
+
+      const { data: product, error: productError } = await adminClient.from("marketplace_products")
+        .select("id, price, regular_price, discount_percent")
+        .eq("id", productId).eq("seller_id", user.id).maybeSingle();
+      if (productError) throw productError;
+      if (!product) return respond({ success: false, error: "Product not found in your shop." }, 404);
+
+      const regularPrice = Number(product.regular_price || product.price);
+      let updates: Record<string, unknown>;
+      if (discountPercent === 0) {
+        updates = { price: regularPrice, regular_price: null, discount_percent: 0, updated_at: new Date().toISOString() };
+      } else {
+        const discountedPrice = Math.round((regularPrice * (100 - discountPercent) / 100) * 100) / 100;
+        if (!Number.isFinite(regularPrice) || regularPrice <= 0 || !Number.isFinite(discountedPrice) || discountedPrice <= 0 || discountedPrice >= regularPrice) {
+          return respond({ success: false, error: "This product price is too low for the selected discount. Choose a smaller percentage." }, 400);
+        }
+        updates = { regular_price: regularPrice, price: discountedPrice, discount_percent: discountPercent, updated_at: new Date().toISOString() };
+      }
+
+      const { data: updated, error: updateError } = await adminClient.from("marketplace_products")
+        .update(updates).eq("id", productId).eq("seller_id", user.id)
+        .select("id, seller_id, name, price, regular_price, discount_percent, product_type, stock_quantity, status")
+        .maybeSingle();
+      if (updateError) throw updateError;
+      if (!updated) return respond({ success: false, error: "Product not found in your shop." }, 404);
+      return respond({ success: true, product: updated, message: discountPercent === 0 ? "Discount removed. The original price has been restored." : `${discountPercent}% discount is now active on this product.` });
     }
 
     if (action === "product_create") {
@@ -921,7 +961,7 @@ Deno.serve(async (req) => {
         digital_delivery_mode: productType === "digital" ? deliveryMode : "file",
         digital_delivery_url: productType === "digital" ? (deliveryUrl || null) : null,
         status: productType === "digital" && ["file", "both"].includes(deliveryMode) ? "inactive" : "active",
-      }).select("id, seller_id, category_id, name, slug, description, price, stock_quantity, images, product_type, status, created_at, updated_at, parcel_size, digital_delivery_mode, digital_delivery_url").single();
+      }).select("id, seller_id, category_id, name, slug, description, price, regular_price, discount_percent, stock_quantity, images, product_type, status, created_at, updated_at, parcel_size, digital_delivery_mode, digital_delivery_url").single();
 
       if (error) throw error;
       return respond({ success: true, message: "Product added to your shop.", product: data }, 201);
@@ -932,7 +972,7 @@ Deno.serve(async (req) => {
       if (!productId) return respond({ success: false, error: "Product ID is required." }, 400);
 
       const { data: currentProduct, error: currentError } = await adminClient.from("marketplace_products")
-        .select("id, product_type, digital_delivery_mode, digital_delivery_url, status")
+        .select("id, price, regular_price, discount_percent, product_type, digital_delivery_mode, digital_delivery_url, status")
         .eq("id", productId)
         .eq("seller_id", user.id)
         .maybeSingle();
@@ -953,7 +993,16 @@ Deno.serve(async (req) => {
       if (body.price !== undefined) {
         const price = Number(body.price);
         if (!Number.isFinite(price) || price <= 0 || price > 100000000) return respond({ success: false, error: "Enter a valid product price." }, 400);
-        updates.price = price;
+        const activeDiscount = Number(currentProduct.discount_percent || 0);
+        if (activeDiscount > 0) {
+          const discountedPrice = Math.round((price * (100 - activeDiscount) / 100) * 100) / 100;
+          if (discountedPrice <= 0 || discountedPrice >= price) return respond({ success: false, error: "The new regular price is too low for the active discount. Remove or reduce the discount first." }, 400);
+          updates.regular_price = price;
+          updates.price = discountedPrice;
+        } else {
+          updates.price = price;
+          updates.regular_price = null;
+        }
       }
 
       if (body.stock_quantity !== undefined) {
@@ -1069,7 +1118,7 @@ Deno.serve(async (req) => {
       const { data, error } = await adminClient.from("marketplace_products").update(updates)
         .eq("id", productId)
         .eq("seller_id", user.id)
-        .select("id, seller_id, category_id, name, slug, description, price, stock_quantity, images, product_type, status, created_at, updated_at, parcel_size, digital_delivery_mode, digital_delivery_url")
+        .select("id, seller_id, category_id, name, slug, description, price, regular_price, discount_percent, stock_quantity, images, product_type, status, created_at, updated_at, parcel_size, digital_delivery_mode, digital_delivery_url")
         .maybeSingle();
 
       if (error) throw error;
