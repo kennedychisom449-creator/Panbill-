@@ -371,6 +371,12 @@ tbody tr:hover{background:#192b43}
     <tbody id="deliveryRoutesBody"><tr><td colspan="6" class="empty">No routes loaded yet.</td></tr></tbody>
    </table>
   </div>
+  <div class="panel" style="margin-top:18px">
+   <div class="panel-head"><div><h2>Customer Cash on Delivery access</h2><div class="panel-desc">Reinstate a buyer whose COD access was blocked after a confirmed refusal. This action is administrator-only and audited.</div></div><button class="btn" id="reloadCodAuditButton" type="button">↻ Refresh COD audit</button></div>
+   <div class="pricing-grid"><div class="pricing-field"><label for="codBuyerId">Buyer account UUID</label><input id="codBuyerId" maxlength="50" placeholder="Paste the buyer's user ID"></div><div class="pricing-field"><label for="codReinstateReason">Reason for reinstatement</label><input id="codReinstateReason" maxlength="500" placeholder="At least 5 characters"></div></div>
+   <div class="pricing-actions"><button class="btn btn-primary" id="reinstateCodButton" type="button">Reinstate COD access</button><span id="codAdminStatus" class="panel-desc" role="status" aria-live="polite"></span></div>
+   <div class="table-wrap" style="margin-top:14px"><table><thead><tr><th>DATE</th><th>BUYER ID</th><th>ORDER</th><th>ACTOR</th><th>ACTION</th><th>REASON</th></tr></thead><tbody id="codAuditBody"><tr><td colspan="6" class="empty">Tap refresh to load COD audit history.</td></tr></tbody></table></div>
+  </div>
  </div>
 </section>
 
@@ -938,6 +944,27 @@ async function marketplaceSellerDeliveryRequest(body){
  if(!data||data.success===false)throw new Error(data?.error||"Marketplace delivery request failed.");
  return data;
 }
+
+async function loadMarketplaceCodAudit(){
+ const status=$("codAdminStatus"),body=$("codAuditBody");if(!isSuperAdmin)return;
+ body.innerHTML='<tr><td colspan="6" class="loading">Loading COD audit history...</td></tr>';
+ try{const result=await marketplaceSellerDeliveryRequest({action:"admin_cod_audit_list",limit:100});const rows=Array.isArray(result.audit)?result.audit:[];
+  if(!rows.length){body.innerHTML='<tr><td colspan="6" class="empty">No COD audit records yet.</td></tr>';return;}
+  body.innerHTML=rows.map(x=>'<tr><td>'+escapeHTML(date(x.created_at))+'</td><td><code>'+escapeHTML(x.buyer_id||"—")+'</code></td><td><code>'+escapeHTML(x.order_id||"—")+'</code></td><td>'+escapeHTML(x.actor_role||"—")+'</td><td>'+escapeHTML(x.action||"—")+'</td><td>'+escapeHTML(x.reason||"—")+'</td></tr>').join('');
+  if(status)status.textContent='Loaded '+rows.length+' audit record(s).';
+ }catch(e){body.innerHTML='<tr><td colspan="6" class="empty">'+escapeHTML(e.message)+'</td></tr>';if(status)status.textContent=e.message;}
+}
+async function reinstateMarketplaceCod(){
+ const button=$("reinstateCodButton"),status=$("codAdminStatus"),buyerId=$("codBuyerId").value.trim(),reason=$("codReinstateReason").value.trim();
+ if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(buyerId)){status.textContent="Enter a valid buyer account UUID.";return;}
+ if(reason.length<5){status.textContent="Enter a reason of at least 5 characters.";return;}
+ if(!confirm("Reinstate Cash on Delivery access for this buyer? This action will be recorded in the audit log."))return;
+ button.disabled=true;status.textContent="Reinstating COD access securely...";
+ try{await marketplaceSellerDeliveryRequest({action:"admin_cod_reinstate_customer",buyer_id:buyerId,reason});status.textContent="COD access reinstated and audit recorded.";$("codBuyerId").value="";$("codReinstateReason").value="";await loadMarketplaceCodAudit();}
+ catch(e){status.textContent=e.message||"Could not reinstate COD access.";}finally{button.disabled=false;}
+}
+$("reloadCodAuditButton")?.addEventListener("click",loadMarketplaceCodAudit);
+$("reinstateCodButton")?.addEventListener("click",reinstateMarketplaceCod);
 
 async function saveMarketplaceDeliveryRoute(){
  if(!isSuperAdmin)throw new Error("Only the Super Admin can save delivery routes.");
