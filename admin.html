@@ -438,9 +438,9 @@ tbody tr:hover{background:#192b43}
 <section id="fulfillmentAgentsTab" class="section super-admin-only hidden">
  <div class="panel">
   <div class="panel-head"><div><h2>Fulfillment agent management</h2><div class="panel-desc">Manage independent pickup-station and doorstep-delivery agents. This is separate from the existing read-only admin Agent Management.</div></div><button class="btn" id="reloadFulfillmentAgentsButton" type="button">↻ Refresh agents</button></div>
-  <div class="pricing-note">Agents receive an invitation email through Supabase Auth. Pickup agents must be attached to an active PanBill collection centre. Delivery agents must not be attached to a pickup centre. Never share passwords or access tokens.</div>
+  <div class="pricing-note">Only existing, email-verified PanBill users can be appointed. No new account is created and no invitation email is sent. Pickup agents must be attached to an active PanBill collection centre. Delivery agents must not be attached to a pickup centre. Never share passwords or access tokens.</div>
   <div class="panel" style="background:#101d31;margin:16px 0">
-   <div class="panel-head"><div><h2>Create fulfillment agent</h2><div class="panel-desc">The agent sets their password through the Supabase invitation flow.</div></div></div>
+   <div class="panel-head"><div><h2>Appoint an existing PanBill user</h2><div class="panel-desc">Enter the email address already registered on PanBill. The user keeps their existing login and password.</div></div></div>
    <div class="pricing-grid">
     <div class="pricing-field"><label for="fulfillmentAgentName">Full name</label><input id="fulfillmentAgentName" maxlength="120" autocomplete="name" placeholder="Agent full name"></div>
     <div class="pricing-field"><label for="fulfillmentAgentEmail">Email address</label><input id="fulfillmentAgentEmail" type="email" maxlength="254" autocomplete="email" placeholder="agent@example.com"></div>
@@ -448,7 +448,7 @@ tbody tr:hover{background:#192b43}
     <div class="pricing-field"><label for="fulfillmentAgentType">Agent type</label><select id="fulfillmentAgentType"><option value="pickup">Pickup station agent</option><option value="delivery">Doorstep delivery agent</option></select></div>
     <div class="pricing-field" id="fulfillmentPickupStationField"><label for="fulfillmentPickupStation">Assigned pickup station</label><select id="fulfillmentPickupStation"><option value="">Load active collection centres...</option></select><div class="pricing-help">Required for pickup agents. Delivery agents do not use a pickup station.</div></div>
    </div>
-   <div class="pricing-actions"><button class="btn btn-primary" id="createFulfillmentAgentButton" type="button">Invite agent</button><span id="fulfillmentAgentFormStatus" class="panel-desc" role="status" aria-live="polite"></span></div>
+   <div class="pricing-actions"><button class="btn btn-primary" id="createFulfillmentAgentButton" type="button">Appoint existing user</button><span id="fulfillmentAgentFormStatus" class="panel-desc" role="status" aria-live="polite"></span></div>
   </div>
   <div class="panel-head"><div><h2>Current fulfillment agents</h2><div class="panel-desc">Activate or suspend access. Suspended agents cannot load assigned orders or update fulfillment.</div></div></div>
   <div class="table-wrap"><table><thead><tr><th>NAME</th><th>EMAIL / USER ID</th><th>PHONE</th><th>TYPE</th><th>PICKUP STATION</th><th>STATUS</th><th>ACTION</th></tr></thead><tbody id="fulfillmentAgentsBody"><tr><td colspan="7" class="loading">Load agents to begin.</td></tr></tbody></table></div>
@@ -1438,9 +1438,9 @@ async function createFulfillmentAgent(){
  const payload={action:"admin_create_agent",full_name:$("fulfillmentAgentName").value.trim(),email:$("fulfillmentAgentEmail").value.trim(),phone:$("fulfillmentAgentPhone").value.trim(),agent_type,pickup_point_id:agent_type==="pickup"?$("fulfillmentPickupStation").value:null};
  if(!payload.full_name||!payload.email||!payload.phone){status.textContent="Enter the agent's full name, valid email and phone number.";return;}
  if(agent_type==="pickup"&&!payload.pickup_point_id){status.textContent="Select an active collection centre for this pickup agent.";return;}
- if(!confirm(`Send a Supabase invitation to ${payload.email} as a ${agent_type} agent?`))return;
- button.disabled=true;status.textContent="Creating agent and sending invitation...";
- try{const result=await marketplaceAgentRequest(payload);status.textContent=result.invitation_sent?"Agent created. Supabase invitation sent.":"Agent created.";$("fulfillmentAgentName").value="";$("fulfillmentAgentEmail").value="";$("fulfillmentAgentPhone").value="";await loadFulfillmentAgents();}
+ if(!confirm(`Appoint the existing PanBill account ${payload.email} as a ${agent_type} fulfillment agent? No invitation will be sent.`))return;
+ button.disabled=true;status.textContent="Checking existing PanBill account and appointing agent...";
+ try{const result=await marketplaceAgentRequest(payload);status.textContent="Existing PanBill user appointed successfully. No invitation was sent.";$("fulfillmentAgentName").value="";$("fulfillmentAgentEmail").value="";$("fulfillmentAgentPhone").value="";await loadFulfillmentAgents();}
  catch(e){status.textContent=e.message;}
  finally{button.disabled=false;}
 }
