@@ -458,12 +458,12 @@ tbody tr:hover{background:#192b43}
  <div class="panel">
   <div class="panel-head"><div><h2>Assign an order</h2><div class="panel-desc">Use the marketplace order UUID from the order record. The backend validates the order, fulfillment type, delivery method and pickup station.</div></div></div>
   <div class="pricing-grid">
-   <div class="pricing-field"><label for="fulfillmentOrderId">Unassigned paid marketplace order</label><select id="fulfillmentOrderId"><option value="">Loading eligible orders...</option></select><div class="panel-desc">Only eligible, paid physical orders without an active assignment are listed. The selected option carries the order UUID securely.</div></div>
+   <div class="pricing-field"><label for="fulfillmentOrderId">Marketplace order UUID</label><input id="fulfillmentOrderId" maxlength="80" placeholder="Paste marketplace_orders.id"></div>
    <div class="pricing-field"><label for="fulfillmentAssignAgent">Active fulfillment agent</label><select id="fulfillmentAssignAgent"><option value="">Load agents first...</option></select></div>
    <div class="pricing-field" style="grid-column:1/-1"><label for="fulfillmentAssignmentNotes">Assignment notes (optional)</label><input id="fulfillmentAssignmentNotes" maxlength="500" placeholder="Handling instructions"></div>
   </div>
-  <div class="pricing-actions"><button class="btn btn-primary" id="assignFulfillmentOrderButton" type="button">Assign order</button><button class="btn" id="refreshUnassignedOrdersButton" type="button">Refresh orders</button><span id="fulfillmentAssignStatus" class="panel-desc" role="status" aria-live="polite"></span></div>
-  <p class="panel-desc">Unpaid orders, failed payments, digital orders, cancelled orders and orders already assigned are excluded. COD orders appear only after payment is marked collected by the authorised payment process.</p>
+  <div class="pricing-actions"><button class="btn btn-primary" id="assignFulfillmentOrderButton" type="button">Assign order</button><span id="fulfillmentAssignStatus" class="panel-desc" role="status" aria-live="polite"></span></div>
+  <p class="panel-desc">This form requires a valid order UUID. The deployed agent function currently does not expose an unassigned-orders listing action, so orders are not automatically populated here.</p>
  </div>
 </section>
 
@@ -1380,7 +1380,7 @@ async function marketplaceAgentRequest(body){
  const {data:{session},error:sessionError}=await client.auth.getSession();
  if(sessionError)throw sessionError;
  if(!session)throw new Error("Your session has expired. Please sign in again.");
- const {data,error}=await client.functions.invoke("marketplace-agent",{body});
+ const {data,error}=await client.functions.invoke("marketplace-admin",{body});
  if(error){
   let message=error.message||"Fulfillment agent request failed.";
   if(error.context&&typeof error.context.json==="function"){
@@ -1406,27 +1406,6 @@ function updateFulfillmentAgentTypeUI(){
  const isPickup=$("fulfillmentAgentType").value==="pickup";
  $("fulfillmentPickupStationField").classList.toggle("hidden",!isPickup);
  $("fulfillmentPickupStation").disabled=!isPickup;
-}
-
-async function loadUnassignedFulfillmentOrders(){
- const select=$("fulfillmentOrderId");
- if(!select||!isSuperAdmin)return;
- select.innerHTML='<option value="">Loading eligible orders...</option>';
- try{
-  const result=await marketplaceAgentRequest({action:"admin_list_unassigned_orders"});
-  const orders=Array.isArray(result.orders)?result.orders:[];
-  select.innerHTML='<option value="">Select an unassigned paid order</option>'+orders.map(o=>{
-   const method=o.delivery_method==="pickup_point"?"Pickup":"Doorstep";
-   const payment=o.payment_method==="cash_on_delivery"?"COD collected":"Paystack paid";
-   const amount=money(o.total_amount);
-   const label=`${o.order_number||o.id} · ${method} · ${payment} · ${amount}`;
-   return `<option value="${escapeHTML(o.id)}">${escapeHTML(label)}</option>`;
-  }).join("");
-  if(!orders.length)select.innerHTML='<option value="">No eligible unassigned paid orders</option>';
- }catch(e){
-  select.innerHTML='<option value="">Could not load orders — tap Refresh orders</option>';
-  $("fulfillmentAssignStatus").textContent=e.message;
- }
 }
 
 async function loadFulfillmentAgents(){
@@ -1491,7 +1470,6 @@ async function loadFulfillmentAgents(){
   }).join("")||'<tr><td colspan="7" class="empty">No fulfillment agents have been created yet.</td></tr>';
   const active=agents.filter(a=>a.is_active);
   $("fulfillmentAssignAgent").innerHTML='<option value="">Select an active agent</option>'+active.map(a=>`<option value="${escapeHTML(a.id)}">${escapeHTML(a.full_name)} · ${a.agent_type==="pickup"?"Pickup":"Delivery"}</option>`).join("");
-  await loadUnassignedFulfillmentOrders();
   body.querySelectorAll("[data-toggle-fulfillment-agent]").forEach(button=>button.addEventListener("click",async()=>{
    const next=button.dataset.nextActive==="true";
    if(!confirm(`${next?"Activate":"Suspend"} this fulfillment agent?`))return;
@@ -1525,11 +1503,11 @@ async function createFulfillmentAgent(){
 
 async function assignFulfillmentOrder(){
  const status=$("fulfillmentAssignStatus"),button=$("assignFulfillmentOrderButton");
- const order_id=$("fulfillmentOrderId").value,agent_id=$("fulfillmentAssignAgent").value,notes=$("fulfillmentAssignmentNotes").value.trim();
- if(!order_id||!agent_id){status.textContent="Select an eligible marketplace order and an active agent.";return;}
+ const order_id=$("fulfillmentOrderId").value.trim(),agent_id=$("fulfillmentAssignAgent").value,notes=$("fulfillmentAssignmentNotes").value.trim();
+ if(!order_id||!agent_id){status.textContent="Enter the marketplace order UUID and select an active agent.";return;}
  if(!confirm("Assign this marketplace order to the selected fulfillment agent? The backend will validate the order and agent type."))return;
  button.disabled=true;status.textContent="Validating and assigning order...";
- try{await marketplaceAgentRequest({action:"admin_assign_order",order_id,agent_id,notes});status.textContent="Order assigned successfully.";$("fulfillmentAssignmentNotes").value="";await loadUnassignedFulfillmentOrders();}
+ try{await marketplaceAgentRequest({action:"admin_assign_order",order_id,agent_id,notes});status.textContent="Order assigned successfully.";$("fulfillmentOrderId").value="";$("fulfillmentAssignmentNotes").value="";}
  catch(e){status.textContent=e.message;}
  finally{button.disabled=false;}
 }
@@ -1670,7 +1648,6 @@ $("reloadFulfillmentAgentsButton").addEventListener("click",()=>loadFulfillmentA
 $("createFulfillmentAgentButton").addEventListener("click",createFulfillmentAgent);
 $("fulfillmentAgentType").addEventListener("change",updateFulfillmentAgentTypeUI);
 $("assignFulfillmentOrderButton").addEventListener("click",assignFulfillmentOrder);
-$("refreshUnassignedOrdersButton").addEventListener("click",loadUnassignedFulfillmentOrders);
 $("reloadMarketplaceSellersButton").addEventListener("click",()=>loadMarketplaceSellers().catch(e=>showMessage(e.message)));
 $("reloadMarketplaceCodButton").addEventListener("click",()=>loadMarketplaceCodSellers().catch(e=>showMessage(e.message)));
 $("reloadMarketplaceDispatchButton").addEventListener("click",()=>loadMarketplaceDispatchLocations().catch(e=>showMessage(e.message)));
