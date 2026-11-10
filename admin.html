@@ -458,12 +458,12 @@ tbody tr:hover{background:#192b43}
  <div class="panel">
   <div class="panel-head"><div><h2>Assign an order</h2><div class="panel-desc">Use the marketplace order UUID from the order record. The backend validates the order, fulfillment type, delivery method and pickup station.</div></div></div>
   <div class="pricing-grid">
-   <div class="pricing-field"><label for="fulfillmentOrderId">Marketplace order UUID</label><input id="fulfillmentOrderId" maxlength="80" placeholder="Paste marketplace_orders.id"></div>
+   <div class="pricing-field"><label for="fulfillmentOrderId">Unassigned paid marketplace order</label><select id="fulfillmentOrderId"><option value="">Loading eligible orders...</option></select><div class="panel-desc">Only eligible, paid physical orders without an active assignment are listed. The selected option carries the order UUID securely.</div></div>
    <div class="pricing-field"><label for="fulfillmentAssignAgent">Active fulfillment agent</label><select id="fulfillmentAssignAgent"><option value="">Load agents first...</option></select></div>
    <div class="pricing-field" style="grid-column:1/-1"><label for="fulfillmentAssignmentNotes">Assignment notes (optional)</label><input id="fulfillmentAssignmentNotes" maxlength="500" placeholder="Handling instructions"></div>
   </div>
-  <div class="pricing-actions"><button class="btn btn-primary" id="assignFulfillmentOrderButton" type="button">Assign order</button><span id="fulfillmentAssignStatus" class="panel-desc" role="status" aria-live="polite"></span></div>
-  <p class="panel-desc">This form requires a valid order UUID. The deployed agent function currently does not expose an unassigned-orders listing action, so orders are not automatically populated here.</p>
+  <div class="pricing-actions"><button class="btn btn-primary" id="assignFulfillmentOrderButton" type="button">Assign order</button><button class="btn" id="refreshUnassignedOrdersButton" type="button">Refresh orders</button><span id="fulfillmentAssignStatus" class="panel-desc" role="status" aria-live="polite"></span></div>
+  <p class="panel-desc">Unpaid orders, failed payments, digital orders, cancelled orders and orders already assigned are excluded. COD orders appear only after payment is marked collected by the authorised payment process.</p>
  </div>
 </section>
 
@@ -487,6 +487,15 @@ tbody tr:hover{background:#192b43}
   <h2>Transaction details</h2>
   <p class="panel-desc">Complete transaction record, customer information and provider response.</p>
   <div id="transactionDetailContent" class="loading">Loading transaction details...</div>
+ </div>
+</div>
+
+<div id="sellerAccountModal" class="modal hidden">
+ <div class="modal-card" style="max-width:1100px">
+  <button class="btn modal-close" id="closeSellerAccountModal" type="button">Close</button>
+  <h2 id="sellerAccountTitle">Marketplace seller account</h2>
+  <p class="panel-desc">Read-only seller overview. Opening this account is recorded in the Super Admin audit log.</p>
+  <div id="sellerAccountContent" class="loading">Loading seller account...</div>
  </div>
 </div>
 
@@ -1259,15 +1268,96 @@ async function loadMarketplaceCodSellers(){
    <td>${escapeHTML(s.contact_email||"—")}</td>
    <td><span class="status active">${escapeHTML(s.status||"approved")}</span></td>
    <td><span class="status ${s.cash_on_delivery_enabled?"approved":"pending"}">${s.cash_on_delivery_enabled?"Enabled":"Disabled"}</span></td>
-   <td><button class="btn ${s.cash_on_delivery_enabled?"btn-danger":"btn-primary"}" data-cod-toggle="${s.cash_on_delivery_enabled?"false":"true"}" data-seller-id="${escapeHTML(s.user_id)}">${s.cash_on_delivery_enabled?"Disable":"Enable"} POD</button></td>
+   <td><button class="btn" type="button" data-open-seller="${escapeHTML(s.user_id)}">View account</button> <button class="btn ${s.cash_on_delivery_enabled?"btn-danger":"btn-primary"}" data-cod-toggle="${s.cash_on_delivery_enabled?"false":"true"}" data-seller-id="${escapeHTML(s.user_id)}">${s.cash_on_delivery_enabled?"Disable":"Enable"} POD</button></td>
   </tr>`).join("");
   body.querySelectorAll("[data-cod-toggle]").forEach(button=>{
    button.addEventListener("click",()=>setMarketplaceSellerCod(button.dataset.sellerId,button.dataset.codToggle==="true"));
+  });
+  body.querySelectorAll("[data-open-seller]").forEach(button=>{
+   button.addEventListener("click",()=>openMarketplaceSellerAccount(button.dataset.openSeller));
   });
  }catch(e){
   body.innerHTML=`<tr><td colspan="5" class="red">${escapeHTML(e.message)}</td></tr>`;
  }
 }
+async function openMarketplaceSellerAccount(sellerUserId) {
+  if (!isSuperAdmin || !sellerUserId) return;
+  const modal = $("sellerAccountModal");
+  const content = $("sellerAccountContent");
+  $("sellerAccountTitle").textContent = "Marketplace seller account";
+  content.innerHTML = '<div class="loading">Loading seller account and recording access...</div>';
+  modal.classList.remove("hidden");
+  try {
+    const r = await marketplaceAdminRequest({
+      action: "seller_account_overview",
+      seller_user_id: sellerUserId
+    });
+    const s = r.seller || {};
+    $("sellerAccountTitle").textContent = s.business_name || "Marketplace seller account";
+    const products = r.products || [];
+    const items = r.order_items || [];
+    const payouts = r.payouts || [];
+    const links = r.social_links || [];
+    const account = r.payout_account_summary || null;
+
+    const productRows = products.map(p => `<tr>
+      <td>${escapeHTML(p.name)}</td><td>${escapeHTML(p.product_type || "—")}</td>
+      <td>${money(p.price)}</td><td>${Number(p.stock_quantity || 0)}</td>
+      <td>${escapeHTML(p.status || "—")}</td><td>${date(p.created_at)}</td>
+    </tr>`).join("") || '<tr><td colspan="6">No products found.</td></tr>';
+
+    const orderRows = items.map(i => {
+      const o = Array.isArray(i.marketplace_orders) ? i.marketplace_orders[0] : i.marketplace_orders;
+      return `<tr>
+        <td>${escapeHTML(o?.order_number || i.order_id)}</td>
+        <td>${escapeHTML(i.product_name || "—")}</td>
+        <td>${Number(i.quantity || 0)}</td><td>${money(i.line_total)}</td>
+        <td>${escapeHTML(o?.payment_status || "—")}</td>
+        <td>${escapeHTML(o?.order_status || "—")}</td>
+        <td>${date(o?.created_at || i.created_at)}</td>
+      </tr>`;
+    }).join("") || '<tr><td colspan="7">No seller order items found.</td></tr>';
+
+    const payoutRows = payouts.map(p => `<tr>
+      <td>${escapeHTML(p.order_id || "—")}</td><td>${money(p.gross_amount)}</td>
+      <td>${money(p.platform_fee)}</td><td>${money(p.net_amount)}</td>
+      <td>${escapeHTML(p.currency || "NGN")}</td><td>${escapeHTML(p.status || "—")}</td>
+      <td>${date(p.processed_at || p.created_at)}</td>
+    </tr>`).join("") || '<tr><td colspan="7">No payout records found.</td></tr>';
+
+    content.innerHTML = `
+      <div class="panel">
+        <h3>Seller profile</h3>
+        <p><strong>Business:</strong> ${escapeHTML(s.business_name || "—")}</p>
+        <p><strong>Seller user ID:</strong> ${escapeHTML(s.user_id || "—")}</p>
+        <p><strong>Email / phone:</strong> ${escapeHTML(s.contact_email || "—")} · ${escapeHTML(s.contact_phone || "—")}</p>
+        <p><strong>Status:</strong> ${escapeHTML(s.status || "—")} ·
+          <strong>Commission:</strong> ${escapeHTML(s.commission_rate)}%</p>
+        <p><strong>Dispatch:</strong> ${escapeHTML([s.dispatch_city,s.dispatch_lga,s.dispatch_state].filter(Boolean).join(", ") || "—")}
+          (${escapeHTML(s.dispatch_location_status || "—")})</p>
+        <p><strong>Payment on Delivery:</strong> ${s.cash_on_delivery_enabled ? "Enabled" : "Disabled"}</p>
+        <p><strong>Joined:</strong> ${date(s.created_at)}</p>
+        <p><strong>Business address:</strong> ${escapeHTML(s.business_address || "—")}</p>
+      </div>
+      <div class="panel"><h3>Products (${products.length})</h3>
+        <div class="table-wrap"><table><thead><tr><th>PRODUCT</th><th>TYPE</th><th>PRICE</th><th>STOCK</th><th>STATUS</th><th>CREATED</th></tr></thead><tbody>${productRows}</tbody></table></div>
+      </div>
+      <div class="panel"><h3>Orders / sales (${items.length} seller line items)</h3>
+        <div class="table-wrap"><table><thead><tr><th>ORDER</th><th>PRODUCT</th><th>QTY</th><th>LINE TOTAL</th><th>PAYMENT</th><th>ORDER STATUS</th><th>DATE</th></tr></thead><tbody>${orderRows}</tbody></table></div>
+      </div>
+      <div class="panel"><h3>Payouts (${payouts.length})</h3>
+        <div class="table-wrap"><table><thead><tr><th>ORDER ID</th><th>GROSS</th><th>FEE</th><th>NET</th><th>CURRENCY</th><th>STATUS</th><th>DATE</th></tr></thead><tbody>${payoutRows}</tbody></table></div>
+        ${account ? `<p><strong>Payout account:</strong> ${escapeHTML(account.bank_name || "—")} · ${escapeHTML(account.account_name || "—")} · ****${escapeHTML(account.account_number_last4 || "")} · ${escapeHTML(account.verification_status || "—")}</p>` : '<p>No payout account summary found.</p>'}
+      </div>
+      <div class="panel"><h3>Social links</h3>
+        ${links.map(x => `<p>${escapeHTML(x.platform)}: <a href="${escapeHTML(x.url)}" target="_blank" rel="noopener noreferrer">${escapeHTML(x.url)}</a>${x.is_primary ? " (Primary)" : ""}</p>`).join("") || "<p>No social links.</p>"}
+      </div>`;
+  } catch (e) {
+    content.innerHTML = `<p class="red">${escapeHTML(e.message)}</p>`;
+  }
+}
+
+
 async function setMarketplaceSellerCod(sellerUserId,enabled){
  if(!isSuperAdmin||!sellerUserId)return;
  const row=[...$("marketplaceCodSellersBody").querySelectorAll("tr")].find(r=>r.querySelector(`[data-seller-id="${CSS.escape(sellerUserId)}"]`));
@@ -1380,7 +1470,7 @@ async function marketplaceAgentRequest(body){
  const {data:{session},error:sessionError}=await client.auth.getSession();
  if(sessionError)throw sessionError;
  if(!session)throw new Error("Your session has expired. Please sign in again.");
- const {data,error}=await client.functions.invoke("marketplace-admin",{body});
+ const {data,error}=await client.functions.invoke("marketplace-agent",{body});
  if(error){
   let message=error.message||"Fulfillment agent request failed.";
   if(error.context&&typeof error.context.json==="function"){
@@ -1406,6 +1496,47 @@ function updateFulfillmentAgentTypeUI(){
  const isPickup=$("fulfillmentAgentType").value==="pickup";
  $("fulfillmentPickupStationField").classList.toggle("hidden",!isPickup);
  $("fulfillmentPickupStation").disabled=!isPickup;
+}
+
+function updateFulfillmentAssignmentAgentOptions(){
+ const orderSelect=$("fulfillmentOrderId"),agentSelect=$("fulfillmentAssignAgent");
+ if(!orderSelect||!agentSelect)return;
+ const orderOption=orderSelect.selectedOptions?.[0];
+ const method=orderOption?.dataset.deliveryMethod||"";
+ const pickupPoint=orderOption?.dataset.pickupPointId||"";
+ let visibleCount=0;
+ Array.from(agentSelect.options).forEach((option,index)=>{
+  if(index===0){option.hidden=false;return;}
+  const type=option.dataset.agentType||"";
+  const station=option.dataset.pickupPointId||"";
+  const compatible=method==="pickup_point"?type==="pickup"&&station===pickupPoint:method==="doorstep"?type==="delivery":true;
+  option.hidden=!compatible;
+  if(compatible)visibleCount++;
+ });
+ if(agentSelect.selectedOptions?.[0]?.hidden)agentSelect.value="";
+ agentSelect.options[0].textContent=method?(visibleCount?"Select a compatible active agent":"No compatible active agent available"):"Select an active agent";
+}
+
+async function loadUnassignedFulfillmentOrders(){
+ const select=$("fulfillmentOrderId");
+ if(!select||!isSuperAdmin)return;
+ select.innerHTML='<option value="">Loading eligible orders...</option>';
+ try{
+  const result=await marketplaceAgentRequest({action:"admin_list_unassigned_orders"});
+  const orders=Array.isArray(result.orders)?result.orders:[];
+  select.innerHTML='<option value="">Select an unassigned paid order</option>'+orders.map(o=>{
+   const method=o.delivery_method==="pickup_point"?"Pickup":"Doorstep";
+   const payment=o.payment_method==="cash_on_delivery"?"COD collected":"Paystack paid";
+   const amount=money(o.total_amount);
+   const label=`${o.order_number||o.id} · ${method} · ${payment} · ${amount}`;
+   return `<option value="${escapeHTML(o.id)}" data-delivery-method="${escapeHTML(o.delivery_method||"")}" data-pickup-point-id="${escapeHTML(o.pickup_point_id||"")}">${escapeHTML(label)}</option>`;
+  }).join("");
+  if(!orders.length)select.innerHTML='<option value="">No eligible unassigned paid orders</option>';
+  updateFulfillmentAssignmentAgentOptions();
+ }catch(e){
+  select.innerHTML='<option value="">Could not load orders — tap Refresh orders</option>';
+  $("fulfillmentAssignStatus").textContent=e.message;
+ }
 }
 
 async function loadFulfillmentAgents(){
@@ -1469,7 +1600,9 @@ async function loadFulfillmentAgents(){
    return `<tr><td>${escapeHTML(a.full_name||"—")}</td><td><div>${escapeHTML(a.email||a.user_id||"—")}</div><small>${escapeHTML(a.user_id||"")}</small></td><td>${escapeHTML(a.phone||"—")}</td><td>${a.agent_type==="pickup"?"Pickup":"Doorstep delivery"}</td><td>${escapeHTML(a.pickup_point_id?stationNames.get(String(a.pickup_point_id))||a.pickup_point_id:"—")}</td><td><span class="status ${a.is_active?"active":"suspended"}">${status}</span></td><td><button class="btn ${a.is_active?"btn-danger":"btn-primary"}" type="button" data-toggle-fulfillment-agent="${escapeHTML(a.id)}" data-next-active="${a.is_active?"false":"true"}">${a.is_active?"Suspend":"Activate"}</button></td></tr>`;
   }).join("")||'<tr><td colspan="7" class="empty">No fulfillment agents have been created yet.</td></tr>';
   const active=agents.filter(a=>a.is_active);
-  $("fulfillmentAssignAgent").innerHTML='<option value="">Select an active agent</option>'+active.map(a=>`<option value="${escapeHTML(a.id)}">${escapeHTML(a.full_name)} · ${a.agent_type==="pickup"?"Pickup":"Delivery"}</option>`).join("");
+  $("fulfillmentAssignAgent").innerHTML='<option value="">Select an active agent</option>'+active.map(a=>`<option value="${escapeHTML(a.id)}" data-agent-type="${escapeHTML(a.agent_type||"")}" data-pickup-point-id="${escapeHTML(a.pickup_point_id||"")}">${escapeHTML(a.full_name)} · ${a.agent_type==="pickup"?"Pickup":"Delivery"}</option>`).join("");
+  updateFulfillmentAssignmentAgentOptions();
+  await loadUnassignedFulfillmentOrders();
   body.querySelectorAll("[data-toggle-fulfillment-agent]").forEach(button=>button.addEventListener("click",async()=>{
    const next=button.dataset.nextActive==="true";
    if(!confirm(`${next?"Activate":"Suspend"} this fulfillment agent?`))return;
@@ -1503,11 +1636,11 @@ async function createFulfillmentAgent(){
 
 async function assignFulfillmentOrder(){
  const status=$("fulfillmentAssignStatus"),button=$("assignFulfillmentOrderButton");
- const order_id=$("fulfillmentOrderId").value.trim(),agent_id=$("fulfillmentAssignAgent").value,notes=$("fulfillmentAssignmentNotes").value.trim();
- if(!order_id||!agent_id){status.textContent="Enter the marketplace order UUID and select an active agent.";return;}
+ const order_id=$("fulfillmentOrderId").value,agent_id=$("fulfillmentAssignAgent").value,notes=$("fulfillmentAssignmentNotes").value.trim();
+ if(!order_id||!agent_id){status.textContent="Select an eligible marketplace order and an active agent.";return;}
  if(!confirm("Assign this marketplace order to the selected fulfillment agent? The backend will validate the order and agent type."))return;
  button.disabled=true;status.textContent="Validating and assigning order...";
- try{await marketplaceAgentRequest({action:"admin_assign_order",order_id,agent_id,notes});status.textContent="Order assigned successfully.";$("fulfillmentOrderId").value="";$("fulfillmentAssignmentNotes").value="";}
+ try{await marketplaceAgentRequest({action:"admin_assign_order",order_id,agent_id,notes});status.textContent="Order assigned successfully.";$("fulfillmentAssignmentNotes").value="";await loadUnassignedFulfillmentOrders();}
  catch(e){status.textContent=e.message;}
  finally{button.disabled=false;}
 }
@@ -1592,6 +1725,7 @@ function showLogin(){
  $("dashboard").classList.add("hidden");
  $("customerModal").classList.add("hidden");
  $("transactionModal").classList.add("hidden");
+ $("sellerAccountModal").classList.add("hidden");
  $("loginPanel").classList.remove("hidden");
  document.querySelectorAll(".super-admin-only").forEach(el=>el.classList.add("hidden"));
  $("brandRole").textContent="ADMIN CONSOLE";
@@ -1648,6 +1782,8 @@ $("reloadFulfillmentAgentsButton").addEventListener("click",()=>loadFulfillmentA
 $("createFulfillmentAgentButton").addEventListener("click",createFulfillmentAgent);
 $("fulfillmentAgentType").addEventListener("change",updateFulfillmentAgentTypeUI);
 $("assignFulfillmentOrderButton").addEventListener("click",assignFulfillmentOrder);
+$("refreshUnassignedOrdersButton").addEventListener("click",loadUnassignedFulfillmentOrders);
+$("fulfillmentOrderId").addEventListener("change",updateFulfillmentAssignmentAgentOptions);
 $("reloadMarketplaceSellersButton").addEventListener("click",()=>loadMarketplaceSellers().catch(e=>showMessage(e.message)));
 $("reloadMarketplaceCodButton").addEventListener("click",()=>loadMarketplaceCodSellers().catch(e=>showMessage(e.message)));
 $("reloadMarketplaceDispatchButton").addEventListener("click",()=>loadMarketplaceDispatchLocations().catch(e=>showMessage(e.message)));
@@ -1659,6 +1795,8 @@ $("cancelPickupPointEditButton").addEventListener("click",clearPickupPointForm);
 
 $("closeCustomerModal").addEventListener("click",()=>$("customerModal").classList.add("hidden"));
 $("closeTransactionModal").addEventListener("click",()=>$("transactionModal").classList.add("hidden"));
+$("closeSellerAccountModal").addEventListener("click",()=>$("sellerAccountModal").classList.add("hidden"));
+$("sellerAccountModal").addEventListener("click",e=>{if(e.target===$("sellerAccountModal"))$("sellerAccountModal").classList.add("hidden");});
 $("customerModal").addEventListener("click",e=>{
  if(e.target===$("customerModal"))$("customerModal").classList.add("hidden");
 });
