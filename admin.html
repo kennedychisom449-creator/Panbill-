@@ -195,6 +195,7 @@ tbody tr:hover{background:#192b43}
   <button class="nav-btn super-admin-only hidden" data-tab="deliveryPricing"><span class="nav-icon">🚚</span> Delivery Pricing</button>
   <button class="nav-btn super-admin-only hidden" data-tab="pickupPoints"><span class="nav-icon">📍</span> Collection Centres</button>
   <button class="nav-btn super-admin-only hidden" data-tab="agents"><span class="nav-icon">♙</span> Agent Management</button>
+  <button class="nav-btn super-admin-only hidden" data-tab="fulfillmentAgents"><span class="nav-icon">📦</span> Fulfillment Agents</button>
  </nav>
  <div class="sidebar-bottom">
   <div class="secure-note"><strong>● Secure administration</strong>Administrative access is verified by the PanBill server. Agent permissions are read-only.</div>
@@ -434,6 +435,36 @@ tbody tr:hover{background:#192b43}
  </div>
 </section>
 
+<section id="fulfillmentAgentsTab" class="section super-admin-only hidden">
+ <div class="panel">
+  <div class="panel-head"><div><h2>Fulfillment agent management</h2><div class="panel-desc">Manage independent pickup-station and doorstep-delivery agents. This is separate from the existing read-only admin Agent Management.</div></div><button class="btn" id="reloadFulfillmentAgentsButton" type="button">↻ Refresh agents</button></div>
+  <div class="pricing-note">Agents receive an invitation email through Supabase Auth. Pickup agents must be attached to an active PanBill collection centre. Delivery agents must not be attached to a pickup centre. Never share passwords or access tokens.</div>
+  <div class="panel" style="background:#101d31;margin:16px 0">
+   <div class="panel-head"><div><h2>Create fulfillment agent</h2><div class="panel-desc">The agent sets their password through the Supabase invitation flow.</div></div></div>
+   <div class="pricing-grid">
+    <div class="pricing-field"><label for="fulfillmentAgentName">Full name</label><input id="fulfillmentAgentName" maxlength="120" autocomplete="name" placeholder="Agent full name"></div>
+    <div class="pricing-field"><label for="fulfillmentAgentEmail">Email address</label><input id="fulfillmentAgentEmail" type="email" maxlength="254" autocomplete="email" placeholder="agent@example.com"></div>
+    <div class="pricing-field"><label for="fulfillmentAgentPhone">Phone number</label><input id="fulfillmentAgentPhone" type="tel" maxlength="40" autocomplete="tel" placeholder="080... or +234..."></div>
+    <div class="pricing-field"><label for="fulfillmentAgentType">Agent type</label><select id="fulfillmentAgentType"><option value="pickup">Pickup station agent</option><option value="delivery">Doorstep delivery agent</option></select></div>
+    <div class="pricing-field" id="fulfillmentPickupStationField"><label for="fulfillmentPickupStation">Assigned pickup station</label><select id="fulfillmentPickupStation"><option value="">Load active collection centres...</option></select><div class="pricing-help">Required for pickup agents. Delivery agents do not use a pickup station.</div></div>
+   </div>
+   <div class="pricing-actions"><button class="btn btn-primary" id="createFulfillmentAgentButton" type="button">Invite agent</button><span id="fulfillmentAgentFormStatus" class="panel-desc" role="status" aria-live="polite"></span></div>
+  </div>
+  <div class="panel-head"><div><h2>Current fulfillment agents</h2><div class="panel-desc">Activate or suspend access. Suspended agents cannot load assigned orders or update fulfillment.</div></div></div>
+  <div class="table-wrap"><table><thead><tr><th>NAME</th><th>EMAIL / USER ID</th><th>PHONE</th><th>TYPE</th><th>PICKUP STATION</th><th>STATUS</th><th>ACTION</th></tr></thead><tbody id="fulfillmentAgentsBody"><tr><td colspan="7" class="loading">Load agents to begin.</td></tr></tbody></table></div>
+ </div>
+ <div class="panel">
+  <div class="panel-head"><div><h2>Assign an order</h2><div class="panel-desc">Use the marketplace order UUID from the order record. The backend validates the order, fulfillment type, delivery method and pickup station.</div></div></div>
+  <div class="pricing-grid">
+   <div class="pricing-field"><label for="fulfillmentOrderId">Marketplace order UUID</label><input id="fulfillmentOrderId" maxlength="80" placeholder="Paste marketplace_orders.id"></div>
+   <div class="pricing-field"><label for="fulfillmentAssignAgent">Active fulfillment agent</label><select id="fulfillmentAssignAgent"><option value="">Load agents first...</option></select></div>
+   <div class="pricing-field" style="grid-column:1/-1"><label for="fulfillmentAssignmentNotes">Assignment notes (optional)</label><input id="fulfillmentAssignmentNotes" maxlength="500" placeholder="Handling instructions"></div>
+  </div>
+  <div class="pricing-actions"><button class="btn btn-primary" id="assignFulfillmentOrderButton" type="button">Assign order</button><span id="fulfillmentAssignStatus" class="panel-desc" role="status" aria-live="polite"></span></div>
+  <p class="panel-desc">This form requires a valid order UUID. The deployed agent function currently does not expose an unassigned-orders listing action, so orders are not automatically populated here.</p>
+ </div>
+</section>
+
 <div class="footer">PanBill Admin Console · Secure business administration · © 2026</div>
 </div>
 </main>
@@ -548,7 +579,7 @@ async function verifyAdminRole(){
 }
 
 function showTab(tab){
- if((tab==="agents"||tab==="marketplace"||tab==="deliveryPricing"||tab==="pickupPoints")&&!isSuperAdmin){
+ if((tab==="agents"||tab==="fulfillmentAgents"||tab==="marketplace"||tab==="deliveryPricing"||tab==="pickupPoints")&&!isSuperAdmin){
   showMessage("Only the Super Admin can access this section.");
   return;
  }
@@ -561,13 +592,14 @@ function showTab(tab){
   audit:"Administrative Audit Log",
   pricing:"VTU Pricing Management",
   agents:"Agent Management",
+  fulfillmentAgents:"Fulfillment Agents",
   marketplace:"Marketplace Seller Applications",
   deliveryPricing:"Marketplace Delivery Pricing",
   pickupPoints:"PanBill Collection Centres"
  };
  $("pageTitle").textContent=titles[tab]||"PanBill";
 
- ["overview","customers","transactions","pricing","audit","agents","marketplace","deliveryPricing","pickupPoints"].forEach(n=>{
+ ["overview","customers","transactions","pricing","audit","agents","fulfillmentAgents","marketplace","deliveryPricing","pickupPoints"].forEach(n=>{
   $(n+"Tab").classList.toggle("active",n===tab);
  });
 
@@ -842,6 +874,7 @@ async function loadCurrentTab(){
   if(activeTab==="audit")await loadAuditLogs();
   if(activeTab==="pricing")await loadPricing();
   if(activeTab==="agents"&&isSuperAdmin)await loadAgents();
+  if(activeTab==="fulfillmentAgents"&&isSuperAdmin)await loadFulfillmentAgents();
   if(activeTab==="marketplace"&&isSuperAdmin){await loadMarketplaceSellers();await loadMarketplaceCodSellers();await loadMarketplaceDispatchLocations();}
   if(activeTab==="deliveryPricing"&&isSuperAdmin)await loadMarketplaceDeliveryRoutes();
   if(activeTab==="pickupPoints"&&isSuperAdmin)await loadPickupPoints();
@@ -1339,6 +1372,90 @@ async function searchAgentCustomer(){
  }
 }
 
+/* Fulfillment agent management uses the signed-in Supabase session through functions.invoke. */
+async function marketplaceAgentRequest(body){
+ if(!isSuperAdmin)throw new Error("Only the Super Admin can manage fulfillment agents.");
+ const {data:{session},error:sessionError}=await client.auth.getSession();
+ if(sessionError)throw sessionError;
+ if(!session)throw new Error("Your session has expired. Please sign in again.");
+ const {data,error}=await client.functions.invoke("marketplace-agent",{body});
+ if(error){
+  let message=error.message||"Fulfillment agent request failed.";
+  if(error.context&&typeof error.context.json==="function"){
+   try{const result=await error.context.json();if(result.error)message=result.error;}catch(_){}
+  }
+  throw new Error(message);
+ }
+ if(!data||data.success===false)throw new Error(data?.error||"Fulfillment agent request failed.");
+ return data;
+}
+
+async function loadFulfillmentPickupStations(){
+ const select=$("fulfillmentPickupStation");
+ select.innerHTML='<option value="">Loading active collection centres...</option>';
+ const {data,error}=await client.rpc("marketplace_admin_list_pickup_points");
+ if(error)throw error;
+ const points=(Array.isArray(data)?data:[]).filter(p=>p.is_active);
+ select.innerHTML='<option value="">Select an active collection centre</option>'+points.map(p=>`<option value="${escapeHTML(p.id)}">${escapeHTML(p.name)} · ${escapeHTML([p.city,p.state].filter(Boolean).join(", "))}</option>`).join("");
+ if(!points.length)select.innerHTML='<option value="">No active collection centres found</option>';
+}
+
+function updateFulfillmentAgentTypeUI(){
+ const isPickup=$("fulfillmentAgentType").value==="pickup";
+ $("fulfillmentPickupStationField").classList.toggle("hidden",!isPickup);
+ $("fulfillmentPickupStation").disabled=!isPickup;
+}
+
+async function loadFulfillmentAgents(){
+ if(!isSuperAdmin)return;
+ const body=$("fulfillmentAgentsBody");
+ body.innerHTML='<tr><td colspan="7" class="loading">Loading fulfillment agents...</td></tr>';
+ try{
+  const [result]=await Promise.all([marketplaceAgentRequest({action:"admin_list_agents"}),loadFulfillmentPickupStations()]);
+  const agents=result.agents||[];
+  const stationNames=new Map();
+  const {data:points}=await client.rpc("marketplace_admin_list_pickup_points");
+  (Array.isArray(points)?points:[]).forEach(p=>stationNames.set(String(p.id),p.name||"—"));
+  body.innerHTML=agents.map(a=>{
+   const status=a.is_active?"Active":"Suspended";
+   return `<tr><td>${escapeHTML(a.full_name||"—")}</td><td><div>${escapeHTML(a.email||a.user_id||"—")}</div><small>${escapeHTML(a.user_id||"")}</small></td><td>${escapeHTML(a.phone||"—")}</td><td>${a.agent_type==="pickup"?"Pickup":"Doorstep delivery"}</td><td>${escapeHTML(a.pickup_point_id?stationNames.get(String(a.pickup_point_id))||a.pickup_point_id:"—")}</td><td><span class="status ${a.is_active?"active":"suspended"}">${status}</span></td><td><button class="btn ${a.is_active?"btn-danger":"btn-primary"}" type="button" data-toggle-fulfillment-agent="${escapeHTML(a.id)}" data-next-active="${a.is_active?"false":"true"}">${a.is_active?"Suspend":"Activate"}</button></td></tr>`;
+  }).join("")||'<tr><td colspan="7" class="empty">No fulfillment agents have been created yet.</td></tr>';
+  const active=agents.filter(a=>a.is_active);
+  $("fulfillmentAssignAgent").innerHTML='<option value="">Select an active agent</option>'+active.map(a=>`<option value="${escapeHTML(a.id)}">${escapeHTML(a.full_name)} · ${a.agent_type==="pickup"?"Pickup":"Delivery"}</option>`).join("");
+  body.querySelectorAll("[data-toggle-fulfillment-agent]").forEach(button=>button.addEventListener("click",async()=>{
+   const next=button.dataset.nextActive==="true";
+   if(!confirm(`${next?"Activate":"Suspend"} this fulfillment agent?`))return;
+   button.disabled=true;
+   try{await marketplaceAgentRequest({action:"admin_set_agent_active",agent_id:button.dataset.toggleFulfillmentAgent,is_active:next});await loadFulfillmentAgents();}
+   catch(e){alert(e.message);button.disabled=false;}
+  }));
+ }catch(e){body.innerHTML=`<tr><td colspan="7" class="red">${escapeHTML(e.message)}</td></tr>`;throw e;}
+}
+
+async function createFulfillmentAgent(){
+ const status=$("fulfillmentAgentFormStatus"),button=$("createFulfillmentAgentButton");
+ const agent_type=$("fulfillmentAgentType").value;
+ const payload={action:"admin_create_agent",full_name:$("fulfillmentAgentName").value.trim(),email:$("fulfillmentAgentEmail").value.trim(),phone:$("fulfillmentAgentPhone").value.trim(),agent_type,pickup_point_id:agent_type==="pickup"?$("fulfillmentPickupStation").value:null};
+ if(!payload.full_name||!payload.email||!payload.phone){status.textContent="Enter the agent's full name, valid email and phone number.";return;}
+ if(agent_type==="pickup"&&!payload.pickup_point_id){status.textContent="Select an active collection centre for this pickup agent.";return;}
+ if(!confirm(`Send a Supabase invitation to ${payload.email} as a ${agent_type} agent?`))return;
+ button.disabled=true;status.textContent="Creating agent and sending invitation...";
+ try{const result=await marketplaceAgentRequest(payload);status.textContent=result.invitation_sent?"Agent created. Supabase invitation sent.":"Agent created.";$("fulfillmentAgentName").value="";$("fulfillmentAgentEmail").value="";$("fulfillmentAgentPhone").value="";await loadFulfillmentAgents();}
+ catch(e){status.textContent=e.message;}
+ finally{button.disabled=false;}
+}
+
+async function assignFulfillmentOrder(){
+ const status=$("fulfillmentAssignStatus"),button=$("assignFulfillmentOrderButton");
+ const order_id=$("fulfillmentOrderId").value.trim(),agent_id=$("fulfillmentAssignAgent").value,notes=$("fulfillmentAssignmentNotes").value.trim();
+ if(!order_id||!agent_id){status.textContent="Enter the marketplace order UUID and select an active agent.";return;}
+ if(!confirm("Assign this marketplace order to the selected fulfillment agent? The backend will validate the order and agent type."))return;
+ button.disabled=true;status.textContent="Validating and assigning order...";
+ try{await marketplaceAgentRequest({action:"admin_assign_order",order_id,agent_id,notes});status.textContent="Order assigned successfully.";$("fulfillmentOrderId").value="";$("fulfillmentAssignmentNotes").value="";}
+ catch(e){status.textContent=e.message;}
+ finally{button.disabled=false;}
+}
+
 async function appointAgent(email){
  if(!isSuperAdmin)return;
  if(!confirm("Appoint "+email+" as a PanBill read-only agent?"))return;
@@ -1471,6 +1588,10 @@ $("agentSearchEmail").addEventListener("keydown",e=>{
  }
 });
 $("reloadAgentsButton").addEventListener("click",loadAgents);
+$("reloadFulfillmentAgentsButton").addEventListener("click",()=>loadFulfillmentAgents().catch(e=>showMessage(e.message)));
+$("createFulfillmentAgentButton").addEventListener("click",createFulfillmentAgent);
+$("fulfillmentAgentType").addEventListener("change",updateFulfillmentAgentTypeUI);
+$("assignFulfillmentOrderButton").addEventListener("click",assignFulfillmentOrder);
 $("reloadMarketplaceSellersButton").addEventListener("click",()=>loadMarketplaceSellers().catch(e=>showMessage(e.message)));
 $("reloadMarketplaceCodButton").addEventListener("click",()=>loadMarketplaceCodSellers().catch(e=>showMessage(e.message)));
 $("reloadMarketplaceDispatchButton").addEventListener("click",()=>loadMarketplaceDispatchLocations().catch(e=>showMessage(e.message)));
@@ -1522,6 +1643,7 @@ $("transactionStatusFilter").addEventListener("change",()=>{
 });
 
 async function initialise(){
+ updateFulfillmentAgentTypeUI();
  try{
   const {data:{session},error}=await client.auth.getSession();
   if(error)throw error;
