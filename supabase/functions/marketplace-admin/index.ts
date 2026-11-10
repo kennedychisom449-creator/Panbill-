@@ -632,6 +632,244 @@ async function agentUpdateStatus(body: any, actorId: string) {
   return { updated: true, fulfillment_status: nextStatus, assignment_completed: completed };
 }
 
+async function recordSellerAdminAudit(
+  actorId: string,
+  sellerUserId: string,
+  action: string,
+  details: Record<string, unknown> = {},
+) {
+  const { error } = await adminDb
+    .from("marketplace_seller_admin_access_audit")
+    .insert({
+      actor_user_id: actorId,
+      seller_user_id: sellerUserId,
+      action,
+      details,
+    });
+  if (error) throw error;
+}
+
+const SELLER_PROFILE_FIELDS =
+  "user_id,business_name,slug,business_description,contact_email,contact_phone,business_address,status,commission_rate,approved_at,created_at,updated_at,cash_on_delivery_enabled,dispatch_state,dispatch_city,dispatch_lga,dispatch_location_status,dispatch_location_reviewed_at,dispatch_location_reviewed_by,dispatch_location_review_note";
+
+async function adminPendingSellers(actorId: string) {
+  await requireSuperAdmin(actorId);
+  const { data, error } = await adminDb
+    .from("marketplace_sellers")
+    .select(SELLER_PROFILE_FIELDS)
+    .eq("status", "pending")
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return { sellers: data ?? [] };
+}
+
+async function adminApprovedSellers(actorId: string) {
+  await requireSuperAdmin(actorId);
+  const { data, error } = await adminDb
+    .from("marketplace_sellers")
+    .select(SELLER_PROFILE_FIELDS)
+    .eq("status", "approved")
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return { sellers: data ?? [] };
+}
+
+async function adminReviewSeller(body: any, actorId: string) {
+  await requireSuperAdmin(actorId);
+  const sellerUserId = cleanText(body.seller_user_id, 80);
+  const decision = cleanText(body.decision, 20).toLowerCase();
+  const reason = cleanText(body.reason, 500);
+  if (!sellerUserId || !["approved", "rejected"].includes(decision)) {
+    throw new Error("seller_user_id and decision (approved or rejected) are required.");
+  }
+
+  const { data: current, error: lookupError } = await adminDb
+    .from("marketplace_sellers")
+    .select("user_id,status")
+    .eq("user_id", sellerUserId)
+    .maybeSingle();
+  if (lookupError) throw lookupError;
+  if (!current) throw new Error("Seller account not found.");
+  if (current.status !== "pending") {
+    throw new Error("This seller application is no longer pending.");
+  }
+
+  const update: Record<string, unknown> = {
+    status: decision,
+    updated_at: new Date().toISOString(),
+  };
+  if (decision === "approved") {
+    const rate = Number(body.commission_rate);
+    if (!Number.isFinite(rate) || rate < 0 || rate > 100) {
+      throw new Error("Enter a commission rate from 0 to 100.");
+    }
+    update.commission_rate = rate;
+    update.approved_at = new Date().toISOString();
+  }
+
+  const { data, error } = await adminDb
+    .from("marketplace_sellers")
+    .update(update)
+    .eq("user_id", sellerUserId)
+    .eq("status", "pending")
+    .select(SELLER_PROFILE_FIELDS)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) throw new Error("Seller application changed before the review could be saved.");
+
+  await recordSellerAdminAudit(actorId, sellerUserId, "seller_application_reviewed", {
+    decision,
+    commission_rate: decision === "approved" ? update.commission_rate : null,
+    reason,
+  });
+  return { reviewed: true, seller: data, message: `Seller application ${decision}.` };
+}
+
+async function adminSetSellerCod(body: any, actorId: string) {
+  await requireSuperAdmin(actorId);
+  const sellerUserId = cleanText(body.seller_user_id, 80);
+  if (!sellerUserId || typeof body.enabled !== "boolean") {
+    throw new Error("seller_user_id and boolean enabled are required.");
+  }
+
+  const { data, error } = await adminDb
+    .from("marketplace_sellers")
+    .update({ cash_on_delivery_enabled: body.enabled, updated_at: new Date().toISOString() })
+    .eq("user_id", sellerUserId)
+    .eq("status", "approved")
+    .select("user_id,business_name,cash_on_delivery_enabled")
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) throw new Error("Approved seller account not found.");
+
+  await recordSellerAdminAudit(actorId, sellerUserId, "seller_cod_updated", {
+    enabled: body.enabled,
+  });
+  return { seller: data, message: `Payment on Delivery ${body.enabled ? "enabled" : "disabled"}.` };
+}
+
+async function adminPendingDispatchLocations(actorId: string) {
+  await requireSuperAdmin(actorId);
+  const { data, error } = await adminDb
+    .from("marketplace_sellers")
+    .select(SELLER_PROFILE_FIELDS)
+    .eq("dispatch_location_status", "pending")
+    .order("updated_at", { ascending: false });
+  if (error) throw error;
+  return { sellers: data ?? [] };
+}
+
+async function adminReviewDispatchLocation(body: any, actorId: string) {
+  await requireSuperAdmin(actorId);
+  const sellerUserId = cleanText(body.seller_user_id, 80);
+  const decision = cleanText(body.decision, 20).toLowerCase();
+  const reason = cleanText(body.reason, 500);
+  if (!sellerUserId || !["approved", "rejected"].includes(decision)) {
+    throw new Error("seller_user_id and decision (approved or rejected) are required.");
+  }
+  if (decision === "rejected" && !reason) {
+    throw new Error("A reason is required when rejecting a dispatch location.");
+  }
+
+  const { data, error } = await adminDb
+    .from("marketplace_sellers")
+    .update({
+      dispatch_location_status: decision,
+      dispatch_location_reviewed_at: new Date().toISOString(),
+      dispatch_location_reviewed_by: actorId,
+      dispatch_location_review_note: reason || null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("user_id", sellerUserId)
+    .eq("dispatch_location_status", "pending")
+    .select(SELLER_PROFILE_FIELDS)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) throw new Error("Pending dispatch location not found. It may already have been reviewed.");
+
+  await recordSellerAdminAudit(actorId, sellerUserId, "seller_dispatch_location_reviewed", {
+    decision,
+    reason,
+    dispatch_state: data.dispatch_state,
+    dispatch_lga: data.dispatch_lga,
+    dispatch_city: data.dispatch_city,
+  });
+  return { reviewed: true, seller: data, message: `Dispatch location ${decision}.` };
+}
+
+/*
+Read-only seller account overview.
+It records an audit event every time the Super Admin opens the seller account.
+No seller password, auth token, full bank account number, or provider_response
+is returned. Orders are scoped through marketplace_order_items.seller_id.
+*/
+async function adminSellerAccountOverview(body: any, actorId: string) {
+  await requireSuperAdmin(actorId);
+  const sellerUserId = cleanText(body.seller_user_id, 80);
+  if (!sellerUserId) throw new Error("seller_user_id is required.");
+
+  const { data: seller, error: sellerError } = await adminDb
+    .from("marketplace_sellers")
+    .select(SELLER_PROFILE_FIELDS)
+    .eq("user_id", sellerUserId)
+    .maybeSingle();
+  if (sellerError) throw sellerError;
+  if (!seller) throw new Error("Seller account not found.");
+
+  const [
+    productsResult,
+    itemsResult,
+    payoutsResult,
+    socialResult,
+    payoutAccountResult,
+  ] = await Promise.all([
+    adminDb.from("marketplace_products")
+      .select("id,name,slug,description,price,stock_quantity,images,product_type,status,created_at,updated_at,parcel_size,digital_delivery_mode,regular_price,discount_percent")
+      .eq("seller_id", sellerUserId)
+      .order("created_at", { ascending: false })
+      .limit(100),
+    adminDb.from("marketplace_order_items")
+      .select("id,order_id,product_id,seller_id,product_name,unit_price,quantity,line_total,created_at,marketplace_orders(id,order_number,buyer_id,subtotal,delivery_fee,total_amount,payment_status,order_status,payment_provider,payment_reference,delivery_name,delivery_phone,delivery_city,delivery_state,paid_at,created_at,payment_method,delivery_payment_status,delivery_lga,fulfillment_type,delivery_method)")
+      .eq("seller_id", sellerUserId)
+      .order("created_at", { ascending: false })
+      .limit(100),
+    adminDb.from("marketplace_seller_payouts")
+      .select("id,seller_id,order_id,gross_amount,platform_fee,net_amount,currency,status,transfer_reference,transfer_code,failure_reason,eligible_at,processed_at,created_at,updated_at")
+      .eq("seller_id", sellerUserId)
+      .order("created_at", { ascending: false })
+      .limit(100),
+    adminDb.from("marketplace_seller_social_links")
+      .select("id,platform,url,is_primary,created_at,updated_at")
+      .eq("seller_id", sellerUserId)
+      .order("is_primary", { ascending: false }),
+    adminDb.from("marketplace_seller_payout_accounts")
+      .select("bank_name,account_name,account_number_last4,verification_status,created_at,updated_at")
+      .eq("seller_id", sellerUserId)
+      .limit(1)
+      .maybeSingle(),
+  ]);
+
+  for (const result of [productsResult, itemsResult, payoutsResult, socialResult, payoutAccountResult]) {
+    if (result.error) throw result.error;
+  }
+
+  await recordSellerAdminAudit(actorId, sellerUserId, "seller_account_viewed", {
+    business_name: seller.business_name,
+    product_count: (productsResult.data ?? []).length,
+    order_item_count: (itemsResult.data ?? []).length,
+    payout_count: (payoutsResult.data ?? []).length,
+  });
+
+  return {
+    seller,
+    products: productsResult.data ?? [],
+    order_items: itemsResult.data ?? [],
+    payouts: payoutsResult.data ?? [],
+    social_links: socialResult.data ?? [],
+    payout_account_summary: payoutAccountResult.data ?? null,
+  };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return respond({ success: false, error: "Method not allowed." }, 405);
@@ -681,6 +919,27 @@ Deno.serve(async (req) => {
         break;
       case "agent_update_status":
         result = await agentUpdateStatus(body, authData.user.id);
+        break;
+      case "pending_sellers":
+        result = await adminPendingSellers(authData.user.id);
+        break;
+      case "review_seller":
+        result = await adminReviewSeller(body, authData.user.id);
+        break;
+      case "approved_sellers":
+        result = await adminApprovedSellers(authData.user.id);
+        break;
+      case "set_cash_on_delivery":
+        result = await adminSetSellerCod(body, authData.user.id);
+        break;
+      case "pending_dispatch_locations":
+        result = await adminPendingDispatchLocations(authData.user.id);
+        break;
+      case "review_dispatch_location":
+        result = await adminReviewDispatchLocation(body, authData.user.id);
+        break;
+      case "seller_account_overview":
+        result = await adminSellerAccountOverview(body, authData.user.id);
         break;
       default:
         return respond({ success: false, error: "Unknown marketplace-admin action." }, 400);
