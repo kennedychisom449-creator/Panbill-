@@ -30,6 +30,34 @@ function cleanText(value: unknown, max = 300): string {
   return typeof value === "string" ? value.trim().slice(0, max) : "";
 }
 
+function isEligiblePaidOrder(order: any): boolean {
+  if (
+    order.fulfillment_type !== "physical" ||
+    order.order_status === "cancelled" ||
+    order.order_status === "delivered" ||
+    order.payment_status !== "paid"
+  ) {
+    return false;
+  }
+
+  if (
+    order.payment_method === "online" &&
+    order.payment_provider === "paystack" &&
+    order.delivery_payment_status === "not_applicable"
+  ) {
+    return true;
+  }
+
+  if (
+    order.payment_method === "cash_on_delivery" &&
+    order.delivery_payment_status === "collected"
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
 async function requireSuperAdmin(userId: string) {
   if (userId !== SUPER_ADMIN_USER_ID) throw new Error("Super Admin access required.");
   const { data, error } = await adminDb
@@ -310,27 +338,108 @@ async function adminListAgents(actorId: string) {
   return { agents: data ?? [] };
 }
 
+async function adminListUnassignedOrders(actorId: string) {
+  await requireSuperAdmin(actorId);
+
+  const { data: orders, error: ordersError } = await adminDb
+    .from("marketplace_orders")
+    .select(ORDER_FIELDS)
+    .eq("fulfillment_type", "physical")
+    .not("order_status", "in", '("cancelled","delivered")')
+    .or(
+      "and(payment_method.eq.online,payment_provider.eq.paystack,payment_status.eq.paid,delivery_payment_status.eq.not_applicable),and(payment_method.eq.cash_on_delivery,payment_status.eq.paid,delivery_payment_status.eq.collected)",
+    )
+    .order("created_at", { ascending: false });
+
+  if (ordersError) throw ordersError;
+
+  const { data: assignments, error: assignmentsError } = await adminDb
+    .from("marketplace_order_fulfillment_assignments")
+    .select("order_id")
+    .eq("status", "assigned");
+
+  if (assignmentsError) throw assignmentsError;
+
+  const assignedOrderIds = new Set(
+    (assignments ?? []).map((item: any) => item.order_id),
+  );
+
+  const unassignedOrders = (orders ?? []).filter(
+    (order: any) =>
+      isEligiblePaidOrder(order) && !assignedOrderIds.has(order.id),
+  );
+
+  return { orders: unassignedOrders };
+}
+
 async function adminAssignOrder(body: any, actorId: string) {
   await requireSuperAdmin(actorId);
+
   const orderId = cleanText(body.order_id, 80);
   const agentId = cleanText(body.agent_id, 80);
-  if (!orderId || !agentId) throw new Error("order_id and agent_id are required.");
 
-  const [{ data: order, error: orderError }, { data: agent, error: agentError }] = await Promise.all([
-    adminDb.from("marketplace_orders").select(ORDER_FIELDS).eq("id", orderId).maybeSingle(),
-    adminDb.from("marketplace_fulfillment_agents").select("id,agent_type,pickup_point_id,is_active").eq("id", agentId).maybeSingle(),
+  if (!orderId || !agentId) {
+    throw new Error("order_id and agent_id are required.");
+  }
+
+  const [
+    { data: order, error: orderError },
+    { data: agent, error: agentError },
+  ] = await Promise.all([
+    adminDb
+      .from("marketplace_orders")
+      .select(ORDER_FIELDS)
+      .eq("id", orderId)
+      .maybeSingle(),
+
+    adminDb
+      .from("marketplace_fulfillment_agents")
+      .select("id,agent_type,pickup_point_id,is_active")
+      .eq("id", agentId)
+      .maybeSingle(),
   ]);
+
   if (orderError) throw orderError;
   if (agentError) throw agentError;
-  if (!order) throw new Error("Order not found.");
-  if (!agent || !agent.is_active) throw new Error("Active agent not found.");
-  if (order.fulfillment_type !== "physical") throw new Error("Only physical orders can be assigned to fulfillment agents.");
-  if (order.order_status === "cancelled" || order.order_status === "delivered") throw new Error("This order cannot be assigned in its current status.");
 
-  const expectedType = order.delivery_method === "pickup_point" ? "pickup" : order.delivery_method === "doorstep" ? "delivery" : "";
-  if (!expectedType || agent.agent_type !== expectedType) throw new Error("Agent type does not match this order's delivery method.");
-  if (expectedType === "pickup" && agent.pickup_point_id !== order.pickup_point_id) {
-    throw new Error("This pickup agent does not belong to the order's selected pickup station.");
+  if (!order) throw new Error("Order not found.");
+
+  if (!agent || !agent.is_active) {
+    throw new Error("Active agent not found.");
+  }
+
+  if (!isEligiblePaidOrder(order)) {
+    throw new Error(
+      "This order is not eligible for assignment. Verify payment and delivery payment first.",
+    );
+  }
+
+  const expectedType =
+    order.delivery_method === "pickup_point"
+      ? "pickup"
+      : order.delivery_method === "doorstep"
+        ? "delivery"
+        : "";
+
+  if (!expectedType || agent.agent_type !== expectedType) {
+    throw new Error(
+      "Agent type does not match this order's delivery method.",
+    );
+  }
+
+  if (
+    expectedType === "pickup" &&
+    agent.pickup_point_id !== order.pickup_point_id
+  ) {
+    throw new Error(
+      "This pickup agent does not belong to the order's selected pickup station.",
+    );
+  }
+
+  if (expectedType === "delivery" && agent.pickup_point_id) {
+    throw new Error(
+      "A delivery agent must not be assigned to a pickup station.",
+    );
   }
 
   const { data: existing, error: existingError } = await adminDb
@@ -339,16 +448,17 @@ async function adminAssignOrder(body: any, actorId: string) {
     .eq("order_id", orderId)
     .eq("assignment_type", expectedType)
     .eq("status", "assigned");
+
   if (existingError) throw existingError;
 
-  for (const assignment of existing ?? []) {
-    if (assignment.agent_id === agentId) return { assigned: true, already_assigned: true };
-    const { error: cancelError } = await adminDb
-      .from("marketplace_order_fulfillment_assignments")
-      .update({ status: "cancelled", notes: "Reassigned by administrator." })
-      .eq("id", assignment.id)
-      .eq("status", "assigned");
-    if (cancelError) throw cancelError;
+  if (existing?.length) {
+    if (existing.some((item: any) => item.agent_id === agentId)) {
+      return { assigned: true, already_assigned: true };
+    }
+
+    throw new Error(
+      "This order is already assigned to another agent. Cancel the existing assignment before assigning it again.",
+    );
   }
 
   const { data: assignment, error: assignError } = await adminDb
@@ -362,9 +472,19 @@ async function adminAssignOrder(body: any, actorId: string) {
       assigned_by: actorId,
       notes: cleanText(body.notes, 500) || null,
     })
-    .select("id,order_id,agent_id,assignment_type,status,fulfillment_status,assigned_at")
+    .select(
+      "id,order_id,agent_id,assignment_type,status,fulfillment_status,assigned_at",
+    )
     .single();
-  if (assignError) throw assignError;
+
+  if (assignError) {
+    if (assignError.code === "23505") {
+      throw new Error(
+        "This order has already been assigned. Refresh the order list.",
+      );
+    }
+    throw assignError;
+  }
 
   await adminDb.from("marketplace_fulfillment_agent_audit").insert({
     agent_id: agentId,
@@ -374,6 +494,7 @@ async function adminAssignOrder(body: any, actorId: string) {
     action: "order_assigned",
     details: { assignment_type: expectedType },
   });
+
   return { assigned: true, assignment };
 }
 
@@ -549,6 +670,9 @@ Deno.serve(async (req) => {
       case "admin_list_agents":
         result = await adminListAgents(authData.user.id);
         break;
+      case "admin_list_unassigned_orders":
+        result = await adminListUnassignedOrders(authData.user.id);
+        break;
       case "admin_assign_order":
         result = await adminAssignOrder(body, authData.user.id);
         break;
@@ -559,12 +683,12 @@ Deno.serve(async (req) => {
         result = await agentUpdateStatus(body, authData.user.id);
         break;
       default:
-        return respond({ success: false, error: "Unknown marketplace-agent action." }, 400);
+        return respond({ success: false, error: "Unknown marketplace-admin action." }, 400);
     }
 
     return respond({ success: true, ...(result as Record<string, unknown>) });
   } catch (error) {
-    console.error("marketplace-agent error:", error);
+    console.error("marketplace-admin error:", error);
     const message = error instanceof Error ? error.message : "Request failed.";
     const status = /admin access required|super admin access required|not assigned to your account|active fulfillment agent account not found/i.test(message) ? 403 : 400;
     return respond({ success: false, error: message }, status);
