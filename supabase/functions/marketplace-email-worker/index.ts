@@ -5,60 +5,277 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
+
 const url = Deno.env.get("SUPABASE_URL") || "";
 const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+const workerAuthSecret = Deno.env.get("PANBILL_EMAIL_WORKER_SECRET") || "";
 const resendKey = Deno.env.get("RESEND_API_KEY") || "";
 const fromEmail = Deno.env.get("RESEND_FROM_EMAIL") || "";
-const supabase = createClient(url, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
-const respond = (data: unknown, status = 200) => new Response(JSON.stringify(data), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-const esc = (v: unknown) => String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
 
-function renderEmail(event: any) {
+const supabase = createClient(url, serviceKey, {
+  auth: { persistSession: false, autoRefreshToken: false },
+});
+
+const respond = (data: unknown, status = 200) =>
+  new Response(JSON.stringify(data), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+
+const esc = (v: unknown) =>
+  String(v ?? "").replace(/[&<>"']/g, (c) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!)
+  );
+
+const naira = (v: unknown) =>
+  `₦${Number(v || 0).toLocaleString("en-NG")}`;
+
+function emailLayout(title: string, body: string) {
+  return `<div style="font-family:Arial,sans-serif;max-width:620px;margin:auto;color:#17233d">
+    <div style="background:#07152f;padding:22px;color:#ffe4a0;font-size:25px;font-weight:bold">PanBill</div>
+    <div style="padding:24px"><h2>${title}</h2>${body}
+    <p style="margin-top:28px;color:#68758a">PanBill Marketplace · panbill.com.ng</p></div>
+  </div>`;
+}
+
+function renderOriginalOrderEmail(event: any) {
   const p = event.payload || {};
   const orderNo = esc(p.order_number || "PanBill order");
   const isEstimate = event.event_type === "delivery_estimate_updated";
-  const title = isEstimate ? "Your delivery estimate has been updated" : event.recipient_role === "admin" ? "New PanBill marketplace order" : event.recipient_role === "seller" ? "New marketplace order for your store" : "Your PanBill order is confirmed";
-  const items = Array.isArray(p.items) ? p.items.map((x: any) => `<li>${esc(x.product_name)} × ${esc(x.quantity)} — ₦${Number(x.line_total || 0).toLocaleString("en-NG")}</li>`).join("") : "";
-  const estimate = isEstimate ? `<p>Your seller estimates delivery in <strong>${esc(p.delivery_estimate_days)} day(s)</strong>${p.estimated_delivery_at ? ` (estimated date: ${esc(new Date(p.estimated_delivery_at).toLocaleDateString("en-NG"))})` : ""}.</p>${p.status_note ? `<p>Seller note: ${esc(p.status_note)}</p>` : ""}` : "";
-  const orderInfo = !isEstimate ? `<p><strong>Payment:</strong> ${esc(p.payment_method)} — ${esc(p.payment_status)}</p><p><strong>Delivery:</strong> ${esc(p.delivery_method)} · ${esc(p.delivery_name)} · ${esc(p.delivery_phone)}</p><p><strong>Address:</strong> ${esc(p.delivery_address)}</p>${items ? `<ul>${items}</ul>` : ""}<p><strong>Order total:</strong> ₦${Number(p.total_amount || 0).toLocaleString("en-NG")}</p>` : "";
-  const intro = isEstimate ? `The seller has provided an update for order ${orderNo}.` : event.recipient_role === "admin" ? `A new marketplace order (${orderNo}) has been placed on PanBill.` : event.recipient_role === "seller" ? `A buyer has placed order ${orderNo} containing products from your store.` : `Thank you for shopping on PanBill. Your order ${orderNo} has been placed successfully.`;
-  const html = `<div style="font-family:Arial,sans-serif;max-width:620px;margin:auto;color:#17233d"><div style="background:#07152f;padding:22px;color:#ffe4a0;font-size:25px;font-weight:bold">PanBill</div><div style="padding:24px"><h2>${title}</h2><p>${intro}</p>${estimate}${orderInfo}<p style="margin-top:28px;color:#68758a">PanBill Marketplace · panbill.com.ng</p></div></div>`;
-  return { subject: `${title} — ${orderNo}`, html };
+  const title = isEstimate
+    ? "Your delivery estimate has been updated"
+    : event.recipient_role === "admin"
+    ? "New PanBill marketplace order"
+    : event.recipient_role === "seller"
+    ? "New marketplace order for your store"
+    : "Your PanBill order is confirmed";
+
+  const items = Array.isArray(p.items)
+    ? p.items.map((x: any) =>
+      `<li>${esc(x.product_name)} × ${esc(x.quantity)} — ${naira(x.line_total)}</li>`
+    ).join("")
+    : "";
+
+  const estimate = isEstimate
+    ? `<p>Your seller estimates delivery in <strong>${esc(p.delivery_estimate_days)} day(s)</strong>${
+      p.estimated_delivery_at
+        ? ` (estimated date: ${esc(new Date(p.estimated_delivery_at).toLocaleDateString("en-NG"))})`
+        : ""
+    }.</p>${p.status_note ? `<p>Seller note: ${esc(p.status_note)}</p>` : ""}`
+    : "";
+
+  const orderInfo = !isEstimate
+    ? `<p><strong>Payment:</strong> ${esc(p.payment_method)} — ${esc(p.payment_status)}</p>
+      <p><strong>Delivery:</strong> ${esc(p.delivery_method)} · ${esc(p.delivery_name)} · ${esc(p.delivery_phone)}</p>
+      <p><strong>Address:</strong> ${esc(p.delivery_address)}</p>
+      ${items ? `<ul>${items}</ul>` : ""}
+      <p><strong>Order total:</strong> ${naira(p.total_amount)}</p>`
+    : "";
+
+  const intro = isEstimate
+    ? `The seller has provided an update for order ${orderNo}.`
+    : event.recipient_role === "admin"
+    ? `A new marketplace order (${orderNo}) has been placed on PanBill.`
+    : event.recipient_role === "seller"
+    ? `A buyer has placed order ${orderNo} containing products from your store.`
+    : `Thank you for shopping on PanBill. Your order ${orderNo} has been placed successfully.`;
+
+  return {
+    subject: `${title} — ${orderNo}`,
+    html: emailLayout(title, `<p>${intro}</p>${estimate}${orderInfo}`),
+  };
+}
+
+function renderAgentWelcome(event: any) {
+  const p = event.payload || {};
+  const agentName = esc(p.agent_name || "PanBill Agent");
+  const agentType = p.agent_type === "pickup" ? "Pickup Station Agent" : "Doorstep Delivery Agent";
+  const dashboardUrl = esc(p.dashboard_url || "https://panbill.com.ng/agent.html");
+  const title = "Welcome to the PanBill Marketplace Agent Team";
+  const body = `<p>Hello ${agentName},</p>
+    <p>Your PanBill marketplace agent account has been set up successfully as a <strong>${agentType}</strong>.</p>
+    <p>You can access your personal agent dashboard using your existing PanBill account login:</p>
+    <p style="margin:24px 0"><a href="${dashboardUrl}" style="display:inline-block;background:#07152f;color:#ffe4a0;text-decoration:none;padding:13px 22px;border-radius:6px;font-weight:bold">Open Agent Dashboard</a></p>
+    <p><strong>Important:</strong> Sign in with the same email address and password you already use for PanBill. No new account or password is required.</p>
+    <p>Use your dashboard to view orders assigned to you and update their fulfillment status. Please keep your login details private.</p>`;
+  return { subject: `${title} — PanBill`, html: emailLayout(title, body) };
+}
+
+function renderBuyerFulfillmentEmail(event: any) {
+  const p = event.payload || {};
+  const orderNo = esc(p.order_number || "your order");
+  const station = p.pickup_station || {};
+  const stationName = esc(station.name || p.pickup_station_name || "");
+  const stationAddress = esc(station.address || p.pickup_station_address || "");
+  const collectionDate = esc(p.collection_date || p.collection_day || p.ready_for_collection_date || "");
+  const collectionInstructions = esc(p.collection_instructions || p.instructions || "");
+  let title = "Your PanBill order update";
+  let message = "";
+
+  switch (event.event_type) {
+    case "pickup_confirmed":
+      title = "Pickup station confirmed";
+      message = `<p>Your order <strong>${orderNo}</strong> is set for collection at the selected pickup station.</p>`;
+      break;
+    case "ready_for_collection":
+    case "pickup_ready_for_collection":
+      title = "Your order is ready for collection";
+      message = `<p>Good news! Your order <strong>${orderNo}</strong> is ready for collection.</p>`;
+      break;
+    case "collection_day_reminder":
+      title = "Reminder: collect your PanBill order today";
+      message = `<p>This is a reminder that your order <strong>${orderNo}</strong> is scheduled for collection today.</p>`;
+      break;
+    case "out_for_delivery":
+    case "doorstep_out_for_delivery":
+      title = "Your order is out for delivery";
+      message = `<p>Your order <strong>${orderNo}</strong> has been dispatched and is on its way to your delivery address.</p>`;
+      break;
+    case "delivered":
+    case "doorstep_delivered":
+      title = "Your order has been delivered";
+      message = `<p>Your order <strong>${orderNo}</strong> has been marked as successfully delivered.</p>`;
+      break;
+    case "pickup_collected":
+      title = "Your order has been collected";
+      message = `<p>Your order <strong>${orderNo}</strong> has been marked as collected from the pickup station.</p>`;
+      break;
+    case "delivery_failed":
+      title = "Delivery attempt unsuccessful";
+      message = `<p>We could not complete delivery of your order <strong>${orderNo}</strong>. Our team will follow up with the next steps.</p>`;
+      if (p.failure_reason) message += `<p><strong>Reason:</strong> ${esc(p.failure_reason)}</p>`;
+      break;
+    default:
+      message = `<p>There is an update regarding your PanBill order <strong>${orderNo}</strong>.</p>`;
+  }
+
+  const pickupInfo = stationName || stationAddress || collectionDate || collectionInstructions
+    ? `<div style="background:#f5f7fb;padding:16px;border-radius:8px;margin:18px 0">
+        ${stationName ? `<p><strong>Pickup station:</strong> ${stationName}</p>` : ""}
+        ${stationAddress ? `<p><strong>Station address:</strong> ${stationAddress}</p>` : ""}
+        ${collectionDate ? `<p><strong>Collection day:</strong> ${collectionDate}</p>` : ""}
+        ${collectionInstructions ? `<p><strong>Collection instructions:</strong> ${collectionInstructions}</p>` : ""}
+      </div>`
+    : "";
+
+  const deliveryInfo = p.delivery_address
+    ? `<p><strong>Delivery address:</strong> ${esc(p.delivery_address)}</p>`
+    : "";
+
+  return {
+    subject: `${title} — ${orderNo}`,
+    html: emailLayout(title, `${message}${pickupInfo}${deliveryInfo}<p>Thank you for shopping with PanBill.</p>`),
+  };
+}
+
+function renderEmail(event: any) {
+  if (event.event_type === "agent_welcome" && event.recipient_role === "agent") {
+    return renderAgentWelcome(event);
+  }
+
+  const buyerFulfillmentEvents = new Set([
+    "pickup_confirmed",
+    "ready_for_collection",
+    "pickup_ready_for_collection",
+    "collection_day_reminder",
+    "out_for_delivery",
+    "doorstep_out_for_delivery",
+    "delivered",
+    "doorstep_delivered",
+    "pickup_collected",
+    "delivery_failed",
+  ]);
+
+  if (event.recipient_role === "buyer" && buyerFulfillmentEvents.has(event.event_type)) {
+    return renderBuyerFulfillmentEmail(event);
+  }
+
+  // Keep the existing buyer, seller, admin and delivery-estimate email templates.
+  return renderOriginalOrderEmail(event);
 }
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return respond({ success: false, error: "Method not allowed." }, 405);
+
   const auth = req.headers.get("Authorization") || "";
-  if (!serviceKey || auth !== `Bearer ${serviceKey}`) return respond({ success: false, error: "Service authorization required." }, 401);
-  if (!resendKey || !fromEmail) return respond({ success: false, error: "Resend sender configuration is missing." }, 500);
+  if (!workerAuthSecret || auth !== `Bearer ${workerAuthSecret}`) {
+    return respond({ success: false, error: "Service authorization required." }, 401);
+  }
+
+  if (!resendKey || !fromEmail) {
+    return respond({ success: false, error: "Resend sender configuration is missing." }, 500);
+  }
+
   try {
-    const { data: events, error } = await supabase.from("marketplace_email_events")
+    const { data: events, error } = await supabase
+      .from("marketplace_email_events")
       .select("id, recipient_email, recipient_role, event_type, payload")
-      .eq("status", "queued").order("created_at", { ascending: true }).limit(50);
+      .eq("status", "queued")
+      .order("created_at", { ascending: true })
+      .limit(50);
+
     if (error) throw error;
-    let sent = 0, failed = 0;
+
+    let sent = 0;
+    let failed = 0;
+
     for (const event of events || []) {
-      const mail = renderEmail(event);
       try {
+        const mail = renderEmail(event);
         const response = await fetch("https://api.resend.com/emails", {
           method: "POST",
-          headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
-          body: JSON.stringify({ from: fromEmail, to: [event.recipient_email], subject: mail.subject, html: mail.html }),
+          headers: {
+            Authorization: `Bearer ${resendKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            from: fromEmail,
+            to: [event.recipient_email],
+            subject: mail.subject,
+            html: mail.html,
+          }),
         });
+
         const result = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(String(result.message || result.name || `Resend returned ${response.status}`).slice(0, 500));
-        const { error: updateError } = await supabase.from("marketplace_email_events").update({ status: "sent", provider_message_id: result.id || null, sent_at: new Date().toISOString(), last_error: null, updated_at: new Date().toISOString() }).eq("id", event.id).eq("status", "queued");
+        if (!response.ok) {
+          throw new Error(
+            String(result.message || result.name || `Resend returned ${response.status}`).slice(0, 500),
+          );
+        }
+
+        const { error: updateError } = await supabase
+          .from("marketplace_email_events")
+          .update({
+            status: "sent",
+            provider_message_id: result.id || null,
+            sent_at: new Date().toISOString(),
+            last_error: null,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", event.id)
+          .eq("status", "queued");
+
         if (updateError) throw updateError;
         sent++;
       } catch (sendError) {
-        await supabase.from("marketplace_email_events").update({ last_error: String(sendError instanceof Error ? sendError.message : sendError).slice(0, 1000), updated_at: new Date().toISOString() }).eq("id", event.id);
+        await supabase
+          .from("marketplace_email_events")
+          .update({
+            last_error: String(sendError instanceof Error ? sendError.message : sendError).slice(0, 1000),
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", event.id);
         failed++;
       }
     }
+
     return respond({ success: true, processed: (events || []).length, sent, failed });
   } catch (error) {
     console.error("marketplace-email-worker error:", error);
-    return respond({ success: false, error: error instanceof Error ? error.message : "Email processing failed." }, 500);
+    return respond({
+      success: false,
+      error: error instanceof Error ? error.message : "Email processing failed.",
+    }, 500);
   }
 });
