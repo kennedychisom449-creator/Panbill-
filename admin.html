@@ -438,9 +438,9 @@ tbody tr:hover{background:#192b43}
 <section id="fulfillmentAgentsTab" class="section super-admin-only hidden">
  <div class="panel">
   <div class="panel-head"><div><h2>Fulfillment agent management</h2><div class="panel-desc">Manage independent pickup-station and doorstep-delivery agents. This is separate from the existing read-only admin Agent Management.</div></div><button class="btn" id="reloadFulfillmentAgentsButton" type="button">↻ Refresh agents</button></div>
-  <div class="pricing-note">Only existing, email-verified PanBill users can be appointed. No new account is created and no invitation email is sent. Pickup agents must be attached to an active PanBill collection centre. Delivery agents must not be attached to a pickup centre. Never share passwords or access tokens.</div>
+  <div class="pricing-note">Only the Super Admin can approve or reject applicants and assign their final function and pickup station. Applicants cannot access the Agent Dashboard while pending. Approved new users receive an account invitation; existing PanBill users keep their current login. Never share passwords or access tokens.</div>
   <div class="panel" style="background:#101d31;margin:16px 0">
-   <div class="panel-head"><div><h2>Appoint an existing PanBill user</h2><div class="panel-desc">Enter the email address already registered on PanBill. The user keeps their existing login and password.</div></div></div>
+   <div class="panel-head"><div><h2>Register fulfillment applicant</h2><div class="panel-desc">Add an applicant for review. The function and station selected here are provisional; confirm them when approving the application.</div></div></div>
    <div class="pricing-grid">
     <div class="pricing-field"><label for="fulfillmentAgentName">Full name</label><input id="fulfillmentAgentName" maxlength="120" autocomplete="name" placeholder="Agent full name"></div>
     <div class="pricing-field"><label for="fulfillmentAgentEmail">Email address</label><input id="fulfillmentAgentEmail" type="email" maxlength="254" autocomplete="email" placeholder="agent@example.com"></div>
@@ -448,9 +448,11 @@ tbody tr:hover{background:#192b43}
     <div class="pricing-field"><label for="fulfillmentAgentType">Agent type</label><select id="fulfillmentAgentType"><option value="pickup">Pickup station agent</option><option value="delivery">Doorstep delivery agent</option></select></div>
     <div class="pricing-field" id="fulfillmentPickupStationField"><label for="fulfillmentPickupStation">Assigned pickup station</label><select id="fulfillmentPickupStation"><option value="">Load active collection centres...</option></select><div class="pricing-help">Required for pickup agents. Delivery agents do not use a pickup station.</div></div>
    </div>
-   <div class="pricing-actions"><button class="btn btn-primary" id="createFulfillmentAgentButton" type="button">Appoint existing user</button><span id="fulfillmentAgentFormStatus" class="panel-desc" role="status" aria-live="polite"></span></div>
+   <div class="pricing-actions"><button class="btn btn-primary" id="createFulfillmentAgentButton" type="button">Submit for approval</button><span id="fulfillmentAgentFormStatus" class="panel-desc" role="status" aria-live="polite"></span></div>
   </div>
-  <div class="panel-head"><div><h2>Current fulfillment agents</h2><div class="panel-desc">Activate or suspend access. Suspended agents cannot load assigned orders or update fulfillment.</div></div></div>
+  <div class="panel-head"><div><h2>Pending and reviewed applications</h2><div class="panel-desc">Review each applicant. Choose the final agent function and, for pickup agents, an active collection centre before approving.</div></div></div>
+  <div class="table-wrap"><table><thead><tr><th>APPLICANT</th><th>CONTACT</th><th>FINAL FUNCTION</th><th>PICKUP STATION</th><th>SUBMITTED</th><th>ACTION</th></tr></thead><tbody id="fulfillmentApplicationsBody"><tr><td colspan="6" class="loading">Load applications to begin.</td></tr></tbody></table></div>
+  <div class="panel-head" style="margin-top:22px"><div><h2>Current fulfillment agents</h2><div class="panel-desc">Activate or suspend access. Suspended agents cannot load assigned orders or update fulfillment.</div></div></div>
   <div class="table-wrap"><table><thead><tr><th>NAME</th><th>EMAIL / USER ID</th><th>PHONE</th><th>TYPE</th><th>PICKUP STATION</th><th>STATUS</th><th>ACTION</th></tr></thead><tbody id="fulfillmentAgentsBody"><tr><td colspan="7" class="loading">Load agents to begin.</td></tr></tbody></table></div>
  </div>
  <div class="panel">
@@ -1408,14 +1410,60 @@ function updateFulfillmentAgentTypeUI(){
 
 async function loadFulfillmentAgents(){
  if(!isSuperAdmin)return;
- const body=$("fulfillmentAgentsBody");
+ const body=$("fulfillmentAgentsBody"),applicationsBody=$("fulfillmentApplicationsBody");
  body.innerHTML='<tr><td colspan="7" class="loading">Loading fulfillment agents...</td></tr>';
+ applicationsBody.innerHTML='<tr><td colspan="6" class="loading">Loading applications...</td></tr>';
  try{
-  const [result]=await Promise.all([marketplaceAgentRequest({action:"admin_list_agents"}),loadFulfillmentPickupStations()]);
-  const agents=result.agents||[];
-  const stationNames=new Map();
+  const [agentsResult,applicationsResult]=await Promise.all([
+   marketplaceAgentRequest({action:"admin_list_agents"}),
+   marketplaceAgentRequest({action:"admin_list_applications"}),
+   loadFulfillmentPickupStations()
+  ]).then(values=>[values[0],values[1]]);
+  const agents=agentsResult.agents||[];
+  const applications=applicationsResult.applications||[];
   const {data:points}=await client.rpc("marketplace_admin_list_pickup_points");
-  (Array.isArray(points)?points:[]).forEach(p=>stationNames.set(String(p.id),p.name||"—"));
+  const allPoints=Array.isArray(points)?points:[];
+  const activePoints=allPoints.filter(p=>p.is_active);
+  const stationNames=new Map(allPoints.map(p=>[String(p.id),p.name||"—"]));
+  const stationOptions=(selected)=>'<option value="">No pickup station</option>'+activePoints.map(p=>`<option value="${escapeHTML(p.id)}" ${String(p.id)===String(selected||"")?"selected":""}>${escapeHTML(p.name)} · ${escapeHTML([p.city,p.state].filter(Boolean).join(", "))}</option>`).join("");
+
+  applicationsBody.innerHTML=applications.map(a=>{
+   const pending=a.status==="pending";
+   const appId=escapeHTML(a.id);
+   const type=a.agent_type==="delivery"?"delivery":"pickup";
+   const created=a.created_at?new Date(a.created_at).toLocaleString("en-NG"):"—";
+   const controls=pending?`<select data-application-type="${appId}" aria-label="Final agent function"><option value="pickup" ${type==="pickup"?"selected":""}>Pickup station</option><option value="delivery" ${type==="delivery"?"selected":""}>Doorstep delivery</option></select>`:`<span class="status ${a.status==="approved"?"active":"suspended"}">${escapeHTML(a.status)}</span>`;
+   const station=pending?`<select data-application-station="${appId}" aria-label="Assigned pickup station" ${type==="delivery"?"disabled":""}>${stationOptions(a.pickup_point_id)}</select>`:escapeHTML(a.pickup_point_id?stationNames.get(String(a.pickup_point_id))||"Assigned":"—");
+   const actions=pending?`<button class="btn btn-primary" type="button" data-approve-application="${appId}">Approve</button> <button class="btn btn-danger" type="button" data-reject-application="${appId}">Reject</button>`:`<span class="panel-desc">${a.status==="approved"?"Agent access approved":"Application declined"}</span>`;
+   return `<tr><td><strong>${escapeHTML(a.full_name||"—")}</strong><div class="panel-desc">${escapeHTML(a.email||"")}</div></td><td>${escapeHTML(a.phone||"—")}</td><td>${controls}</td><td>${station}</td><td>${escapeHTML(created)}</td><td>${actions}</td></tr>`;
+  }).join("")||'<tr><td colspan="6" class="empty">No fulfillment applications yet.</td></tr>';
+
+  applicationsBody.querySelectorAll("[data-application-type]").forEach(select=>select.addEventListener("change",()=>{
+   const row=select.closest("tr"),station=row?.querySelector("[data-application-station]");
+   if(station)station.disabled=select.value!=="pickup";
+  }));
+  applicationsBody.querySelectorAll("[data-approve-application]").forEach(button=>button.addEventListener("click",async()=>{
+   const id=button.dataset.approveApplication,row=button.closest("tr");
+   const type=row.querySelector("[data-application-type]")?.value||"";
+   const station=row.querySelector("[data-application-station]")?.value||"";
+   if(type==="pickup"&&!station){alert("Select an active pickup station before approval.");return;}
+   const decisionText=type==="pickup"?`Pickup station agent at ${stationNames.get(station)||"the selected station"}`:"Doorstep delivery agent";
+   if(!confirm(`Approve this applicant as a ${decisionText}? An invitation/access email will be sent after approval.`))return;
+   button.disabled=true;
+   try{
+    const result=await marketplaceAgentRequest({action:"admin_review_application",application_id:id,decision:"approve",agent_type:type,pickup_point_id:type==="pickup"?station:null});
+    alert(result.invitation_sent?"Application approved. Account invitation and agent welcome email have been queued/sent.":"Application approved. The applicant can use their existing PanBill login; the agent welcome email has been queued.");
+    await loadFulfillmentAgents();
+   }catch(e){alert(e.message);button.disabled=false;}
+  }));
+  applicationsBody.querySelectorAll("[data-reject-application]").forEach(button=>button.addEventListener("click",async()=>{
+   const id=button.dataset.rejectApplication;
+   if(!confirm("Reject this fulfillment agent application? No agent access or invitation will be created."))return;
+   button.disabled=true;
+   try{await marketplaceAgentRequest({action:"admin_review_application",application_id:id,decision:"reject"});await loadFulfillmentAgents();}
+   catch(e){alert(e.message);button.disabled=false;}
+  }));
+
   body.innerHTML=agents.map(a=>{
    const status=a.is_active?"Active":"Suspended";
    return `<tr><td>${escapeHTML(a.full_name||"—")}</td><td><div>${escapeHTML(a.email||a.user_id||"—")}</div><small>${escapeHTML(a.user_id||"")}</small></td><td>${escapeHTML(a.phone||"—")}</td><td>${a.agent_type==="pickup"?"Pickup":"Doorstep delivery"}</td><td>${escapeHTML(a.pickup_point_id?stationNames.get(String(a.pickup_point_id))||a.pickup_point_id:"—")}</td><td><span class="status ${a.is_active?"active":"suspended"}">${status}</span></td><td><button class="btn ${a.is_active?"btn-danger":"btn-primary"}" type="button" data-toggle-fulfillment-agent="${escapeHTML(a.id)}" data-next-active="${a.is_active?"false":"true"}">${a.is_active?"Suspend":"Activate"}</button></td></tr>`;
@@ -1429,19 +1477,27 @@ async function loadFulfillmentAgents(){
    try{await marketplaceAgentRequest({action:"admin_set_agent_active",agent_id:button.dataset.toggleFulfillmentAgent,is_active:next});await loadFulfillmentAgents();}
    catch(e){alert(e.message);button.disabled=false;}
   }));
- }catch(e){body.innerHTML=`<tr><td colspan="7" class="red">${escapeHTML(e.message)}</td></tr>`;throw e;}
+ }catch(e){
+  body.innerHTML=`<tr><td colspan="7" class="red">${escapeHTML(e.message)}</td></tr>`;
+  applicationsBody.innerHTML=`<tr><td colspan="6" class="red">${escapeHTML(e.message)}</td></tr>`;
+  throw e;
+ }
 }
 
 async function createFulfillmentAgent(){
  const status=$("fulfillmentAgentFormStatus"),button=$("createFulfillmentAgentButton");
  const agent_type=$("fulfillmentAgentType").value;
  const payload={action:"admin_create_agent",full_name:$("fulfillmentAgentName").value.trim(),email:$("fulfillmentAgentEmail").value.trim(),phone:$("fulfillmentAgentPhone").value.trim(),agent_type,pickup_point_id:agent_type==="pickup"?$("fulfillmentPickupStation").value:null};
- if(!payload.full_name||!payload.email||!payload.phone){status.textContent="Enter the agent's full name, valid email and phone number.";return;}
- if(agent_type==="pickup"&&!payload.pickup_point_id){status.textContent="Select an active collection centre for this pickup agent.";return;}
- if(!confirm(`Appoint the existing PanBill account ${payload.email} as a ${agent_type} fulfillment agent? No invitation will be sent.`))return;
- button.disabled=true;status.textContent="Checking existing PanBill account and appointing agent...";
- try{const result=await marketplaceAgentRequest(payload);status.textContent="Existing PanBill user appointed successfully. No invitation was sent.";$("fulfillmentAgentName").value="";$("fulfillmentAgentEmail").value="";$("fulfillmentAgentPhone").value="";await loadFulfillmentAgents();}
- catch(e){status.textContent=e.message;}
+ if(!payload.full_name||!payload.email||!payload.phone){status.textContent="Enter the applicant's full name, valid email and phone number.";return;}
+ if(agent_type==="pickup"&&!payload.pickup_point_id){status.textContent="Select a provisional active collection centre for this application.";return;}
+ if(!confirm(`Submit ${payload.email} as a pending fulfillment agent applicant? No dashboard access or invitation will be granted until you approve the application.`))return;
+ button.disabled=true;status.textContent="Submitting application for Super Admin review...";
+ try{
+  const result=await marketplaceAgentRequest(payload);
+  status.textContent=result.pending_approval?"Application submitted. No invitation has been sent; review it below when ready.":"Application submitted for review.";
+  $("fulfillmentAgentName").value="";$("fulfillmentAgentEmail").value="";$("fulfillmentAgentPhone").value="";
+  await loadFulfillmentAgents();
+ }catch(e){status.textContent=e.message;}
  finally{button.disabled=false;}
 }
 
