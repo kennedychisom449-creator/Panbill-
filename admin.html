@@ -1470,7 +1470,7 @@ async function marketplaceAgentRequest(body){
  const {data:{session},error:sessionError}=await client.auth.getSession();
  if(sessionError)throw sessionError;
  if(!session)throw new Error("Your session has expired. Please sign in again.");
- const {data,error}=await client.functions.invoke("marketplace-agent",{body});
+ const {data,error}=await client.functions.invoke("marketplace-admin",{body});
  if(error){
   let message=error.message||"Fulfillment agent request failed.";
   if(error.context&&typeof error.context.json==="function"){
