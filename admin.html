@@ -458,12 +458,12 @@ tbody tr:hover{background:#192b43}
  <div class="panel">
   <div class="panel-head"><div><h2>Assign an order</h2><div class="panel-desc">Use the marketplace order UUID from the order record. The backend validates the order, fulfillment type, delivery method and pickup station.</div></div></div>
   <div class="pricing-grid">
-   <div class="pricing-field"><label for="fulfillmentOrderId">Unassigned paid marketplace order</label><select id="fulfillmentOrderId"><option value="">Loading eligible orders...</option></select><div class="panel-desc">Only eligible, paid physical orders without an active assignment are listed. The selected option carries the order UUID securely.</div></div>
+   <div class="pricing-field"><label for="fulfillmentOrderId">Unassigned eligible marketplace order</label><select id="fulfillmentOrderId"><option value="">Loading eligible orders...</option></select><div class="panel-desc">Eligible physical orders without an active assignment are listed. Successful Paystack orders and pending Cash on Delivery orders are accepted. The selected option carries the order UUID securely.</div></div>
    <div class="pricing-field"><label for="fulfillmentAssignAgent">Active fulfillment agent</label><select id="fulfillmentAssignAgent"><option value="">Load agents first...</option></select></div>
    <div class="pricing-field" style="grid-column:1/-1"><label for="fulfillmentAssignmentNotes">Assignment notes (optional)</label><input id="fulfillmentAssignmentNotes" maxlength="500" placeholder="Handling instructions"></div>
   </div>
   <div class="pricing-actions"><button class="btn btn-primary" id="assignFulfillmentOrderButton" type="button">Assign order</button><button class="btn" id="refreshUnassignedOrdersButton" type="button">Refresh orders</button><span id="fulfillmentAssignStatus" class="panel-desc" role="status" aria-live="polite"></span></div>
-  <p class="panel-desc">Unpaid orders, failed payments, digital orders, cancelled orders and orders already assigned are excluded. COD orders appear only after payment is marked collected by the authorised payment process.</p>
+  <p class="panel-desc">Pending Cash on Delivery orders can be assigned before the buyer pays. Failed online payments, digital orders, cancelled orders and orders already assigned are excluded. COD cannot be completed until payment is confirmed as collected through the authorised payment process.</p>
  </div>
 </section>
 
@@ -1524,14 +1524,14 @@ async function loadUnassignedFulfillmentOrders(){
  try{
   const result=await marketplaceAgentRequest({action:"admin_list_unassigned_orders"});
   const orders=Array.isArray(result.orders)?result.orders:[];
-  select.innerHTML='<option value="">Select an unassigned paid order</option>'+orders.map(o=>{
+  select.innerHTML='<option value="">Select an eligible unassigned order</option>'+orders.map(o=>{
    const method=o.delivery_method==="pickup_point"?"Pickup":"Doorstep";
-   const payment=o.payment_method==="cash_on_delivery"?"COD collected":"Paystack paid";
+   const payment=o.payment_method==="cash_on_delivery"?(o.delivery_payment_status==="collected"?"COD collected":"COD — pay on delivery"):"Paystack paid";
    const amount=money(o.total_amount);
    const label=`${o.order_number||o.id} · ${method} · ${payment} · ${amount}`;
    return `<option value="${escapeHTML(o.id)}" data-delivery-method="${escapeHTML(o.delivery_method||"")}" data-pickup-point-id="${escapeHTML(o.pickup_point_id||"")}">${escapeHTML(label)}</option>`;
   }).join("");
-  if(!orders.length)select.innerHTML='<option value="">No eligible unassigned paid orders</option>';
+  if(!orders.length)select.innerHTML='<option value="">No eligible unassigned marketplace orders</option>';
   updateFulfillmentAssignmentAgentOptions();
  }catch(e){
   select.innerHTML='<option value="">Could not load orders — tap Refresh orders</option>';
