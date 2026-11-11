@@ -30,29 +30,32 @@ function cleanText(value: unknown, max = 300): string {
   return typeof value === "string" ? value.trim().slice(0, max) : "";
 }
 
-function isEligiblePaidOrder(order: any): boolean {
+function isEligibleOrderForAssignment(order: any): boolean {
   if (
     order.fulfillment_type !== "physical" ||
     order.order_status === "cancelled" ||
-    order.order_status === "delivered" ||
-    order.payment_status !== "paid"
+    order.order_status === "delivered"
   ) {
     return false;
   }
 
-  if (
-    order.payment_method === "online" &&
-    order.payment_provider === "paystack" &&
-    order.delivery_payment_status === "not_applicable"
-  ) {
-    return true;
+  // Online Paystack orders must have verified payment.
+  if (order.payment_method === "online") {
+    return (
+      order.payment_provider === "paystack" &&
+      order.payment_status === "paid" &&
+      order.delivery_payment_status === "not_applicable"
+    );
   }
 
-  if (
-    order.payment_method === "cash_on_delivery" &&
-    order.delivery_payment_status === "collected"
-  ) {
-    return true;
+  // COD orders can be assigned while payment is pending.
+  if (order.payment_method === "cash_on_delivery") {
+    return (
+      (order.payment_status === "pending" &&
+        order.delivery_payment_status === "pending") ||
+      (order.payment_status === "paid" &&
+        order.delivery_payment_status === "collected")
+    );
   }
 
   return false;
@@ -347,7 +350,7 @@ async function adminListUnassignedOrders(actorId: string) {
     .eq("fulfillment_type", "physical")
     .not("order_status", "in", '("cancelled","delivered")')
     .or(
-      "and(payment_method.eq.online,payment_provider.eq.paystack,payment_status.eq.paid,delivery_payment_status.eq.not_applicable),and(payment_method.eq.cash_on_delivery,payment_status.eq.paid,delivery_payment_status.eq.collected)",
+      "and(payment_method.eq.online,payment_provider.eq.paystack,payment_status.eq.paid,delivery_payment_status.eq.not_applicable),and(payment_method.eq.cash_on_delivery,payment_status.eq.pending,delivery_payment_status.eq.pending),and(payment_method.eq.cash_on_delivery,payment_status.eq.paid,delivery_payment_status.eq.collected)",
     )
     .order("created_at", { ascending: false });
 
@@ -366,7 +369,7 @@ async function adminListUnassignedOrders(actorId: string) {
 
   const unassignedOrders = (orders ?? []).filter(
     (order: any) =>
-      isEligiblePaidOrder(order) && !assignedOrderIds.has(order.id),
+      isEligibleOrderForAssignment(order) && !assignedOrderIds.has(order.id),
   );
 
   return { orders: unassignedOrders };
@@ -408,9 +411,9 @@ async function adminAssignOrder(body: any, actorId: string) {
     throw new Error("Active agent not found.");
   }
 
-  if (!isEligiblePaidOrder(order)) {
+  if (!isEligibleOrderForAssignment(order)) {
     throw new Error(
-      "This order is not eligible for assignment. Verify payment and delivery payment first.",
+      "This order is not eligible for assignment. Check its payment method, payment status and fulfillment status.",
     );
   }
 
