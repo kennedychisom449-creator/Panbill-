@@ -519,11 +519,18 @@ async function agentUpdateStatus(body: any, actorId: string) {
   const nextStatus = cleanText(body.fulfillment_status, 40);
   if (!assignmentId || !nextStatus) throw new Error("assignment_id and fulfillment_status are required.");
 
-  const pickupStatuses = ["parcel_received", "ready_for_collection", "collected"];
-  const deliveryStatuses = ["out_for_delivery", "delivered", "delivery_failed", "returned"];
-  const allowed = agent.agent_type === "pickup" ? pickupStatuses : deliveryStatuses;
-  if (!allowed.includes(nextStatus)) throw new Error("This status is not available to your agent account.");
-
+  const transitions: Record<string, Record<string, string[]>> = {
+    pickup: {
+      assigned: ["parcel_received"],
+      parcel_received: ["ready_for_collection"],
+      ready_for_collection: ["collected"],
+    },
+    delivery: {
+      assigned: ["out_for_delivery"],
+      out_for_delivery: ["delivered", "delivery_failed"],
+      delivery_failed: ["out_for_delivery", "returned"],
+    },
+  };
   const { data: assignment, error: assignmentError } = await adminDb
     .from("marketplace_order_fulfillment_assignments")
     .select(`id,order_id,agent_id,assignment_type,status,fulfillment_status,marketplace_orders(${ORDER_FIELDS})`)
@@ -546,6 +553,16 @@ async function agentUpdateStatus(body: any, actorId: string) {
     throw new Error("This order belongs to a different pickup station.");
   }
 
+  const currentStatus = assignment.fulfillment_status || "assigned";
+  const allowedNext = transitions[agent.agent_type]?.[currentStatus] ?? [];
+  const completed = nextStatus === "collected" || nextStatus === "delivered";
+  if (!allowedNext.includes(nextStatus)) {
+    throw new Error(`Invalid fulfillment step. Current status is ${currentStatus}; next allowed status: ${allowedNext.join(", ") || "none"}.`);
+  }
+  if (order.order_status === "delivered" && !completed) {
+    throw new Error("This order is already marked delivered and cannot move to another fulfillment status.");
+  }
+
   const { data: orderItems, error: itemsError } = await adminDb
     .from("marketplace_order_items")
     .select("id,product_id")
@@ -557,7 +574,6 @@ async function agentUpdateStatus(body: any, actorId: string) {
     throw new Error("Product ID does not belong to this order. No fulfillment update was made.");
   }
 
-  const completed = nextStatus === "collected" || nextStatus === "delivered";
   if (completed) {
     if (order.payment_status !== "paid") {
       throw new Error("Payment has not been verified. This order cannot be completed.");
@@ -570,26 +586,40 @@ async function agentUpdateStatus(body: any, actorId: string) {
     }
   }
 
+  // Update the order first. If the assignment update then fails, the agent can
+  // retry the final step: an already-delivered order is accepted for that retry.
+  if (completed && order.order_status !== "delivered") {
+    const { data: updatedOrder, error: orderUpdateError } = await adminDb
+      .from("marketplace_orders")
+      .update({ order_status: "delivered", updated_at: new Date().toISOString() })
+      .eq("id", order.id)
+      .eq("order_status", order.order_status)
+      .neq("order_status", "cancelled")
+      .select("id")
+      .maybeSingle();
+    if (orderUpdateError) throw orderUpdateError;
+    if (!updatedOrder) {
+      throw new Error("The order changed while this update was being processed. Refresh the assignment and try again.");
+    }
+  }
+
   const update: Record<string, unknown> = {
     fulfillment_status: nextStatus,
     ...(completed ? { status: "completed", completed_at: new Date().toISOString() } : {}),
     ...(body.notes ? { notes: cleanText(body.notes, 500) } : {}),
   };
-  const { error: updateError } = await adminDb
+  const { data: updatedAssignment, error: updateError } = await adminDb
     .from("marketplace_order_fulfillment_assignments")
     .update(update)
     .eq("id", assignment.id)
     .eq("agent_id", agent.id)
-    .eq("status", "assigned");
+    .eq("status", "assigned")
+    .eq("fulfillment_status", currentStatus)
+    .select("id")
+    .maybeSingle();
   if (updateError) throw updateError;
-
-  if (completed && order.order_status !== "delivered") {
-    const { error: orderUpdateError } = await adminDb
-      .from("marketplace_orders")
-      .update({ order_status: "delivered", updated_at: new Date().toISOString() })
-      .eq("id", order.id)
-      .neq("order_status", "cancelled");
-    if (orderUpdateError) throw orderUpdateError;
+  if (!updatedAssignment) {
+    throw new Error("The assignment changed while this update was being processed. Refresh the assignment. If the order is already delivered, retry the final fulfillment step.");
   }
 
   await adminDb.from("marketplace_fulfillment_agent_audit").insert({
@@ -598,7 +628,7 @@ async function agentUpdateStatus(body: any, actorId: string) {
     order_id: order.id,
     actor_user_id: actorId,
     action: "fulfillment_status_updated",
-    details: { from: assignment.fulfillment_status, to: nextStatus, notes: cleanText(body.notes, 500) || null },
+    details: { from: currentStatus, to: nextStatus, notes: cleanText(body.notes, 500) || null },
   });
 
   const eventTypes: Record<string, string> = {
@@ -609,30 +639,44 @@ async function agentUpdateStatus(body: any, actorId: string) {
     collected: "pickup_collected",
   };
   const eventType = eventTypes[nextStatus];
+  let emailQueued: boolean | null = null;
+  let emailError: string | null = null;
   if (eventType) {
-    let station: any = null;
-    if (agent.agent_type === "pickup" && agent.pickup_point_id) {
-      const { data } = await adminDb.from("marketplace_pickup_points")
-        .select("name,address,city,state,phone,contact_name,instructions")
-        .eq("id", agent.pickup_point_id).maybeSingle();
-      station = data;
+    try {
+      let station: any = null;
+      if (agent.agent_type === "pickup" && agent.pickup_point_id) {
+        const { data } = await adminDb.from("marketplace_pickup_points")
+          .select("name,address,city,state,phone,contact_name,instructions")
+          .eq("id", agent.pickup_point_id).maybeSingle();
+        station = data;
+      }
+      await queueBuyerEmail(
+        order,
+        eventType,
+        `fulfillment:${assignment.id}:${nextStatus}`,
+        {
+          fulfillment_status: nextStatus,
+          agent_name: agent.full_name,
+          agent_phone: agent.phone,
+          pickup_station: station,
+          collection_instructions: station?.instructions ?? null,
+          agent_notes: cleanText(body.notes, 500) || null,
+        },
+      );
+      emailQueued = true;
+    } catch (error) {
+      emailQueued = false;
+      emailError = error instanceof Error ? error.message : "Buyer notification could not be queued.";
+      console.error("Fulfillment buyer email queue failed:", emailError);
     }
-    await queueBuyerEmail(
-      order,
-      eventType,
-      `fulfillment:${assignment.id}:${nextStatus}`,
-      {
-        fulfillment_status: nextStatus,
-        agent_name: agent.full_name,
-        agent_phone: agent.phone,
-        pickup_station: station,
-        collection_instructions: station?.instructions ?? null,
-        agent_notes: cleanText(body.notes, 500) || null,
-      },
-    );
   }
 
-  return { updated: true, fulfillment_status: nextStatus, assignment_completed: completed };
+  return {
+    updated: true,
+    fulfillment_status: nextStatus,
+    assignment_completed: completed,
+    ...(emailQueued === null ? {} : { buyer_email_queued: emailQueued, buyer_email_error: emailError }),
+  };
 }
 
 async function recordSellerAdminAudit(
