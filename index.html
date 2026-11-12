@@ -1613,7 +1613,191 @@ main.wrap:not([data-view="market"]) #marketplace-floating-cart-open{display:none
 @media(max-width:760px){#customer-marketplace .panbill-floating-cart{left:12px;bottom:calc(82px + env(safe-area-inset-bottom));min-height:48px;padding:8px 13px;gap:7px}}
 @media(prefers-reduced-motion:reduce){#customer-marketplace .panbill-floating-cart{transition:none}}
 </style>
-</body></html>
+
+<style id="panbill-dedicated-seller-pages-v1">
+/* Dedicated Marketplace seller application and approved-seller workspace. */
+#marketplace-settings-seller-dashboard[hidden],#seller-dashboard-page[hidden],#seller-marketplace-panel[hidden]{display:none!important}
+#marketplace-settings-seller-dashboard{border-color:#f2c15d66}
+#seller-marketplace-panel,#seller-dashboard-page{max-width:1120px;margin:18px auto;padding:20px;border:1px solid #f2c15d45;border-radius:20px;background:linear-gradient(145deg,#10264a,#0a1b38);color:var(--ink);box-shadow:0 14px 35px #0002}
+#seller-marketplace-panel .seller-page-head,#seller-dashboard-page .seller-page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:18px;padding-bottom:15px;border-bottom:1px solid #ffffff20}
+.seller-page-head h2{margin:4px 0;font-size:clamp(21px,4vw,28px);color:#fff}
+.seller-page-head p{margin:5px 0 0;color:#c2cde0;font-size:13px}
+.seller-page-nav{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 18px}
+.seller-page-nav button{border:1px solid #f2c15d55;border-radius:10px;background:#ffffff08;color:#ffe4a0;padding:9px 12px;font-size:12px;font-weight:800}
+.seller-page-nav button:hover,.seller-page-nav button:focus-visible{background:#f2c15d18;border-color:#f2c15d;outline:none}
+.seller-overview-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0}
+.seller-overview-tile{padding:14px;border:1px solid #ffffff20;border-radius:14px;background:#071a35}
+.seller-overview-tile strong{display:block;color:#ffe4a0;font-size:13px}
+.seller-overview-tile small{display:block;margin-top:4px;color:#c2cde0;font-size:11px;line-height:1.45}
+#seller-payout-ledger-panel{margin:14px 0;padding:16px;border:1px solid #f2c15d45;border-radius:14px;background:#071a35}
+#seller-payout-ledger-panel h3{margin:0 0 7px;color:#ffe4a0}
+#seller-payout-ledger-panel p{margin:6px 0;color:#c2cde0;font-size:12px;line-height:1.55}
+#seller-dashboard-page #seller-tools{display:block!important}
+#seller-dashboard-page #seller-tools[hidden]{display:none!important}
+#seller-dashboard-page .seller-tools-head{padding:14px;border:1px solid #ffffff20;border-radius:14px;background:#071a35}
+#seller-dashboard-page #seller-product-form,#seller-dashboard-page #seller-physical-orders-panel,#seller-dashboard-page #seller-cod-orders-panel,#seller-dashboard-page #seller-payout-settings,#seller-dashboard-page #seller-social-settings,#seller-dashboard-page #seller-dispatch-section{scroll-margin-top:18px}
+main.wrap[data-view="seller-apply"]> :not(#seller-marketplace-panel){display:none!important}
+main.wrap[data-view="seller-apply"] #seller-marketplace-panel{display:block!important;visibility:visible!important}
+main.wrap[data-view="seller-dashboard"]> :not(#seller-dashboard-page){display:none!important}
+main.wrap[data-view="seller-dashboard"] #seller-dashboard-page{display:block!important;visibility:visible!important}
+main.wrap:not([data-view="seller-apply"]) #seller-marketplace-panel{display:none!important}
+main.wrap:not([data-view="seller-dashboard"]) #seller-dashboard-page{display:none!important}
+@media(max-width:700px){#seller-marketplace-panel,#seller-dashboard-page{margin:12px 0;padding:14px;border-radius:15px}.seller-overview-grid{grid-template-columns:1fr}.seller-page-nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.seller-page-nav button{min-width:0}}
+</style>
+<script id="panbill-dedicated-seller-pages-v1-script">
+(()=>{
+ 'use strict';
+ const main=document.querySelector('main.wrap');
+ const panel=document.getElementById('seller-marketplace-panel');
+ const tools=document.getElementById('seller-tools');
+ if(!main||!panel||!tools||document.getElementById('seller-dashboard-page'))return;
+ const footer=main.querySelector('.footer');
+ const dashboard=document.createElement('section');
+ dashboard.id='seller-dashboard-page';
+ dashboard.hidden=true;
+ dashboard.setAttribute('aria-labelledby','seller-dashboard-title');
+ dashboard.innerHTML=`
+  <div class="seller-page-head">
+   <div><div class="eyebrow">PANBILL MARKETPLACE</div><h2 id="seller-dashboard-title">Seller Dashboard</h2><p>Manage your store, orders, dispatch details and verified bank payout settings.</p></div>
+   <button class="outline-btn" id="seller-dashboard-back-market" type="button">← Marketplace</button>
+  </div>
+  <nav class="seller-page-nav" aria-label="Seller dashboard navigation">
+   <button type="button" data-seller-target="seller-dashboard-overview">Overview</button>
+   <button type="button" data-seller-target="seller-products-list">My Products</button>
+   <button type="button" data-seller-target="seller-product-form">Add Product</button>
+   <button type="button" data-seller-target="seller-physical-orders-panel">Sales &amp; Orders</button>
+   <button type="button" data-seller-target="seller-payout-ledger-panel">Seller Payouts</button>
+   <button type="button" data-seller-target="seller-payout-settings">Bank &amp; Settings</button>
+  </nav>
+  <section id="seller-dashboard-overview" class="panel" style="margin:12px 0;padding:16px;background:#0b1d3a;border:1px solid #ffffff20;border-radius:14px">
+   <div class="eyebrow">YOUR BUSINESS</div><h3 style="margin:5px 0">Store overview</h3>
+   <div class="seller-overview-grid">
+    <div class="seller-overview-tile"><strong>Product catalogue</strong><small>Manage listings, stock and product details in My Products.</small></div>
+    <div class="seller-overview-tile"><strong>Sales &amp; fulfilment</strong><small>Review physical orders and confirm eligible delivery outcomes in your order workspace.</small></div>
+    <div class="seller-overview-tile"><strong>Bank payout setup</strong><small>Verify your bank account and enable automatic seller payouts through the existing Paystack integration.</small></div>
+   </div>
+  </section>
+  <section id="seller-payout-ledger-panel" aria-labelledby="seller-payout-ledger-title">
+   <h3 id="seller-payout-ledger-title">Seller earnings &amp; payouts</h3>
+   <p>PanBill records gross sales, platform fees, net payout amounts and payout status in its seller payout ledger when an eligible order is fulfilled and paid.</p>
+   <p><strong>Automatic payouts:</strong> Eligible payouts are processed to your verified bank recipient under PanBill's existing payout workflow.</p>
+   <p id="seller-payout-ledger-note">The current seller interface does not expose a seller-specific payout balance/history endpoint or a seller-initiated withdrawal action. For accuracy and payment safety, this page does not display invented balances or offer an unsupported withdrawal button. Your existing buyer wallet remains separate.</p>
+  </section>`;
+ const appHead=document.createElement('div');
+ appHead.className='seller-page-head';
+ appHead.innerHTML='<div><div class="eyebrow">PANBILL MARKETPLACE</div><h2>Become a Seller</h2><p>Apply for seller access or review the status of your existing application.</p></div><button class="outline-btn" id="seller-application-back-market" type="button">← Marketplace</button>';
+ panel.insertBefore(appHead,panel.firstChild);
+ // Move the existing dispatch-location controls into the approved seller workspace,
+ // while keeping their existing IDs and event handlers intact.
+ const dispatch=document.getElementById('seller-dispatch-section');
+ if(dispatch)dashboard.appendChild(dispatch);
+ // Reuse the existing seller product, order, bank and social management UI unchanged.
+ dashboard.appendChild(tools);
+ main.insertBefore(dashboard,footer||null);
+ // Add the approved-seller destination to the existing Marketplace Settings panel.
+ const settingsActions=document.querySelector('#marketplace-settings-panel .marketplace-settings-actions');
+ let dashboardShortcut=document.getElementById('marketplace-settings-seller-dashboard');
+ if(settingsActions&&!dashboardShortcut){
+  dashboardShortcut=document.createElement('button');
+  dashboardShortcut.className='marketplace-settings-action';
+  dashboardShortcut.id='marketplace-settings-seller-dashboard';
+  dashboardShortcut.type='button';
+  dashboardShortcut.hidden=true;
+  dashboardShortcut.innerHTML='<span class="marketplace-settings-icon" aria-hidden="true">▦</span><span><strong>Seller Dashboard</strong><small>Manage your approved store, products, orders and payout settings.</small></span><span aria-hidden="true" class="settings-chevron">›</span>';
+  settingsActions.appendChild(dashboardShortcut);
+ }
+ const applyShortcut=document.getElementById('marketplace-settings-become-seller');
+ const applyTitle=applyShortcut?.querySelector('strong');
+ const applyDescription=applyShortcut?.querySelector('small');
+ const originalDisplay=displaySellerApplication;
+ function updateSellerShortcuts(){
+  const status=String(panbillSellerStatus||'unknown').toLowerCase();
+  if(applyShortcut){
+   applyShortcut.hidden=status==='approved'||status==='unknown';
+   if(applyTitle)applyTitle.textContent=(status==='pending'||status==='rejected'||status==='suspended')?'Application status':'Become a Seller';
+   if(applyDescription)applyDescription.textContent=status==='pending'?'Your application is awaiting review. Open it to check the latest status.':status==='rejected'?'Your application was not approved. View the decision and contact PanBill support if needed.':status==='suspended'?'Your seller account is suspended. View the status and contact PanBill support.':'Apply for a PanBill seller account and get your business reviewed.';
+  }
+  if(dashboardShortcut)dashboardShortcut.hidden=status!=='approved';
+ }
+ // Keep shortcut visibility synchronized with the real seller status returned by the backend.
+ displaySellerApplication=function(seller){
+  originalDisplay(seller);
+  updateSellerShortcuts();
+ };
+ function showAuth(){const overlay=document.getElementById('auth-overlay');if(overlay){overlay.hidden=false;overlay.scrollIntoView({behavior:'smooth',block:'center'});}}
+ function setView(view){
+  main.dataset.view=view;
+  panel.hidden=view!=='seller-apply';
+  dashboard.hidden=view!=='seller-dashboard';
+  if(view==='seller-dashboard')tools.hidden=false;
+  if(view!=='seller-dashboard')tools.hidden=true;
+  if(view==='market'){
+   const market=document.getElementById('customer-marketplace');
+   if(market)market.scrollIntoView({behavior:'instant',block:'start'});
+  }else window.scrollTo({top:0,behavior:'smooth'});
+ }
+ async function refreshSellerStatus(){
+  if(!currentSession){showAuth();return false;}
+  if(String(panbillSellerStatus||'unknown')==='unknown'){
+   try{await loadSellerApplication();}catch(_){/* loadSellerApplication reports its own error */}
+  }
+  updateSellerShortcuts();
+  return String(panbillSellerStatus||'unknown')!=='unknown';
+ }
+ async function openApplication(){
+  if(!await refreshSellerStatus())return;
+  const status=String(panbillSellerStatus||'unknown').toLowerCase();
+  if(status==='approved'){
+   setView('seller-dashboard');
+   return;
+  }
+  if(!['not_applied','pending','rejected','suspended'].includes(status)){
+   setSellerMessage('We could not verify your seller access. Please refresh and try again.','error');
+   return;
+  }
+  setView('seller-apply');
+ }
+ async function openDashboard(target){
+  if(!await refreshSellerStatus())return;
+  if(String(panbillSellerStatus||'').toLowerCase()!=='approved'){
+   if(['pending','not_applied','rejected','suspended'].includes(String(panbillSellerStatus||'').toLowerCase()))await openApplication();
+   return;
+  }
+  setView('seller-dashboard');
+  if(target){const el=document.getElementById(target);if(el)setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'start'}),100);}
+ }
+ // Capture legacy seller entry points so they open dedicated pages instead of the old embedded panel.
+ const legacyApply=document.getElementById('open-become-seller');
+ legacyApply?.addEventListener('click',event=>{event.preventDefault();event.stopImmediatePropagation();void openApplication();},true);
+ const legacyAdd=document.getElementById('open-add-product');
+ legacyAdd?.addEventListener('click',event=>{event.preventDefault();event.stopImmediatePropagation();void openDashboard('seller-product-form');},true);
+ applyShortcut?.addEventListener('click',event=>{event.preventDefault();event.stopImmediatePropagation();const settings=document.getElementById('marketplace-settings-panel');if(settings)settings.hidden=true;void openApplication();},true);
+ dashboardShortcut?.addEventListener('click',()=>{const settings=document.getElementById('marketplace-settings-panel');if(settings)settings.hidden=true;void openDashboard();});
+ document.getElementById('seller-application-back-market')?.addEventListener('click',()=>setView('market'));
+ document.getElementById('seller-dashboard-back-market')?.addEventListener('click',()=>setView('market'));
+ dashboard.querySelectorAll('[data-seller-target]').forEach(button=>button.addEventListener('click',()=>{
+  const target=button.getAttribute('data-seller-target');
+  if(target==='seller-payout-ledger-panel'){
+   const el=document.getElementById(target);el?.scrollIntoView({behavior:'smooth',block:'start'});return;
+  }
+  const el=document.getElementById(target);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+ }));
+ // Give existing payout, social and dispatch sections stable destinations for dashboard navigation.
+ const bank=document.getElementById('seller-bank-select')?.closest('section');
+ if(bank)bank.id='seller-payout-settings';
+ const social=document.getElementById('seller-social-platform')?.closest('section');
+ if(social)social.id='seller-social-settings';
+ // Wrap the existing auth callback to close seller-only pages on sign-out.
+ const originalShowSignedIn=showSignedIn;
+ showSignedIn=function(session){
+  originalShowSignedIn(session);
+  if(!session){setView('home');updateSellerShortcuts();}
+ };
+ updateSellerShortcuts();
+})();
+</script>
+
+
 
 <style id="panbill-settings-logout-visible-final">
 #settings-dashboard #settings-logout{display:block!important;visibility:visible!important;opacity:1!important;position:relative!important;z-index:2!important}
@@ -1687,4 +1871,4 @@ main.wrap[data-view="market"] #settings-dashboard{display:none!important}
  #marketplace-category-nav .marketplace-category-chip>.marketplace-category-label{font-size:10px!important}
 }
 </style>
-
+</body></html>
