@@ -72,6 +72,16 @@ function renderOriginalOrderEmail(event: any) {
       <p><strong>Order total:</strong> ${naira(p.total_amount)}</p>`
     : "";
 
+  // Seller-only follow-up: show the assigned fulfillment agent when available.
+  // These fields are added by the marketplace-admin assignment notification.
+  const assignedAgentInfo = !isEstimate && event.recipient_role === "seller" && (p.agent_name || p.agent_phone)
+    ? `<div style="background:#f5f7fb;padding:16px;border-radius:8px;margin:18px 0">
+        <p><strong>Assigned PanBill agent</strong></p>
+        ${p.agent_name ? `<p><strong>Agent name:</strong> ${esc(p.agent_name)}</p>` : ""}
+        ${p.agent_phone ? `<p><strong>Agent phone:</strong> ${esc(p.agent_phone)}</p>` : ""}
+      </div>`
+    : "";
+
   const intro = isEstimate
     ? `The seller has provided an update for order ${orderNo}.`
     : event.recipient_role === "admin"
@@ -82,19 +92,19 @@ function renderOriginalOrderEmail(event: any) {
 
   return {
     subject: `${title} — ${orderNo}`,
-    html: emailLayout(title, `<p>${intro}</p>${estimate}${orderInfo}`),
+    html: emailLayout(title, `<p>${intro}</p>${estimate}${assignedAgentInfo}${orderInfo}`),
   };
 }
 
-function safePanBillUrl(value: unknown, fallback: string): string {
+function safeHttpsUrl(value: unknown, fallback: string): string {
   const raw = typeof value === "string" ? value.trim() : "";
   if (!raw) return fallback;
   try {
     const parsed = new URL(raw);
     const host = parsed.hostname.toLowerCase();
-    const allowedHost = host === "panbill.com.ng" || host === "www.panbill.com.ng" ||
+    const trustedHost = host === "panbill.com.ng" || host === "www.panbill.com.ng" ||
       host === "rbvmtrsftnmnlxjmewpp.supabase.co";
-    return parsed.protocol === "https:" && allowedHost ? parsed.toString() : fallback;
+    return parsed.protocol === "https:" && trustedHost ? parsed.toString() : fallback;
   } catch {
     return fallback;
   }
@@ -104,22 +114,20 @@ function renderAgentWelcome(event: any) {
   const p = event.payload || {};
   const agentName = esc(p.agent_name || "PanBill Agent");
   const agentType = p.agent_type === "pickup" ? "Pickup Station Agent" : "Doorstep Delivery Agent";
-  const dashboardUrl = safePanBillUrl(p.dashboard_url, "https://panbill.com.ng/agent.html");
-  const activationUrl = safePanBillUrl(p.activation_url || p.invite_url, "");
-  const isNewAccount = p.account_invitation_sent === true || Boolean(activationUrl);
-  const accountInstructions = activationUrl
-    ? `<p>Your appointment has been approved. Use the secure invitation link below to activate your account and set your password.</p>
-       <p style="margin:24px 0"><a href="${esc(activationUrl)}" style="display:inline-block;background:#07152f;color:#ffe4a0;text-decoration:none;padding:13px 22px;border-radius:6px;font-weight:bold">Activate Agent Account</a></p>`
-    : isNewAccount
-      ? `<p>Your appointment has been approved and a separate PanBill account invitation email has been sent. Open that invitation email and follow its secure link to set your password. Then return here to open your Agent Dashboard.</p>`
-      : `<p>Your appointment has been approved. Sign in with the same email address and password you already use for PanBill; you do not need to create another account.</p>`;
+  const dashboardUrl = safeHttpsUrl(p.dashboard_url, "https://panbill.com.ng/agent.html");
+  const activationUrl = safeHttpsUrl(p.activation_url || p.invite_url, "");
   const title = "Welcome to the PanBill Marketplace Agent Team";
+  const accessLink = activationUrl
+    ? `<p>Your appointment has been approved. Use the secure invitation link below to activate your PanBill account and set your password. After activation, open your Agent Dashboard.</p>
+       <p style="margin:24px 0"><a href="${esc(activationUrl)}" style="display:inline-block;background:#07152f;color:#ffe4a0;text-decoration:none;padding:13px 22px;border-radius:6px;font-weight:bold">Activate Agent Account</a></p>
+       <p>Once your account is activated, sign in at the Agent Dashboard using the email address this message was sent to.</p>`
+    : `<p>Your PanBill marketplace agent account has been set up successfully. You can access your personal agent dashboard using your existing PanBill account login.</p>
+       <p><strong>Important:</strong> Sign in with the same email address and password you already use for PanBill. No new account or password is required.</p>`;
   const body = `<p>Hello ${agentName},</p>
-    <p>Your appointment as a <strong>${agentType}</strong> has been approved by PanBill.</p>
-    ${accountInstructions}
+    <p>Your PanBill marketplace agent appointment is approved. Your assigned role is <strong>${agentType}</strong>.</p>
+    ${accessLink}
     <p style="margin:24px 0"><a href="${esc(dashboardUrl)}" style="display:inline-block;background:#07152f;color:#ffe4a0;text-decoration:none;padding:13px 22px;border-radius:6px;font-weight:bold">Open Agent Dashboard</a></p>
-    <p>Use your dashboard to view orders assigned to you and update their fulfillment status. Keep your login details private. PanBill agents cannot collect cash or manually confirm customer payments.</p>
-    <p><strong>PanBill Team</strong></p>`;
+    <p>Use your dashboard to view orders assigned to you and update their fulfillment status. Please keep your login details and invitation link private.</p>`;
   return { subject: `${title} — PanBill`, html: emailLayout(title, body) };
 }
 
