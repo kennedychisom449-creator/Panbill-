@@ -679,6 +679,69 @@ Deno.serve(async (req) => {
       return respond({ success: true, payout_profile: data });
     }
 
+    // Seller-only payout wallet summary. This reads the existing per-order payout
+    // ledger; it is deliberately separate from the customer's VTU wallet.
+    if (action === "seller_payout_summary") {
+      const [{ data: profile, error: profileError }] = await Promise.all([
+        adminClient.from("marketplace_seller_payout_profiles")
+          .select("bank_name, account_name, account_number_last4, verification_status, payout_enabled")
+          .eq("seller_id", user.id).maybeSingle(),
+      ]);
+      if (profileError) throw profileError;
+      const rows: any[] = [];
+      // Aggregate the complete seller ledger in pages so balances are not based
+      // only on the most recent 100 records.
+      for (let offset = 0; ; offset += 500) {
+        const { data: page, error: payoutError } = await adminClient.from("marketplace_seller_payouts")
+          .select("id, order_id, gross_amount, platform_fee, net_amount, currency, status, transfer_reference, failure_reason, eligible_at, processed_at, created_at")
+          .eq("seller_id", user.id).order("created_at", { ascending: false }).range(offset, offset + 499);
+        if (payoutError) throw payoutError;
+        rows.push(...(page || []));
+        if (!page || page.length < 500) break;
+      }
+      const sum = (statuses: string[]) => rows.filter((row: any) => statuses.includes(String(row.status)))
+        .reduce((total: number, row: any) => total + Number(row.net_amount || 0), 0);
+      return respond({
+        success: true,
+        currency: "NGN",
+        summary: {
+          pending: sum(["queued", "on_hold"]),
+          processing: sum(["processing", "otp"]),
+          paid: sum(["success"]),
+          failed: sum(["failed", "reversed"]),
+          total_records: rows.length,
+        },
+        payouts: rows.slice(0, 100),
+        payout_profile: profile || null,
+      });
+    }
+
+    // Seller payout request/status check. Never change eligible_at here: doing so
+    // could bypass an existing settlement hold. The original ledger rows remain
+    // under the payout worker's atomic claim and transfer safeguards.
+    if (action === "seller_payout_request") {
+      const { data: profile, error: profileError } = await adminClient.from("marketplace_seller_payout_profiles")
+        .select("verification_status, payout_enabled, recipient_code")
+        .eq("seller_id", user.id).maybeSingle();
+      if (profileError) throw profileError;
+      if (!profile || profile.verification_status !== "verified" || profile.payout_enabled !== true || !profile.recipient_code) {
+        return respond({ success: false, error: "Verify and enable your bank payout account before requesting a payout." }, 400);
+      }
+      const { data: eligible, error: eligibleError } = await adminClient.from("marketplace_seller_payouts")
+        .select("id, net_amount")
+        .eq("seller_id", user.id).eq("status", "queued")
+        .lte("eligible_at", new Date().toISOString());
+      if (eligibleError) throw eligibleError;
+      const count = (eligible || []).length;
+      return respond({
+        success: true,
+        eligible_count: count,
+        message: count
+          ? `${count} eligible seller payout record(s) are already in PanBill's secure payout queue. The existing worker will process them when its automation controls permit. No duplicate payout was created.`
+          : "No seller payout is currently eligible. Pending settlement holds and unfulfilled orders cannot be withdrawn early.",
+      });
+    }
+
     if (action === "social_links_list") {
       const { data, error } = await adminClient.from("marketplace_seller_social_links")
         .select("id, platform, url, is_primary").eq("seller_id", user.id).order("is_primary", { ascending: false });
