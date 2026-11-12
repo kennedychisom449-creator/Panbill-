@@ -388,6 +388,277 @@ main.wrap[data-view="history"] #history-area {
 .seller-current-price{font-size:16px;font-weight:850;color:#f4c96c}.seller-promo-active{display:inline-block;margin:0 0 8px;padding:5px 8px;border-radius:7px;background:#d84a3b;color:#fff;font-size:11px;font-weight:900}.seller-promo-controls{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:end;margin-top:12px;padding:11px;border:1px solid #e9bb5840;border-radius:12px;background:#0b2040}.seller-promo-controls label{display:grid;gap:6px;color:#d5deed;font-size:12px;font-weight:700}.seller-promo-controls input{width:100%;min-width:0;box-sizing:border-box;border:1px solid #ffffff30;border-radius:9px;padding:10px;background:#07152f;color:#fff}.seller-promo-controls button{border:1px solid #ffffff30;background:#102b4c;color:#fff;border-radius:9px;padding:10px 11px;font-weight:750}.seller-promo-controls button.primary{background:#e9b94e;color:#07152f;border:0}.seller-promo-controls button:disabled{opacity:.6}
 @media(max-width:480px){.seller-promo-controls{grid-template-columns:1fr 1fr}.seller-promo-controls label{grid-column:1/-1}}
 </style>
+
+<style id="panbill-seller-admin-layout-v2">
+#seller-dashboard-page{display:block!important;max-width:none!important;width:100%!important;min-height:100vh;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:#0b1424!important;color:#e8eef7!important;box-shadow:none!important;overflow:visible!important}
+#seller-dashboard-page .seller-admin-layout{display:flex;align-items:stretch;min-height:100vh;width:100%;background:#0b1424;color:#e8eef7}
+#seller-dashboard-page .seller-admin-sidebar{width:245px;min-width:245px;min-height:100vh;align-self:stretch;display:flex;flex-direction:column;padding:24px 16px;background:#101d30;border-right:1px solid #263951}
+#seller-dashboard-page .seller-admin-brand{display:flex;align-items:center;gap:11px;padding:0 8px 28px;color:#fff}
+#seller-dashboard-page .seller-admin-brand-icon{width:43px;height:43px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(135deg,#f2c15d,#b98224);color:#142033;font-size:23px;font-weight:900}
+#seller-dashboard-page .seller-admin-brand strong{font-size:21px;display:block}
+#seller-dashboard-page .seller-admin-brand small{display:block;color:#8292a8;font-size:9px;margin-top:4px;letter-spacing:1.3px}
+#seller-dashboard-page .seller-admin-nav-label{color:#71839c;font-size:10px;font-weight:800;letter-spacing:1.5px;padding:13px 12px 9px}
+#seller-dashboard-page .seller-admin-nav{display:flex;flex-direction:column;gap:5px}
+#seller-dashboard-page .seller-admin-nav button{width:100%;display:flex;align-items:center;gap:11px;text-align:left;border:1px solid transparent;border-radius:9px;background:transparent;color:#a9b8ca;padding:13px 12px;font-size:12px;font-weight:700}
+#seller-dashboard-page .seller-admin-nav button span{width:20px;text-align:center;color:#f2c15d;font-size:16px}
+#seller-dashboard-page .seller-admin-nav button:hover,#seller-dashboard-page .seller-admin-nav button.active{background:#1a2b43;border-color:#2c405a;color:#fff}
+#seller-dashboard-page .seller-admin-sidebar-bottom{margin-top:auto;padding:14px 9px 3px;border-top:1px solid #263951;color:#91a2b8;font-size:11px}
+#seller-dashboard-page .seller-admin-online-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#20c997;margin-right:7px}
+#seller-dashboard-page .seller-admin-main{flex:1;min-width:0;display:flex;flex-direction:column;background:#0b1424}
+#seller-dashboard-page .seller-admin-topbar{position:sticky;top:0;z-index:20;min-height:76px;display:flex;align-items:center;justify-content:space-between;gap:15px;padding:15px 30px;background:#0f1b2d;border-bottom:1px solid #263951}
+#seller-dashboard-page .seller-admin-top-title{font-size:18px;font-weight:800;color:#f3f6fb}
+#seller-dashboard-page .seller-admin-top-subtitle{font-size:11px;color:#8292a8;margin-top:5px}
+#seller-dashboard-page .seller-admin-content{width:100%;max-width:1500px;margin:0 auto;padding:27px 30px 48px;min-width:0}
+#seller-dashboard-page .seller-page-head{padding-bottom:18px;margin-bottom:18px;border-bottom:1px solid #263951}
+#seller-dashboard-page .seller-page-head h2{color:#fff}
+#seller-dashboard-page .seller-page-head p{color:#91a2b8}
+#seller-dashboard-page #seller-dashboard-content{width:100%;max-width:none;min-width:0}
+#seller-dashboard-page #seller-dashboard-overview,#seller-dashboard-page #seller-payout-ledger-panel,#seller-dashboard-page #seller-tools>*,#seller-dashboard-page #seller-dispatch-section{max-width:none}
+#seller-dashboard-page .seller-business-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:18px 0 22px}
+#seller-dashboard-page .seller-business-stat{min-width:0;padding:18px;border:1px solid #263951;border-radius:13px;background:#142238;box-shadow:0 8px 22px #0002}
+#seller-dashboard-page .seller-business-stat span{display:block;color:#91a2b8;font-size:10px;font-weight:800;letter-spacing:1px}
+#seller-dashboard-page .seller-business-stat strong{display:block;margin:10px 0 5px;color:#f2c15d;font-size:clamp(22px,3vw,30px);line-height:1.15;overflow-wrap:anywhere}
+#seller-dashboard-page .seller-business-stat small{color:#91a2b8;font-size:11px}
+#seller-dashboard-page .seller-overview-tile,#seller-dashboard-page #seller-payout-ledger-panel,#seller-dashboard-page .seller-tools-head{background:#142238;border-color:#263951}
+#seller-dashboard-page .seller-overview-tile strong,#seller-dashboard-page #seller-payout-ledger-panel h3{color:#f2c15d}
+#seller-dashboard-page .seller-overview-tile small,#seller-dashboard-page #seller-payout-ledger-panel p{color:#a9b8ca}
+#seller-dashboard-page #seller-tools{width:100%;max-width:none}
+#seller-dashboard-page #seller-tools>section,#seller-dashboard-page #seller-tools>form,#seller-dashboard-page #seller-tools>.seller-products-heading,#seller-dashboard-page #seller-tools>.seller-products-list{width:100%;max-width:none}
+#seller-dashboard-page .seller-page-nav[hidden]{display:none!important}
+#seller-dashboard-page button:focus-visible,#seller-dashboard-page a:focus-visible,#seller-dashboard-page input:focus-visible,#seller-dashboard-page select:focus-visible{outline:2px solid #f2c15d;outline-offset:2px}
+@media(max-width:900px){#seller-dashboard-page .seller-admin-sidebar{width:210px;min-width:210px;padding:18px 11px}#seller-dashboard-page .seller-admin-content{padding:22px 18px 40px}#seller-dashboard-page .seller-admin-topbar{padding:14px 18px}}
+@media(max-width:680px){#seller-dashboard-page .seller-admin-layout{display:flex;flex-direction:column;min-height:100vh}#seller-dashboard-page .seller-admin-sidebar{width:100%;min-width:0;min-height:auto;padding:12px 12px 10px;border-right:0;border-bottom:1px solid #263951}#seller-dashboard-page .seller-admin-brand{padding:0 4px 10px}#seller-dashboard-page .seller-admin-brand-icon{width:35px;height:35px;font-size:19px}#seller-dashboard-page .seller-admin-brand strong{font-size:17px}#seller-dashboard-page .seller-admin-nav-label,#seller-dashboard-page .seller-admin-sidebar-bottom{display:none}#seller-dashboard-page .seller-admin-nav{display:flex;flex-direction:row;overflow-x:auto;gap:6px;padding:2px 0 5px;scrollbar-width:thin}#seller-dashboard-page .seller-admin-nav button{width:auto;min-width:max-content;flex-shrink:0;padding:10px 11px;font-size:11px;gap:7px}#seller-dashboard-page .seller-admin-nav button span{width:auto;font-size:14px}#seller-dashboard-page .seller-admin-topbar{position:static;min-height:65px;padding:12px 14px}#seller-dashboard-page .seller-admin-top-title{font-size:15px}#seller-dashboard-page .seller-admin-top-subtitle{font-size:10px}#seller-dashboard-page .seller-admin-content{padding:17px 13px 38px}#seller-dashboard-page .seller-page-head{gap:10px}#seller-dashboard-page .seller-page-head h2{font-size:21px}#seller-dashboard-page .seller-business-stats{grid-template-columns:1fr;gap:9px;margin:13px 0 17px}#seller-dashboard-page .seller-business-stat{padding:14px}#seller-dashboard-page .seller-business-stat strong{font-size:24px;margin:7px 0 3px}#seller-dashboard-page .seller-overview-grid{grid-template-columns:1fr}}
+</style>
+
+<style id="panbill-seller-natural-scroll-v1">
+html:has(main.wrap[data-view="seller-dashboard"]){height:auto;overflow-y:auto}
+body:has(main.wrap[data-view="seller-dashboard"]){height:auto;min-height:100%;overflow-y:auto}
+main.wrap[data-view="seller-dashboard"]{width:100%!important;max-width:none!important;min-height:100vh!important;height:auto!important;margin:0!important;padding:0!important;overflow:visible!important}
+main.wrap[data-view="seller-dashboard"] #seller-dashboard-page{position:relative!important;inset:auto!important;height:auto!important;min-height:100vh!important;overflow:visible!important}
+</style>
+
+<style id="panbill-seller-admin-match-natural-scroll-v3">
+/* Match the real PanBill Admin Console shell while allowing normal document scrolling. */
+html:has(main.wrap[data-view="seller-dashboard"]),
+body:has(main.wrap[data-view="seller-dashboard"]){
+  height:auto!important;
+  min-height:100%!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+}
+body:has(main.wrap[data-view="seller-dashboard"]){min-height:100vh!important}
+main.wrap[data-view="seller-dashboard"]{
+  display:block!important;
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+  height:auto!important;
+  min-height:100vh!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:visible!important;
+}
+main.wrap[data-view="seller-dashboard"]> :not(#seller-dashboard-page){display:none!important}
+main.wrap[data-view="seller-dashboard"] #seller-dashboard-page{display:block!important;visibility:visible!important}
+#seller-dashboard-page:not([hidden]){
+  position:relative!important;
+  inset:auto!important;
+  z-index:auto!important;
+  display:block!important;
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+  height:auto!important;
+  min-height:100vh!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+  background:#0b1424!important;
+  color:#f3f7fc!important;
+}
+#seller-dashboard-page .seller-admin-layout{
+  display:flex!important;
+  align-items:stretch!important;
+  width:100%!important;
+  min-height:100vh!important;
+  height:auto!important;
+  overflow:visible!important;
+  background:#0b1424!important;
+  color:#f3f7fc!important;
+}
+#seller-dashboard-page .seller-admin-sidebar{
+  position:relative!important;
+  inset:auto!important;
+  flex:0 0 245px!important;
+  width:245px!important;
+  min-width:245px!important;
+  min-height:100vh!important;
+  height:auto!important;
+  max-height:none!important;
+  overflow:visible!important;
+  padding:24px 16px!important;
+  background:#101d31!important;
+  border-right:1px solid #263951!important;
+}
+#seller-dashboard-page .seller-admin-main{
+  flex:1 1 auto!important;
+  display:flex!important;
+  flex-direction:column!important;
+  min-width:0!important;
+  min-height:100vh!important;
+  height:auto!important;
+  overflow:visible!important;
+  background:#0b1424!important;
+}
+#seller-dashboard-page .seller-admin-topbar{
+  position:relative!important;
+  inset:auto!important;
+  flex:0 0 auto!important;
+  min-height:76px!important;
+  padding:15px 30px!important;
+  background:#0f1b2d!important;
+  border-bottom:1px solid #263951!important;
+}
+#seller-dashboard-page .seller-admin-top-title{color:#f3f7fc!important;font-size:18px!important;font-weight:750!important}
+#seller-dashboard-page .seller-admin-top-subtitle{color:#93a4ba!important}
+#seller-dashboard-page .seller-admin-content{
+  flex:1 0 auto!important;
+  width:100%!important;
+  max-width:1500px!important;
+  min-width:0!important;
+  height:auto!important;
+  max-height:none!important;
+  margin:0 auto!important;
+  padding:27px 30px 48px!important;
+  overflow:visible!important;
+}
+#seller-dashboard-page #seller-dashboard-content{
+  display:block!important;
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+  min-height:0!important;
+  height:auto!important;
+  max-height:none!important;
+  padding:0!important;
+  overflow:visible!important;
+  overscroll-behavior:auto!important;
+}
+#seller-dashboard-page #seller-dashboard-overview,
+#seller-dashboard-page #seller-payout-ledger-panel,
+#seller-dashboard-page #seller-tools>section,
+#seller-dashboard-page #seller-tools>form,
+#seller-dashboard-page #seller-dispatch-section{
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+}
+#seller-dashboard-page .seller-business-stats{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:15px!important;
+  margin:18px 0 22px!important;
+}
+#seller-dashboard-page .seller-business-stat{
+  min-width:0!important;
+  padding:18px!important;
+  border:1px solid #263951!important;
+  border-radius:12px!important;
+  background:#142238!important;
+}
+#seller-dashboard-page .seller-business-stat span{color:#93a4ba!important}
+#seller-dashboard-page .seller-business-stat strong{color:#f5c451!important;overflow-wrap:anywhere}
+#seller-dashboard-page .seller-business-stat small{color:#93a4ba!important}
+#seller-dashboard-page .seller-overview-tile,
+#seller-dashboard-page #seller-payout-ledger-panel,
+#seller-dashboard-page .seller-tools-head{
+  background:#142238!important;
+  border-color:#263951!important;
+}
+#seller-dashboard-page .seller-admin-nav button.active,
+#seller-dashboard-page .seller-admin-nav button[aria-current="page"]{
+  background:#183b3b!important;
+  border-color:#245747!important;
+  color:#39d9a3!important;
+}
+#seller-dashboard-page .seller-admin-nav button:hover{background:#183b3b!important;color:#39d9a3!important}
+#seller-dashboard-page .seller-page-nav{display:none!important}
+#seller-dashboard-page #seller-tools{width:100%!important;max-width:none!important;overflow:visible!important}
+#seller-dashboard-page #seller-tools>section,
+#seller-dashboard-page #seller-tools>form,
+#seller-dashboard-page #seller-tools>.seller-products-heading,
+#seller-dashboard-page #seller-tools>.seller-products-list{width:100%!important;max-width:none!important}
+#seller-dashboard-page .seller-payout-table-wrap{max-width:100%!important;overflow-x:auto!important}
+#seller-dashboard-page button:focus-visible,
+#seller-dashboard-page a:focus-visible,
+#seller-dashboard-page input:focus-visible,
+#seller-dashboard-page select:focus-visible,
+#seller-dashboard-page textarea:focus-visible{outline:2px solid #f5c451!important;outline-offset:2px}
+@media(max-width:1050px){
+  #seller-dashboard-page .seller-admin-content{padding:22px 20px 40px!important}
+  #seller-dashboard-page .seller-business-stats{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:700px){
+  #seller-dashboard-page .seller-admin-layout{display:block!important;min-height:100vh!important;height:auto!important}
+  #seller-dashboard-page .seller-admin-sidebar{
+    display:flex!important;
+    width:100%!important;
+    min-width:0!important;
+    min-height:0!important;
+    height:auto!important;
+    padding:12px!important;
+    border-right:0!important;
+    border-bottom:1px solid #263951!important;
+  }
+  #seller-dashboard-page .seller-admin-brand{padding:0 5px 10px!important}
+  #seller-dashboard-page .seller-admin-brand-icon{width:35px!important;height:35px!important;font-size:19px!important}
+  #seller-dashboard-page .seller-admin-brand strong{font-size:18px!important}
+  #seller-dashboard-page .seller-admin-brand small{font-size:9px!important}
+  #seller-dashboard-page .seller-admin-nav-label,
+  #seller-dashboard-page .seller-admin-sidebar-bottom{display:none!important}
+  #seller-dashboard-page .seller-admin-nav{
+    display:flex!important;
+    flex-direction:row!important;
+    width:100%!important;
+    min-width:0!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    gap:5px!important;
+    padding:2px 0 5px!important;
+    scrollbar-width:thin;
+  }
+  #seller-dashboard-page .seller-admin-nav button{
+    flex:0 0 auto!important;
+    width:auto!important;
+    min-width:max-content!important;
+    padding:10px 11px!important;
+    font-size:11px!important;
+    gap:7px!important;
+    white-space:nowrap!important;
+  }
+  #seller-dashboard-page .seller-admin-main{min-height:0!important;height:auto!important;overflow:visible!important}
+  #seller-dashboard-page .seller-admin-topbar{min-height:65px!important;padding:13px 15px!important}
+  #seller-dashboard-page .seller-admin-top-title{font-size:15px!important}
+  #seller-dashboard-page .seller-admin-top-subtitle{font-size:10px!important}
+  #seller-dashboard-page .seller-admin-content{padding:19px 13px 40px!important}
+  #seller-dashboard-page .seller-business-stats{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;margin:13px 0 17px!important}
+  #seller-dashboard-page .seller-business-stat{padding:13px!important}
+  #seller-dashboard-page .seller-business-stat strong{font-size:22px!important}
+  #seller-dashboard-page .seller-overview-grid{grid-template-columns:1fr!important}
+  #seller-dashboard-page .seller-wallet-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #seller-dashboard-page #seller-tools{overflow:visible!important}
+}
+@media(max-width:420px){
+  #seller-dashboard-page .seller-business-stats{grid-template-columns:1fr!important}
+  #seller-dashboard-page .seller-wallet-grid{grid-template-columns:1fr 1fr!important}
+}
+</style>
+
 </head><body>
 <div aria-label="PanBill is loading" aria-live="polite" id="panbill-loading-screen" role="status"><div aria-hidden="true" class="panbill-loader-mark">P</div><div class="panbill-loader-name">PanBill</div><div class="panbill-loader-caption">One app. All your bills.</div><div aria-hidden="true" class="panbill-loader-ring"></div></div>
 <header class="app-header"><div class="brand"><span class="brand-mark">P</span> PanBill</div><div class="header-actions"><span class="muted" hidden="" id="header-user" style="font-size:12px"></span><button class="pill" id="settings-top-button" type="button" aria-label="Open Settings">⚙ Settings</button><button aria-hidden="true" class="pill" hidden="" id="logout-button" type="button">Log out</button></div></header>
@@ -612,7 +883,17 @@ $('open-account').onclick=()=>{if(!currentSession){$('auth-overlay').hidden=fals
 $('account-settings-form').addEventListener('submit',async e=>{e.preventDefault();if(!authClient||!currentSession){message($('account-settings-message'),'Please sign in before saving your details.',true);return}const fullName=$('settings-full-name').value.trim();const phone=$('settings-phone').value.trim();if(fullName.length<2){message($('account-settings-message'),'Please enter your full name.',true);return}if(phone&&!/^[+0-9()\s.-]{7,25}$/.test(phone)){message($('account-settings-message'),'Please enter a valid phone number.',true);return}const button=$('save-account-settings');button.disabled=true;message($('account-settings-message'),'Saving your account details…');try{const existing=currentSession.user.user_metadata||{};const {data,error}=await authClient.auth.updateUser({data:{...existing,full_name:fullName,phone_number:phone}});if(error)throw error;if(!data?.user)throw new Error('The updated account details were not returned.');currentSession={...currentSession,user:data.user};const firstName=fullName.split(/\s+/)[0];const hour=new Date().getHours();const greeting=hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';$('greeting').replaceChildren(document.createTextNode(greeting+(firstName?', '+firstName:'')+' '));const greetingSpark=document.createElement('span');greetingSpark.className='greeting-spark';greetingSpark.setAttribute('aria-hidden','true');greetingSpark.textContent='✦';$('greeting').append(greetingSpark);message($('account-settings-message'),'Your account details have been saved.')}catch(err){message($('account-settings-message'),err.message||'Could not save your account details.',true)}finally{button.disabled=false}});
 $('logout-button').onclick=async()=>{if(authClient)await authClient.auth.signOut()};async function marketplaceSellerRequest(body){if(!authClient)throw Error('PanBill authentication is not ready. Refresh the page and sign in again.');const sessionResult=await authClient.auth.getSession();if(sessionResult.error)throw Error(sessionResult.error.message||'Could not confirm your PanBill login session.');const session=sessionResult.data?.session;if(!session?.access_token)throw Error('Your PanBill login session has expired. Please sign out and sign in again.');currentSession=session;const result=await authClient.functions.invoke('marketplace-seller',{body,headers:{Authorization:`Bearer ${session.access_token}`}});if(result.error){let detail='';try{detail=await result.error.context?.json?.().then(x=>x.error||x.message||'').catch(()=> '')}catch{}throw Error(detail||result.data?.error||result.error.message||'Seller service request failed.')}if(result.data?.success===false)throw Error(result.data.error||'Seller request could not be completed.');return result.data||{}}
 let sellerCodOrdersLoadPromise=null;
-function loadSellerCodOrders(){if(sellerCodOrdersLoadPromise)return sellerCodOrdersLoadPromise;sellerCodOrdersLoadPromise=(async()=>{const list=$('seller-cod-orders-list');if(!list||!currentSession)return;list.replaceChildren();$('seller-cod-message').textContent='Loading COD orders…';try{const data=await marketplaceSellerRequest({action:'seller_cod_orders_list'});const items=data.items||[];if(!items.length){const p=document.createElement('p');p.className='muted';p.textContent='No Cash on Delivery orders yet.';list.append(p)}const grouped=new Map();for(const item of items){const order=item.marketplace_orders||{};if(!grouped.has(item.order_id))grouped.set(item.order_id,{order,items:[]});grouped.get(item.order_id).items.push(item)}for(const [orderId,entry] of grouped){const order=entry.order;const card=document.createElement('article');card.className='seller-product-card';const heading=document.createElement('h4');heading.textContent='Order '+(order.order_number||orderId);const detail=document.createElement('p');detail.className='muted';detail.textContent='₦'+Number(order.total_amount||0).toLocaleString('en-NG')+' · '+(order.delivery_method==='pickup_point'?'Pickup centre':'Doorstep')+' · '+(order.delivery_payment_status||'pending').replaceAll('_',' ');const products=document.createElement('p');products.textContent=entry.items.map(x=>(x.product_name||'Product')+' × '+x.quantity).join(', ');const buyer=document.createElement('p');buyer.className='muted';buyer.textContent=(order.delivery_name||'Buyer')+' · '+(order.delivery_phone||'No phone')+' · '+[order.delivery_address,order.delivery_city,order.delivery_lga,order.delivery_state].filter(Boolean).join(', ');card.append(heading,detail,products,buyer);if(order.delivery_notes){const notes=document.createElement('p');notes.className='muted';notes.textContent='Instructions: '+order.delivery_notes;card.append(notes)}if(order.payment_status==='pending'&&order.delivery_payment_status==='pending'){const controls=document.createElement('div');controls.className='seller-product-actions';for(const [outcome,label] of [['collected','Confirm cash collected'],['refused','Buyer refused payment'],['delivery_failed','Delivery failed'],['seller_cancelled','Seller cancelled']]){const b=document.createElement('button');b.type='button';b.textContent=label;b.onclick=async()=>{let reason=prompt(outcome==='collected'?'Confirm the cash amount was received. Enter a brief note:':'Enter the reason for this outcome (minimum 5 characters):',outcome==='collected'?'Cash received in full':'');if(reason===null)return;if(reason.trim().length<5){$('seller-cod-message').textContent='Please enter a reason of at least 5 characters.';return}if(outcome==='refused'&&!confirm('Confirm that the buyer personally refused to pay? This will block their future Cash on Delivery access.'))return;if(outcome==='collected'&&!confirm('Confirm cash has actually been received in full? The order will be marked paid and delivered.'))return;b.disabled=true;try{await marketplaceSellerRequest({action:'seller_cod_record_outcome',order_id:orderId,outcome,reason:reason.trim()});$('seller-cod-message').textContent='Order outcome recorded successfully.';await loadSellerCodOrders()}catch(e){$('seller-cod-message').textContent=e.message||'Could not record the order outcome.';b.disabled=false}};controls.append(b)}card.append(controls)}list.append(card)}$('seller-cod-message').textContent='COD orders loaded.'}catch(error){$('seller-cod-message').textContent=error.message||'Could not load COD orders.'}finally{sellerCodOrdersLoadPromise=null}})();return sellerCodOrdersLoadPromise}
+const panbillSellerMetricSources={physical:new Map(),cod:new Map()};
+function updatePanbillSellerSalesMetrics(){
+ const combined=new Map(panbillSellerMetricSources.physical);for(const [id,sale] of panbillSellerMetricSources.cod){if(!combined.has(id))combined.set(id,sale);}
+ let count=0,amount=0;
+ for(const sale of combined.values()){count++;amount+=Number(sale.amount||0)}
+ const salesEl=document.getElementById('seller-stat-sales'),revenueEl=document.getElementById('seller-stat-revenue');
+ if(salesEl)salesEl.textContent=count.toLocaleString('en-NG');
+ if(revenueEl)revenueEl.textContent='₦'+amount.toLocaleString('en-NG',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function recordPanbillSellerProductCount(products){const el=document.getElementById('seller-stat-products');if(el)el.textContent=(Array.isArray(products)?products.length:0).toLocaleString('en-NG')}
+function loadSellerCodOrders(){if(sellerCodOrdersLoadPromise)return sellerCodOrdersLoadPromise;sellerCodOrdersLoadPromise=(async()=>{const list=$('seller-cod-orders-list');if(!list||!currentSession)return;list.replaceChildren();$('seller-cod-message').textContent='Loading COD orders…';try{const data=await marketplaceSellerRequest({action:'seller_cod_orders_list'});const items=data.items||[];if(!items.length){const p=document.createElement('p');p.className='muted';p.textContent='No Cash on Delivery orders yet.';list.append(p)}const grouped=new Map();for(const item of items){const order=item.marketplace_orders||{};if(!grouped.has(item.order_id))grouped.set(item.order_id,{order,items:[]});grouped.get(item.order_id).items.push(item)}panbillSellerMetricSources.cod.clear();for(const [orderId,entry] of grouped){const paid=entry.order?.payment_status==='paid'||entry.order?.delivery_payment_status==='collected';if(paid){const productTotal=entry.items.reduce((sum,item)=>sum+Number(item.line_total||0),0);panbillSellerMetricSources.cod.set(String(orderId),{amount:productTotal||Number(entry.order?.total_amount||0)});}}updatePanbillSellerSalesMetrics();for(const [orderId,entry] of grouped){const order=entry.order;const card=document.createElement('article');card.className='seller-product-card';const heading=document.createElement('h4');heading.textContent='Order '+(order.order_number||orderId);const detail=document.createElement('p');detail.className='muted';detail.textContent='₦'+Number(order.total_amount||0).toLocaleString('en-NG')+' · '+(order.delivery_method==='pickup_point'?'Pickup centre':'Doorstep')+' · '+(order.delivery_payment_status||'pending').replaceAll('_',' ');const products=document.createElement('p');products.textContent=entry.items.map(x=>(x.product_name||'Product')+' × '+x.quantity).join(', ');const buyer=document.createElement('p');buyer.className='muted';buyer.textContent=(order.delivery_name||'Buyer')+' · '+(order.delivery_phone||'No phone')+' · '+[order.delivery_address,order.delivery_city,order.delivery_lga,order.delivery_state].filter(Boolean).join(', ');card.append(heading,detail,products,buyer);if(order.delivery_notes){const notes=document.createElement('p');notes.className='muted';notes.textContent='Instructions: '+order.delivery_notes;card.append(notes)}if(order.payment_status==='pending'&&order.delivery_payment_status==='pending'){const controls=document.createElement('div');controls.className='seller-product-actions';for(const [outcome,label] of [['collected','Confirm cash collected'],['refused','Buyer refused payment'],['delivery_failed','Delivery failed'],['seller_cancelled','Seller cancelled']]){const b=document.createElement('button');b.type='button';b.textContent=label;b.onclick=async()=>{let reason=prompt(outcome==='collected'?'Confirm the cash amount was received. Enter a brief note:':'Enter the reason for this outcome (minimum 5 characters):',outcome==='collected'?'Cash received in full':'');if(reason===null)return;if(reason.trim().length<5){$('seller-cod-message').textContent='Please enter a reason of at least 5 characters.';return}if(outcome==='refused'&&!confirm('Confirm that the buyer personally refused to pay? This will block their future Cash on Delivery access.'))return;if(outcome==='collected'&&!confirm('Confirm cash has actually been received in full? The order will be marked paid and delivered.'))return;b.disabled=true;try{await marketplaceSellerRequest({action:'seller_cod_record_outcome',order_id:orderId,outcome,reason:reason.trim()});$('seller-cod-message').textContent='Order outcome recorded successfully.';await loadSellerCodOrders()}catch(e){$('seller-cod-message').textContent=e.message||'Could not record the order outcome.';b.disabled=false}};controls.append(b)}card.append(controls)}list.append(card)}$('seller-cod-message').textContent='COD orders loaded.'}catch(error){$('seller-cod-message').textContent=error.message||'Could not load COD orders.'}finally{sellerCodOrdersLoadPromise=null}})();return sellerCodOrdersLoadPromise}
 function setSellerMessage(text,type=''){const el=$('seller-application-message');el.textContent=text||'';el.className='seller-status'+(type?' '+type:'')}
 // Nigeria administrative divisions (37 states/FCT and 774 LGAs). Loaded once and cached in memory.
 let nigeriaLgaIndex=null;
@@ -641,6 +922,13 @@ async function loadSellerOrders(){
    if(!grouped.has(key))grouped.set(key,{id:key,order,items:[],update:item.seller_update||null});
    const group=grouped.get(key);group.items.push(item);if(!group.update&&item.seller_update)group.update=item.seller_update;
   }
+  panbillSellerMetricSources.physical.clear();
+  for(const group of grouped.values()){
+   const order=group.order||{};
+   const paid=order.payment_status==='paid'||order.delivery_payment_status==='collected';
+   if(paid){const lineTotal=group.items.reduce((sum,item)=>sum+Number(item.line_total||0),0);panbillSellerMetricSources.physical.set(String(group.id),{amount:lineTotal||Number(order.total_amount||0)});}
+  }
+  updatePanbillSellerSalesMetrics();
   if(!grouped.size){const empty=document.createElement('p');empty.className='muted';empty.textContent='No physical marketplace orders yet.';list.append(empty);$('seller-orders-message').textContent='Orders refreshed.';return;}
   const money=value=>'₦'+Number(value||0).toLocaleString('en-NG',{minimumFractionDigits:2,maximumFractionDigits:2});
   for(const group of grouped.values()){
@@ -687,6 +975,7 @@ $('seller-product-type').addEventListener('change',()=>{const digital=$('seller-
 function setSellerProductMessage(text,type=''){const el=$('seller-product-message');el.textContent=text||'';el.className='seller-status'+(type?' '+type:'')}
 async function loadSellerCategories(){const select=$('seller-product-category');if(!select||select.dataset.loaded==='yes')return;try{const data=await marketplaceSellerRequest({action:'categories'});for(const category of data.categories||[]){const option=document.createElement('option');option.value=category.id;option.textContent=category.name;select.append(option)}select.dataset.loaded='yes'}catch(error){setSellerProductMessage(error.message||'Could not load categories.','error')}}
 function renderSellerProducts(products){
+ recordPanbillSellerProductCount(products);
  const list=$('seller-products-list');list.replaceChildren();$('seller-product-count').textContent=(products.length||0)+' product(s)';
  if(!products.length){const p=document.createElement('p');p.className='muted';p.textContent='You have not added any products yet.';list.append(p);return}
  for(const product of products){
@@ -1674,21 +1963,31 @@ main.wrap:not([data-view="seller-dashboard"]) #seller-dashboard-page{display:non
  dashboard.hidden=true;
  dashboard.setAttribute('aria-labelledby','seller-dashboard-title');
  dashboard.innerHTML=`
-  <div class="seller-page-head">
-   <div><div class="eyebrow">PANBILL MARKETPLACE</div><h2 id="seller-dashboard-title">Seller Dashboard</h2><p>Manage your store, orders, dispatch details and verified bank payout settings.</p></div>
-   <button class="outline-btn" id="seller-dashboard-back-market" type="button">← Marketplace</button>
-  </div>
-  <nav class="seller-page-nav" aria-label="Seller dashboard navigation">
-   <button type="button" data-seller-target="seller-dashboard-overview">Overview</button>
-   <button type="button" data-seller-target="seller-products-list">My Products</button>
-   <button type="button" data-seller-target="seller-product-form">Add Product</button>
-   <button type="button" data-seller-target="seller-physical-orders-panel">Sales &amp; Orders</button>
-   <button type="button" data-seller-target="seller-payout-ledger-panel">Seller Payouts</button>
-   <button type="button" data-seller-target="seller-payout-settings">Bank &amp; Settings</button>
-  </nav>
+  <div class="seller-admin-layout">
+   <aside class="seller-admin-sidebar" aria-label="Seller dashboard sidebar">
+    <div class="seller-admin-brand"><span class="seller-admin-brand-icon">P</span><span><strong>PanBill</strong><small>SELLER WORKSPACE</small></span></div>
+    <div class="seller-admin-nav-label">STORE MANAGEMENT</div>
+    <nav class="seller-admin-nav" aria-label="Seller dashboard navigation">
+     <button type="button" class="active" data-seller-target="seller-dashboard-overview"><span>▦</span> Overview</button>
+     <button type="button" data-seller-target="seller-products-list"><span>▣</span> My Products</button>
+     <button type="button" data-seller-target="seller-product-form"><span>＋</span> Add Product</button>
+     <button type="button" data-seller-target="seller-physical-orders-panel"><span>⇄</span> Sales &amp; Orders</button>
+     <button type="button" data-seller-target="seller-payout-ledger-panel"><span>₦</span> Seller Payouts</button>
+     <button type="button" data-seller-target="seller-payout-settings"><span>⚙</span> Bank &amp; Settings</button>
+    </nav>
+    <div class="seller-admin-sidebar-bottom"><span class="seller-admin-online-dot"></span> Seller workspace</div>
+   </aside>
+   <main class="seller-admin-main">
+    <header class="seller-admin-topbar"><div><div class="seller-admin-top-title" id="seller-dashboard-title">Seller Dashboard</div><div class="seller-admin-top-subtitle">PanBill marketplace business overview</div></div><button class="outline-btn" id="seller-dashboard-back-market" type="button">← Marketplace</button></header>
+    <div class="seller-admin-content">
   <div id="seller-dashboard-content">
   <section id="seller-dashboard-overview" class="panel" style="margin:12px 0;padding:16px;background:#0b1d3a;border:1px solid #ffffff20;border-radius:14px">
    <div class="eyebrow">YOUR BUSINESS</div><h3 style="margin:5px 0">Store overview</h3>
+   <div class="seller-business-stats" aria-label="Store performance summary">
+    <article class="seller-business-stat"><span>TOTAL PRODUCTS</span><strong id="seller-stat-products">—</strong><small>Products in your catalogue</small></article>
+    <article class="seller-business-stat"><span>TOTAL SALES</span><strong id="seller-stat-sales">—</strong><small>Paid physical and collected COD orders</small></article>
+    <article class="seller-business-stat"><span>AMOUNT MADE FROM SALES</span><strong id="seller-stat-revenue">₦—</strong><small>Confirmed physical product value</small></article>
+   </div>
    <div class="seller-overview-grid">
     <div class="seller-overview-tile"><strong>Product catalogue</strong><small>Manage listings, stock and product details in My Products.</small></div>
     <div class="seller-overview-tile"><strong>Sales &amp; fulfilment</strong><small>Review physical orders and confirm eligible delivery outcomes in your order workspace.</small></div>
@@ -1707,6 +2006,9 @@ main.wrap:not([data-view="seller-dashboard"]) #seller-dashboard-page{display:non
    <div class="seller-payout-table-wrap"><table class="seller-payout-table"><thead><tr><th>Date</th><th>Order</th><th>Gross</th><th>Fee</th><th>Net</th><th>Status</th></tr></thead><tbody id="seller-payout-history"><tr><td colspan="6">Loading…</td></tr></tbody></table></div>
    <p class="seller-payout-safety">A payout request only advances already-queued earnings for the existing payout worker. It does not create a second payout or send an instant transfer. Bank verification and the worker's existing safety controls still apply.</p>
   </section>
+  </div>
+    </div>
+   </main>
   </div>`;
  const appHead=document.createElement('div');
  appHead.className='seller-page-head';
@@ -1791,7 +2093,7 @@ main.wrap:not([data-view="seller-dashboard"]) #seller-dashboard-page{display:non
   }
   setView('seller-dashboard');
   showSellerTab(target||'seller-dashboard-overview');
-  if(!target)loadSellerPayoutWallet();
+  dashboard.scrollIntoView({behavior:'smooth',block:'start'});
  }
  // Capture legacy seller entry points so they open dedicated pages instead of the old embedded panel.
  const legacyApply=document.getElementById('open-become-seller');
@@ -1803,12 +2105,16 @@ main.wrap:not([data-view="seller-dashboard"]) #seller-dashboard-page{display:non
  document.getElementById('seller-application-back-market')?.addEventListener('click',()=>setView('market'));
  document.getElementById('seller-dashboard-back-market')?.addEventListener('click',()=>setView('market'));
  function showSellerTab(target){
+  dashboard.querySelectorAll('.seller-admin-nav [data-seller-target]').forEach(button=>button.classList.toggle('active',button.dataset.sellerTarget===target));
   const content=dashboard.querySelector('#seller-dashboard-content');
   const toolsEl=document.getElementById('seller-tools');
   const ids=['seller-dashboard-overview','seller-payout-ledger-panel','seller-dispatch-section','seller-product-form','seller-products-list','seller-physical-orders-panel','seller-cod-orders-panel','seller-payout-settings','seller-social-settings'];
   ids.forEach(id=>{const el=document.getElementById(id);if(el)el.hidden=true;});
   if(toolsEl){toolsEl.hidden=false;Array.from(toolsEl.children).forEach(el=>{el.hidden=true;});}
   const show=id=>{const el=document.getElementById(id);if(el)el.hidden=false;};
+  if(target==='seller-dashboard-overview'){
+   if(panbillSellerStatus==='approved'){loadSellerProducts();loadSellerOrders();loadSellerCodOrders();loadSellerPayoutWallet();}
+  }
   if(target==='seller-products-list'){
    const head=toolsEl?.querySelector('.seller-tools-head');if(head)head.hidden=false;
    show('seller-products-list');const list=document.getElementById('seller-products-list');if(list?.previousElementSibling?.classList.contains('seller-products-heading'))list.previousElementSibling.hidden=false;
@@ -1821,7 +2127,7 @@ main.wrap:not([data-view="seller-dashboard"]) #seller-dashboard-page{display:non
   if(target==='seller-payout-ledger-panel')loadSellerPayoutWallet();
   if(content)content.scrollTop=0;
  }
- dashboard.querySelectorAll('[data-seller-target]').forEach(button=>button.addEventListener('click',()=>showSellerTab(button.getAttribute('data-seller-target'))));
+ dashboard.querySelectorAll('[data-seller-target]').forEach(button=>button.addEventListener('click',()=>{const target=button.getAttribute('data-seller-target');showSellerTab(target);if(target==='seller-products-list')loadSellerProducts();if(target==='seller-physical-orders-panel'){loadSellerOrders();loadSellerCodOrders()}if(target==='seller-payout-ledger-panel')loadSellerPayoutWallet();}));
  async function loadSellerPayoutWallet(){
   const note=document.getElementById('seller-payout-ledger-note');
   const body=document.getElementById('seller-payout-history');
