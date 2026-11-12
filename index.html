@@ -433,7 +433,6 @@ main.wrap[data-view="history"] #history-area {
  <div class="marketplace-settings-heading"><div><div class="eyebrow">MARKETPLACE ACCOUNT</div><h3 id="marketplace-settings-title">Marketplace Settings</h3><p>Manage your seller access and product listings.</p></div><button class="outline-btn" id="marketplace-settings-close" type="button">Back to Marketplace</button></div>
  <div class="marketplace-settings-actions">
   <button class="marketplace-settings-action" id="marketplace-settings-become-seller" type="button"><span class="marketplace-settings-icon" aria-hidden="true">♙</span><span><strong>Become a Seller</strong><small>Apply for a PanBill seller account and get your business reviewed.</small></span><span aria-hidden="true" class="settings-chevron">›</span></button>
-  <button class="marketplace-settings-action" id="marketplace-settings-add-product" type="button"><span class="marketplace-settings-icon" aria-hidden="true">＋</span><span><strong>Add a Product</strong><small>Open your existing product listing tools. Seller approval is required.</small></span><span aria-hidden="true" class="settings-chevron">›</span></button>
  </div>
 </section>
 <div class="jm-market-topline"><span>Welcome to PanBill Marketplace</span><span>Shop from approved PanBill sellers</span></div>
@@ -1568,10 +1567,6 @@ main.wrap { padding-bottom: 24px !important; }
   setOpen(false);
   document.getElementById('open-become-seller')?.click();
  });
- document.getElementById('marketplace-settings-add-product')?.addEventListener('click',()=>{
-  setOpen(false);
-  document.getElementById('open-add-product')?.click();
- });
 })();
 </script>
 
@@ -1643,6 +1638,28 @@ main.wrap[data-view="seller-dashboard"] #seller-dashboard-page{display:block!imp
 main.wrap:not([data-view="seller-apply"]) #seller-marketplace-panel{display:none!important}
 main.wrap:not([data-view="seller-dashboard"]) #seller-dashboard-page{display:none!important}
 @media(max-width:700px){#seller-marketplace-panel,#seller-dashboard-page{margin:12px 0;padding:14px;border-radius:15px}.seller-overview-grid{grid-template-columns:1fr}.seller-page-nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.seller-page-nav button{min-width:0}}
+
+/* Seller workspace: fixed dashboard shell with tab-switched content. */
+#marketplace-settings-add-product{display:none!important}
+#seller-dashboard-page{height:calc(100dvh - 28px);max-height:calc(100dvh - 28px);display:flex;flex-direction:column;overflow:hidden}
+#seller-dashboard-page .seller-page-head{flex:0 0 auto;margin-bottom:10px}
+#seller-dashboard-page .seller-page-nav{flex:0 0 auto;margin:4px 0 10px}
+#seller-dashboard-content{flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;padding:2px 3px 12px}
+#seller-dashboard-page .seller-wallet-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+#seller-dashboard-page .seller-wallet-head h3{margin:0;color:#ffe4a0}
+#seller-dashboard-page .seller-wallet-head p{margin:5px 0;color:#c2cde0;font-size:12px}
+#seller-dashboard-page .seller-wallet-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:14px 0}
+#seller-dashboard-page .seller-wallet-card{background:#10264a;border:1px solid #ffffff20;border-radius:12px;padding:13px}
+#seller-dashboard-page .seller-wallet-card small{display:block;color:#c2cde0;font-size:11px}
+#seller-dashboard-page .seller-wallet-card strong{display:block;color:#fff;font-size:19px;margin-top:6px}
+#seller-dashboard-page .seller-payout-table-wrap{max-width:100%;overflow-x:auto}
+#seller-dashboard-page .seller-payout-table{width:100%;border-collapse:collapse;font-size:12px;color:#fff}
+#seller-dashboard-page .seller-payout-table th,#seller-dashboard-page .seller-payout-table td{padding:9px 8px;border-bottom:1px solid #ffffff18;text-align:left;white-space:nowrap}
+#seller-dashboard-page .seller-payout-table th{color:#ffe4a0}
+#seller-dashboard-page .seller-payout-safety{font-size:11px;color:#aebbd0}
+#seller-dashboard-page .seller-page-nav button[aria-current="page"]{background:#f2c15d;color:#07152f;border-color:#f2c15d}
+@media(max-width:700px){#seller-dashboard-page{height:calc(100dvh - 16px);max-height:calc(100dvh - 16px);margin:8px 0;padding:12px}#seller-dashboard-page .seller-wallet-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#seller-dashboard-page .seller-wallet-card strong{font-size:17px}}
+
 </style>
 <script id="panbill-dedicated-seller-pages-v1-script">
 (()=>{
@@ -1669,6 +1686,7 @@ main.wrap:not([data-view="seller-dashboard"]) #seller-dashboard-page{display:non
    <button type="button" data-seller-target="seller-payout-ledger-panel">Seller Payouts</button>
    <button type="button" data-seller-target="seller-payout-settings">Bank &amp; Settings</button>
   </nav>
+  <div id="seller-dashboard-content">
   <section id="seller-dashboard-overview" class="panel" style="margin:12px 0;padding:16px;background:#0b1d3a;border:1px solid #ffffff20;border-radius:14px">
    <div class="eyebrow">YOUR BUSINESS</div><h3 style="margin:5px 0">Store overview</h3>
    <div class="seller-overview-grid">
@@ -1678,11 +1696,18 @@ main.wrap:not([data-view="seller-dashboard"]) #seller-dashboard-page{display:non
    </div>
   </section>
   <section id="seller-payout-ledger-panel" aria-labelledby="seller-payout-ledger-title">
-   <h3 id="seller-payout-ledger-title">Seller earnings &amp; payouts</h3>
-   <p>PanBill records gross sales, platform fees, net payout amounts and payout status in its seller payout ledger when an eligible order is fulfilled and paid.</p>
-   <p><strong>Automatic payouts:</strong> Eligible payouts are processed to your verified bank recipient under PanBill's existing payout workflow.</p>
-   <p id="seller-payout-ledger-note">The current seller interface does not expose a seller-specific payout balance/history endpoint or a seller-initiated withdrawal action. For accuracy and payment safety, this page does not display invented balances or offer an unsupported withdrawal button. Your existing buyer wallet remains separate.</p>
-  </section>`;
+   <div class="seller-wallet-head"><div><h3 id="seller-payout-ledger-title">Seller wallet &amp; payouts</h3><p>Marketplace seller earnings only. This is separate from your VTU/customer wallet.</p></div><button class="gold-btn" id="seller-payout-request" type="button">Request payout</button></div>
+   <div class="seller-wallet-grid">
+    <div class="seller-wallet-card"><small>Pending payout</small><strong id="seller-wallet-pending">₦0.00</strong></div>
+    <div class="seller-wallet-card"><small>Processing</small><strong id="seller-wallet-processing">₦0.00</strong></div>
+    <div class="seller-wallet-card"><small>Total paid</small><strong id="seller-wallet-paid">₦0.00</strong></div>
+    <div class="seller-wallet-card"><small>Failed / reversed</small><strong id="seller-wallet-failed">₦0.00</strong></div>
+   </div>
+   <p id="seller-payout-ledger-note" role="status" aria-live="polite">Loading your seller payout history…</p>
+   <div class="seller-payout-table-wrap"><table class="seller-payout-table"><thead><tr><th>Date</th><th>Order</th><th>Gross</th><th>Fee</th><th>Net</th><th>Status</th></tr></thead><tbody id="seller-payout-history"><tr><td colspan="6">Loading…</td></tr></tbody></table></div>
+   <p class="seller-payout-safety">A payout request only advances already-queued earnings for the existing payout worker. It does not create a second payout or send an instant transfer. Bank verification and the worker's existing safety controls still apply.</p>
+  </section>
+  </div>`;
  const appHead=document.createElement('div');
  appHead.className='seller-page-head';
  appHead.innerHTML='<div><div class="eyebrow">PANBILL MARKETPLACE</div><h2>Become a Seller</h2><p>Apply for seller access or review the status of your existing application.</p></div><button class="outline-btn" id="seller-application-back-market" type="button">← Marketplace</button>';
@@ -1690,9 +1715,10 @@ main.wrap:not([data-view="seller-dashboard"]) #seller-dashboard-page{display:non
  // Move the existing dispatch-location controls into the approved seller workspace,
  // while keeping their existing IDs and event handlers intact.
  const dispatch=document.getElementById('seller-dispatch-section');
- if(dispatch)dashboard.appendChild(dispatch);
+ const dashboardContent=dashboard.querySelector('#seller-dashboard-content');
+ if(dispatch)dashboardContent.appendChild(dispatch);
  // Reuse the existing seller product, order, bank and social management UI unchanged.
- dashboard.appendChild(tools);
+ dashboardContent.appendChild(tools);
  main.insertBefore(dashboard,footer||null);
  // Add the approved-seller destination to the existing Marketplace Settings panel.
  const settingsActions=document.querySelector('#marketplace-settings-panel .marketplace-settings-actions');
@@ -1764,7 +1790,8 @@ main.wrap:not([data-view="seller-dashboard"]) #seller-dashboard-page{display:non
    return;
   }
   setView('seller-dashboard');
-  if(target){const el=document.getElementById(target);if(el)setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'start'}),100);}
+  showSellerTab(target||'seller-dashboard-overview');
+  if(!target)loadSellerPayoutWallet();
  }
  // Capture legacy seller entry points so they open dedicated pages instead of the old embedded panel.
  const legacyApply=document.getElementById('open-become-seller');
@@ -1775,13 +1802,51 @@ main.wrap:not([data-view="seller-dashboard"]) #seller-dashboard-page{display:non
  dashboardShortcut?.addEventListener('click',()=>{const settings=document.getElementById('marketplace-settings-panel');if(settings)settings.hidden=true;void openDashboard();});
  document.getElementById('seller-application-back-market')?.addEventListener('click',()=>setView('market'));
  document.getElementById('seller-dashboard-back-market')?.addEventListener('click',()=>setView('market'));
- dashboard.querySelectorAll('[data-seller-target]').forEach(button=>button.addEventListener('click',()=>{
-  const target=button.getAttribute('data-seller-target');
-  if(target==='seller-payout-ledger-panel'){
-   const el=document.getElementById(target);el?.scrollIntoView({behavior:'smooth',block:'start'});return;
+ function showSellerTab(target){
+  const content=dashboard.querySelector('#seller-dashboard-content');
+  const toolsEl=document.getElementById('seller-tools');
+  const ids=['seller-dashboard-overview','seller-payout-ledger-panel','seller-dispatch-section','seller-product-form','seller-products-list','seller-physical-orders-panel','seller-cod-orders-panel','seller-payout-settings','seller-social-settings'];
+  ids.forEach(id=>{const el=document.getElementById(id);if(el)el.hidden=true;});
+  if(toolsEl){toolsEl.hidden=false;Array.from(toolsEl.children).forEach(el=>{el.hidden=true;});}
+  const show=id=>{const el=document.getElementById(id);if(el)el.hidden=false;};
+  if(target==='seller-products-list'){
+   const head=toolsEl?.querySelector('.seller-tools-head');if(head)head.hidden=false;
+   show('seller-products-list');const list=document.getElementById('seller-products-list');if(list?.previousElementSibling?.classList.contains('seller-products-heading'))list.previousElementSibling.hidden=false;
   }
-  const el=document.getElementById(target);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
- }));
+  else if(target==='seller-product-form'){show('seller-product-form');show('seller-product-message');}
+  else if(target==='seller-physical-orders-panel'){show('seller-physical-orders-panel');show('seller-cod-orders-panel');}
+  else if(target==='seller-payout-settings'){show('seller-payout-settings');show('seller-social-settings');show('seller-dispatch-section');}
+  else {show(target);}
+  dashboard.querySelectorAll('[data-seller-target]').forEach(b=>{const active=b.getAttribute('data-seller-target')===target;b.setAttribute('aria-current',active?'page':'false');});
+  if(target==='seller-payout-ledger-panel')loadSellerPayoutWallet();
+  if(content)content.scrollTop=0;
+ }
+ dashboard.querySelectorAll('[data-seller-target]').forEach(button=>button.addEventListener('click',()=>showSellerTab(button.getAttribute('data-seller-target'))));
+ async function loadSellerPayoutWallet(){
+  const note=document.getElementById('seller-payout-ledger-note');
+  const body=document.getElementById('seller-payout-history');
+  try{
+   const data=await marketplaceSellerRequest({action:'seller_payout_summary'});
+   const money=v=>'₦'+Number(v||0).toLocaleString('en-NG',{minimumFractionDigits:2,maximumFractionDigits:2});
+   const summary=data.summary||{};
+   ['pending','processing','paid','failed'].forEach(k=>{const el=document.getElementById('seller-wallet-'+k);if(el)el.textContent=money(summary[k]);});
+   body.replaceChildren();
+   (data.payouts||[]).forEach(p=>{
+    const tr=document.createElement('tr');
+    const vals=[new Date(p.created_at).toLocaleDateString('en-NG'),String(p.order_id||'').slice(0,8),money(p.gross_amount),money(p.platform_fee),money(p.net_amount),String(p.status||'').replaceAll('_',' ')];
+    vals.forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.appendChild(td);});body.appendChild(tr);
+   });
+   if(!body.children.length){const tr=document.createElement('tr');const td=document.createElement('td');td.colSpan=6;td.textContent='No seller payout records yet.';tr.appendChild(td);body.appendChild(tr);}
+   note.textContent='Showing your latest '+(data.payouts||[]).length+' seller payout records. Your VTU wallet and transactions are not included.';
+  }catch(error){note.textContent=error.message||'Could not load seller payout history.';}
+ }
+ document.getElementById('seller-payout-request')?.addEventListener('click',async()=>{
+  const button=document.getElementById('seller-payout-request');const note=document.getElementById('seller-payout-ledger-note');
+  button.disabled=true;button.textContent='Submitting…';
+  try{const result=await marketplaceSellerRequest({action:'seller_payout_request'});note.textContent=result.message||'Payout request submitted.';await loadSellerPayoutWallet();}
+  catch(error){note.textContent=error.message||'Could not submit payout request.';}
+  finally{button.disabled=false;button.textContent='Request payout';}
+ });
  // Give existing payout, social and dispatch sections stable destinations for dashboard navigation.
  const bank=document.getElementById('seller-bank-select')?.closest('section');
  if(bank)bank.id='seller-payout-settings';
@@ -1873,73 +1938,96 @@ main.wrap[data-view="market"] #settings-dashboard{display:none!important}
 </style>
 
 
-<style id="panbill-seller-dashboard-mobile-fit-v1">
-/* Mobile-first seller workspace: keep all seller content inside the phone viewport. */
-html,body{max-width:100%;overflow-x:hidden}
-#seller-dashboard-page,
-#seller-dashboard-page *{box-sizing:border-box;min-width:0}
-#seller-dashboard-page{width:100%;max-width:1120px;overflow-x:hidden}
-#seller-dashboard-page .seller-page-head{align-items:flex-start;gap:10px}
-#seller-dashboard-page .seller-page-head>div{flex:1 1 100%;min-width:0}
-#seller-dashboard-page .seller-page-head button{max-width:100%;white-space:normal}
-#seller-dashboard-page .seller-page-nav{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
-#seller-dashboard-page .seller-page-nav button{width:100%;min-width:0;min-height:42px;padding:8px 6px;font-size:11px;line-height:1.25;white-space:normal;overflow-wrap:anywhere}
-#seller-dashboard-page .seller-overview-grid{grid-template-columns:minmax(0,1fr)}
-#seller-dashboard-page .seller-overview-tile,
-#seller-dashboard-page #seller-payout-ledger-panel,
-#seller-dashboard-page #seller-dashboard-overview{max-width:100%;overflow-wrap:anywhere}
-#seller-dashboard-page #seller-tools,
-#seller-dashboard-page #seller-tools> *,
-#seller-dashboard-page #seller-product-form,
-#seller-dashboard-page #seller-physical-orders-panel,
-#seller-dashboard-page #seller-cod-orders-panel,
-#seller-dashboard-page #seller-payout-settings,
-#seller-dashboard-page #seller-social-settings,
-#seller-dashboard-page #seller-dispatch-section{max-width:100%;min-width:0}
-#seller-dashboard-page input,
-#seller-dashboard-page select,
-#seller-dashboard-page textarea,
-#seller-dashboard-page button{max-width:100%}
-#seller-dashboard-page input,
-#seller-dashboard-page select,
-#seller-dashboard-page textarea{width:100%}
-#seller-dashboard-page .form-grid,
-#seller-dashboard-page .seller-form-grid{grid-template-columns:minmax(0,1fr)!important}
-#seller-dashboard-page table{width:100%;max-width:100%}
-#seller-dashboard-page .table-wrap,
-#seller-dashboard-page .seller-table-wrap,
-#seller-dashboard-page .orders-table-wrap{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
-#seller-dashboard-page img{max-width:100%;height:auto}
-@media(max-width:600px){
-  main.wrap[data-view="seller-dashboard"]{width:100%;max-width:100%;padding:8px 9px 22px!important;margin:0 auto;overflow-x:hidden}
-  #seller-dashboard-page{margin:7px 0!important;padding:11px!important;border-radius:13px!important}
-  #seller-dashboard-page .seller-page-head{margin-bottom:11px;padding-bottom:10px}
-  #seller-dashboard-page .seller-page-head h2{font-size:21px;line-height:1.2}
-  #seller-dashboard-page .seller-page-head p{font-size:11px;line-height:1.45}
-  #seller-dashboard-page .seller-page-head .outline-btn{width:100%;min-height:40px}
-  #seller-dashboard-page .seller-page-nav{margin:9px 0 12px;gap:6px}
-  #seller-dashboard-page .seller-page-nav button{border-radius:8px;padding:8px 5px;font-size:10px}
-  #seller-dashboard-page #seller-dashboard-overview{padding:11px!important}
-  #seller-dashboard-page .seller-overview-grid{gap:7px;margin:9px 0}
-  #seller-dashboard-page .seller-overview-tile{padding:10px;border-radius:10px}
-  #seller-dashboard-page #seller-payout-ledger-panel{margin:9px 0;padding:11px;border-radius:10px}
-  #seller-dashboard-page #seller-tools{margin-top:10px}
-  #seller-dashboard-page #seller-tools .seller-tools-head{padding:10px}
+<style id="panbill-seller-mobile-responsive-only">
+/* Responsive-only overrides. Keep the existing seller dashboard markup and behaviour intact. */
+html, body { max-width:100%; overflow-x:hidden; }
+#seller-dashboard-page { width:100%; max-width:100%; min-width:0; box-sizing:border-box; }
+#seller-dashboard-page *, #seller-dashboard-page *::before, #seller-dashboard-page *::after { box-sizing:border-box; min-width:0; }
+#seller-dashboard-page img { max-width:100%; height:auto; }
+#seller-dashboard-page input, #seller-dashboard-page select, #seller-dashboard-page textarea,
+#seller-dashboard-page button { max-width:100%; }
+#seller-dashboard-page table { max-width:100%; }
+#seller-dashboard-page .seller-payout-table-wrap { max-width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+@media (max-width:600px) {
+  main.wrap[data-view="seller-dashboard"] {
+    width:100%; max-width:100%; padding:8px 10px 22px !important;
+    margin:0 auto; overflow-x:hidden;
+  }
+  #seller-dashboard-page {
+    width:100%; max-width:100%; margin:6px 0 !important;
+    padding:11px !important; border-radius:13px !important; overflow:hidden;
+  }
+  #seller-dashboard-page .seller-page-head {
+    display:flex; flex-wrap:wrap; align-items:flex-start; gap:9px;
+    margin-bottom:10px; padding-bottom:10px;
+  }
+  #seller-dashboard-page .seller-page-head > div { flex:1 1 100%; }
+  #seller-dashboard-page .seller-page-head h2 { font-size:21px; line-height:1.25; }
+  #seller-dashboard-page .seller-page-head p { font-size:12px; line-height:1.45; }
+  #seller-dashboard-page .seller-page-head button { width:100%; min-height:40px; white-space:normal; }
+  #seller-dashboard-page .seller-page-nav {
+    display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:6px; width:100%; margin:9px 0 12px;
+  }
+  #seller-dashboard-page .seller-page-nav button {
+    width:100%; min-width:0; min-height:42px; padding:8px 5px;
+    font-size:11px; line-height:1.25; white-space:normal; overflow-wrap:anywhere;
+  }
+  #seller-dashboard-page #seller-dashboard-content,
+  #seller-dashboard-page #seller-dashboard-overview,
+  #seller-dashboard-page #seller-payout-ledger-panel,
+  #seller-dashboard-page #seller-tools,
+  #seller-dashboard-page #seller-dispatch-section { width:100%; max-width:100%; }
+  #seller-dashboard-page #seller-dashboard-overview,
+  #seller-dashboard-page #seller-payout-ledger-panel { padding:11px !important; margin:9px 0 !important; }
+  #seller-dashboard-page .seller-overview-grid {
+    display:grid !important; grid-template-columns:minmax(0,1fr) !important; gap:8px;
+  }
+  #seller-dashboard-page .seller-wallet-head {
+    display:flex; flex-wrap:wrap; align-items:flex-start; gap:9px;
+  }
+  #seller-dashboard-page .seller-wallet-head > div { flex:1 1 100%; }
+  #seller-dashboard-page .seller-wallet-head button { width:100%; min-height:42px; }
+  #seller-dashboard-page .seller-wallet-grid {
+    display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:7px; width:100%;
+  }
+  #seller-dashboard-page .seller-wallet-card {
+    min-width:0; padding:9px 8px; overflow-wrap:anywhere;
+  }
+  #seller-dashboard-page .seller-wallet-card small { display:block; font-size:11px; line-height:1.3; }
+  #seller-dashboard-page .seller-wallet-card strong { display:block; font-size:clamp(14px,4vw,19px); overflow-wrap:anywhere; }
+  #seller-dashboard-page #seller-payout-ledger-note,
+  #seller-dashboard-page .seller-payout-safety { font-size:12px; line-height:1.45; overflow-wrap:anywhere; }
+  #seller-dashboard-page .seller-payout-table-wrap { width:100%; overflow-x:auto; }
+  #seller-dashboard-page .seller-payout-table { min-width:560px; }
+  #seller-dashboard-page #seller-tools > *,
   #seller-dashboard-page #seller-tools section,
-  #seller-dashboard-page #seller-tools .panel{padding:11px!important;margin:9px 0!important}
-  #seller-dashboard-page #seller-tools h2{font-size:18px}
-  #seller-dashboard-page #seller-tools h3{font-size:15px}
-  #seller-dashboard-page #seller-tools label{font-size:12px}
+  #seller-dashboard-page #seller-tools .panel { width:100%; max-width:100%; }
+  #seller-dashboard-page #seller-tools section,
+  #seller-dashboard-page #seller-tools .panel { padding:11px !important; margin:9px 0 !important; }
+  #seller-dashboard-page #seller-tools .form-grid,
+  #seller-dashboard-page #seller-tools .seller-form-grid {
+    display:grid !important; grid-template-columns:minmax(0,1fr) !important;
+  }
   #seller-dashboard-page #seller-tools input,
   #seller-dashboard-page #seller-tools select,
-  #seller-dashboard-page #seller-tools textarea{font-size:16px;min-height:42px}
-  #seller-dashboard-page #seller-tools textarea{min-height:90px}
-  #seller-dashboard-page #seller-tools button{min-height:40px;white-space:normal;overflow-wrap:anywhere}
+  #seller-dashboard-page #seller-tools textarea { width:100%; font-size:16px; }
+  #seller-dashboard-page #seller-tools button { min-height:40px; white-space:normal; overflow-wrap:anywhere; }
   #seller-dashboard-page #seller-products-list,
   #seller-dashboard-page #seller-orders-list,
   #seller-dashboard-page #seller-physical-orders-list,
-  #seller-dashboard-page #seller-cod-orders-list{width:100%;max-width:100%;overflow-wrap:anywhere}
+  #seller-dashboard-page #seller-cod-orders-list { max-width:100%; overflow-wrap:anywhere; }
 }
+</style>
+
+
+
+<style id="panbill-add-product-dashboard-only">
+/* Add Product is available from the Seller Dashboard navigation only, not Marketplace Settings. */
+#marketplace-settings-add-product,
+#marketplace-settings-panel [data-action="add-product"] { display:none !important; }
+#seller-dashboard-page [data-seller-target="seller-product-form"] { display:block; }
 </style>
 
 </body></html>
