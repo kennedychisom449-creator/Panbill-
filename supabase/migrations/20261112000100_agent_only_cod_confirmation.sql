@@ -1,9 +1,9 @@
 BEGIN;
 
 -- PanBill: assigned pickup-agent-only COD collection confirmation.
--- Corrected version: adds COD payout queue/claim eligibility while preserving
--- the existing Paystack payout workflow and seller commission calculations.
--- Apply only after reviewing and confirming the matching Edge Function is deployed.
+-- Corrected version: validates exact stock-reservation matches, rejects NULL
+-- state fields safely, and preserves existing Paystack payout behavior.
+-- Apply only after the payout-transfer worker has been verified for COD.
 
 CREATE OR REPLACE FUNCTION public.marketplace_agent_confirm_cod_collection(
   p_order_id uuid,
@@ -22,9 +22,6 @@ DECLARE
   v_assignment public.marketplace_order_fulfillment_assignments%ROWTYPE;
   v_order public.marketplace_orders%ROWTYPE;
   v_reservation record;
-  v_item_count integer;
-  v_reservation_count integer;
-  v_reserved_count integer;
   v_transaction_count integer;
   v_assignment_count integer;
   v_old_values jsonb;
@@ -80,19 +77,20 @@ BEGIN
     RAISE EXCEPTION 'Order not found.';
   END IF;
 
-  IF v_order.fulfillment_type <> 'physical'
-     OR v_order.delivery_method <> 'pickup_point'
+  IF v_order.fulfillment_type IS DISTINCT FROM 'physical'
+     OR v_order.delivery_method IS DISTINCT FROM 'pickup_point'
      OR v_order.pickup_point_id IS DISTINCT FROM v_agent.pickup_point_id THEN
     RAISE EXCEPTION 'This order does not belong to this agent pickup station.';
   END IF;
 
-  IF v_order.payment_method <> 'cash_on_delivery'
-     OR v_order.payment_provider <> 'cash_on_delivery' THEN
+  IF v_order.payment_method IS DISTINCT FROM 'cash_on_delivery'
+     OR v_order.payment_provider IS DISTINCT FROM 'cash_on_delivery' THEN
     RAISE EXCEPTION 'This is not a valid physical cash-on-delivery order.';
   END IF;
 
-  IF v_order.payment_status <> 'pending'
-     OR v_order.delivery_payment_status <> 'pending'
+  IF v_order.payment_status IS DISTINCT FROM 'pending'
+     OR v_order.delivery_payment_status IS DISTINCT FROM 'pending'
+     OR v_order.order_status IS NULL
      OR v_order.order_status IN ('delivered', 'cancelled') THEN
     RAISE EXCEPTION 'This COD order is not in a payable collection state.';
   END IF;
@@ -111,23 +109,38 @@ BEGIN
     RAISE EXCEPTION 'Product ID does not belong to this order.';
   END IF;
 
-  -- Match the existing COD workflow's stock reservation safeguards.
-  SELECT COUNT(*)
-  INTO v_item_count
-  FROM public.marketplace_order_items
-  WHERE order_id = p_order_id;
+  -- Require every order item to have one matching reserved stock row with
+  -- the same product and quantity, and reject extra reservation rows.
+  IF NOT EXISTS (
+    SELECT 1
+    FROM public.marketplace_order_items
+    WHERE order_id = p_order_id
+  ) THEN
+    RAISE EXCEPTION 'Order has no items.';
+  END IF;
 
-  SELECT
-    COUNT(*),
-    COUNT(*) FILTER (WHERE status = 'reserved')
-  INTO v_reservation_count, v_reserved_count
-  FROM public.marketplace_stock_reservations
-  WHERE order_id = p_order_id;
-
-  IF v_item_count = 0
-     OR v_reservation_count <> v_item_count
-     OR v_reserved_count <> v_reservation_count THEN
-    RAISE EXCEPTION 'Order stock reservations are incomplete or already processed.';
+  IF EXISTS (
+    SELECT 1
+    FROM public.marketplace_order_items oi
+    LEFT JOIN public.marketplace_stock_reservations sr
+      ON sr.order_id = oi.order_id
+     AND sr.product_id = oi.product_id
+    WHERE oi.order_id = p_order_id
+      AND (
+        sr.id IS NULL
+        OR sr.status IS DISTINCT FROM 'reserved'
+        OR sr.quantity IS DISTINCT FROM oi.quantity
+      )
+  ) OR EXISTS (
+    SELECT 1
+    FROM public.marketplace_stock_reservations sr
+    LEFT JOIN public.marketplace_order_items oi
+      ON oi.order_id = sr.order_id
+     AND oi.product_id = sr.product_id
+    WHERE sr.order_id = p_order_id
+      AND oi.id IS NULL
+  ) THEN
+    RAISE EXCEPTION 'Stock reservations do not exactly match the order items.';
   END IF;
 
   v_old_values := jsonb_build_object(
@@ -447,8 +460,7 @@ END;
 $function$;
 
 -- Claim both eligible Paystack payouts and agent-confirmed COD payouts.
--- COD rows must still carry the immutable transaction marker written by the
--- agent confirmation RPC; a manually marked paid order is not sufficient.
+-- COD rows must still carry the transaction marker written by the agent RPC.
 CREATE OR REPLACE FUNCTION public.marketplace_claim_next_seller_payout()
 RETURNS TABLE(
   payout_id uuid,
@@ -551,8 +563,7 @@ REVOKE ALL ON FUNCTION public.marketplace_agent_confirm_cod_collection(uuid, uui
 GRANT EXECUTE ON FUNCTION public.marketplace_agent_confirm_cod_collection(uuid, uuid, uuid, uuid, text)
   TO service_role;
 
--- Sellers must no longer confirm COD outcomes directly. Keep the old function
--- definition intact for server-side compatibility, but remove direct client access.
+-- Sellers must no longer confirm COD outcomes directly.
 REVOKE EXECUTE ON FUNCTION public.marketplace_seller_record_cod_outcome(uuid, text, text)
   FROM PUBLIC, anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.marketplace_seller_record_cod_outcome(uuid, text, text)
