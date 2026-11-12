@@ -9,6 +9,7 @@ const corsHeaders = {
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+const PAYSTACK_SECRET_KEY = Deno.env.get("PAYSTACK_SECRET_KEY") ?? "";
 
 const respond = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -24,7 +25,7 @@ const SUPER_ADMIN_USER_ID = "1433a058-8a3c-42dd-ad14-fa9bb7d35084";
 const AGENT_DASHBOARD_URL = "https://panbill.com.ng/agent.html";
 
 const ORDER_FIELDS =
-  "id,order_number,buyer_id,delivery_method,pickup_point_id,fulfillment_type,order_status,payment_status,payment_provider,payment_method,delivery_payment_status,delivery_name,delivery_phone,delivery_address,delivery_city,delivery_lga,delivery_state,delivery_notes,total_amount";
+  "id,order_number,buyer_id,payment_reference,delivery_method,pickup_point_id,fulfillment_type,order_status,payment_status,payment_provider,payment_method,delivery_payment_status,delivery_name,delivery_phone,delivery_address,delivery_city,delivery_lga,delivery_state,delivery_notes,total_amount";
 
 function cleanText(value: unknown, max = 300): string {
   return typeof value === "string" ? value.trim().slice(0, max) : "";
@@ -49,7 +50,7 @@ function isEligibleOrderForAssignment(order: any): boolean {
   }
 
   // COD orders can be assigned while payment is pending.
-  if (order.payment_method === "cash_on_delivery") {
+  if (order.payment_method === "cash_on_delivery" || order.payment_method === "pay_on_delivery") {
     return (
       (order.payment_status === "pending" &&
         order.delivery_payment_status === "pending") ||
@@ -375,6 +376,65 @@ async function adminListUnassignedOrders(actorId: string) {
   return { orders: unassignedOrders };
 }
 
+async function queueSellerAgentAssignedEmails(orderId: string, assignmentId: string, agent: any) {
+  try {
+    const { data: order, error: orderError } = await adminDb.from("marketplace_orders")
+      .select(ORDER_FIELDS).eq("id", orderId).maybeSingle();
+    if (orderError) throw orderError;
+    if (!order) throw new Error("Order not found for seller agent notification.");
+    const { data: items, error: itemsError } = await adminDb.from("marketplace_order_items")
+      .select("seller_id,product_name,quantity,line_total").eq("order_id", orderId);
+    if (itemsError) throw itemsError;
+    const sellerIds = [...new Set((items || []).map((item: any) => item.seller_id).filter(Boolean))];
+    if (!sellerIds.length) return false;
+    const { data: sellers, error: sellersError } = await adminDb.from("marketplace_sellers")
+      .select("user_id,business_name,contact_email").in("user_id", sellerIds);
+    if (sellersError) throw sellersError;
+    const events = (sellers || []).filter((seller: any) => cleanText(seller.contact_email, 254).includes("@"))
+      .map((seller: any) => ({
+        event_key: `agent_assigned:${orderId}:${assignmentId}:seller:${seller.user_id}`,
+        order_id: orderId,
+        recipient_user_id: seller.user_id,
+        recipient_email: cleanText(seller.contact_email, 254).toLowerCase(),
+        recipient_role: "seller",
+        event_type: "order_placed",
+        status: "queued",
+        updated_at: new Date().toISOString(),
+        payload: {
+          order_number: order.order_number,
+          total_amount: order.total_amount,
+          payment_method: order.payment_method,
+          payment_status: order.payment_status,
+          delivery_method: order.delivery_method,
+          delivery_name: order.delivery_name,
+          delivery_phone: order.delivery_phone,
+          delivery_address: [order.delivery_address, order.delivery_city, order.delivery_lga, order.delivery_state].filter(Boolean).join(", "),
+          seller_name: seller.business_name,
+          items: (items || []).filter((item: any) => item.seller_id === seller.user_id),
+          agent_name: agent.full_name,
+          agent_phone: agent.phone,
+          agent_type: agent.agent_type,
+          agent_assignment_id: assignmentId,
+          agent_contact_notice: "Your order has been assigned. Contact the assigned PanBill fulfillment agent using the number below for order coordination.",
+        },
+      }));
+    if (events.length) {
+      const { error } = await adminDb.from("marketplace_email_events").upsert(events, { onConflict: "event_key", ignoreDuplicates: true });
+      if (error) throw error;
+      await fetch(`${SUPABASE_URL}/functions/v1/marketplace-email-worker`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`, "Content-Type": "application/json" },
+        body: "{}",
+      }).catch((error) => console.error("Seller agent-assignment email worker invoke failed:", error));
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error("PanBill seller agent-assignment email queue failed:", error);
+    return false;
+  }
+}
+
 async function adminAssignOrder(body: any, actorId: string) {
   await requireSuperAdmin(actorId);
 
@@ -397,7 +457,7 @@ async function adminAssignOrder(body: any, actorId: string) {
 
     adminDb
       .from("marketplace_fulfillment_agents")
-      .select("id,agent_type,pickup_point_id,is_active")
+      .select("id,user_id,full_name,phone,agent_type,pickup_point_id,is_active")
       .eq("id", agentId)
       .maybeSingle(),
   ]);
@@ -456,7 +516,9 @@ async function adminAssignOrder(body: any, actorId: string) {
 
   if (existing?.length) {
     if (existing.some((item: any) => item.agent_id === agentId)) {
-      return { assigned: true, already_assigned: true };
+      const sameAssignment = existing.find((item: any) => item.agent_id === agentId);
+      const notificationsQueued = await queueSellerAgentAssignedEmails(orderId, sameAssignment.id, agent);
+      return { assigned: true, already_assigned: true, seller_agent_notifications_queued: notificationsQueued };
     }
 
     throw new Error(
@@ -497,8 +559,9 @@ async function adminAssignOrder(body: any, actorId: string) {
     action: "order_assigned",
     details: { assignment_type: expectedType },
   });
+  const notificationsQueued = await queueSellerAgentAssignedEmails(orderId, assignment.id, agent);
 
-  return { assigned: true, assignment };
+  return { assigned: true, assignment, seller_agent_notifications_queued: notificationsQueued };
 }
 
 async function agentOrdersList(actorId: string) {
@@ -510,7 +573,107 @@ async function agentOrdersList(actorId: string) {
     .eq("status", "assigned")
     .order("assigned_at", { ascending: false });
   if (error) throw error;
-  return { agent, assignments: data ?? [] };
+  const assignments = await Promise.all((data ?? []).map(async (assignment: any) => {
+    const order = Array.isArray(assignment.marketplace_orders) ? assignment.marketplace_orders[0] : assignment.marketplace_orders;
+    if (!order || order.payment_method !== "pay_on_delivery" || !order.payment_reference) return assignment;
+    const { data: tx, error: txError } = await adminDb.from("transactions")
+      .select("provider_response").eq("reference", order.payment_reference).eq("user_id", order.buyer_id).maybeSingle();
+    if (txError) throw txError;
+    const transfer = tx?.provider_response?.pod_transfer;
+    if (transfer?.account_number) assignment.pod_transfer = {
+      account_name: transfer.account_name,
+      account_number: transfer.account_number,
+      bank_name: transfer.bank_name,
+      expires_at: transfer.expires_at,
+      amount: transfer.amount,
+      status: transfer.status,
+    };
+    return assignment;
+  }));
+  return { agent, assignments };
+}
+
+async function agentCreatePodTransfer(body: any, actorId: string) {
+  const agent = await getAgent(actorId);
+  if (!PAYSTACK_SECRET_KEY || !PAYSTACK_SECRET_KEY.startsWith("sk_live_")) {
+    throw new Error("Live Paystack is not configured. Set the live PAYSTACK_SECRET_KEY before generating transfer accounts.");
+  }
+  const assignmentId = cleanText(body.assignment_id, 80);
+  if (!assignmentId) throw new Error("assignment_id is required.");
+  const { data: assignment, error: assignmentError } = await adminDb
+    .from("marketplace_order_fulfillment_assignments")
+    .select(`id,order_id,agent_id,assignment_type,status,fulfillment_status,marketplace_orders(${ORDER_FIELDS})`)
+    .eq("id", assignmentId).eq("agent_id", agent.id).eq("status", "assigned").maybeSingle();
+  if (assignmentError) throw assignmentError;
+  if (!assignment) throw new Error("This order is not assigned to your agent account.");
+  const order = Array.isArray(assignment.marketplace_orders) ? assignment.marketplace_orders[0] : assignment.marketplace_orders;
+  if (!order || order.payment_method !== "pay_on_delivery" || order.payment_provider !== "paystack") {
+    throw new Error("This is not a Paystack Pay on Delivery order.");
+  }
+  if (assignment.assignment_type !== agent.agent_type) throw new Error("Assignment type does not match your agent account.");
+  const readyStatus = assignment.assignment_type === "pickup" ? "ready_for_collection" : "out_for_delivery";
+  if (assignment.fulfillment_status !== readyStatus) throw new Error(`Move this order to ${readyStatus.replaceAll("_", " ")} before generating its transfer account.`);
+  if (order.payment_status !== "pending" || order.delivery_payment_status !== "pending" || order.order_status === "cancelled" || order.order_status === "delivered") {
+    throw new Error("This order is no longer awaiting Pay on Delivery payment.");
+  }
+  const { data: tx, error: txError } = await adminDb.from("transactions")
+    .select("reference,user_id,provider,status,provider_response")
+    .eq("reference", order.payment_reference).eq("user_id", order.buyer_id).maybeSingle();
+  if (txError) throw txError;
+  if (!tx || tx.provider !== "paystack" || tx.status !== "pending") throw new Error("The pending Paystack transaction for this order could not be verified.");
+  const existing = tx.provider_response?.pod_transfer;
+  if (existing?.account_number) {
+    if (existing.expires_at && Date.parse(existing.expires_at) > Date.now()) return { pod_transfer: existing, already_created: true };
+    throw new Error("This order's transfer account has expired. Do not reuse it; contact PanBill support for payment reconciliation.");
+  }
+  const { data: buyerData, error: buyerError } = await adminDb.auth.admin.getUserById(order.buyer_id);
+  if (buyerError) throw buyerError;
+  const buyerEmail = cleanText(buyerData?.user?.email, 254).toLowerCase();
+  if (!buyerEmail || !buyerEmail.includes("@")) throw new Error("The buyer's email address is missing from the account.");
+  const expiresAt = new Date(Date.now() + 7 * 60 * 60 * 1000 + 45 * 60 * 1000).toISOString();
+  const reference = order.payment_reference;
+  const chargeResponse = await fetch("https://api.paystack.co/charge", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email: buyerEmail,
+      amount: Math.round(Number(order.total_amount) * 100),
+      currency: "NGN",
+      reference,
+      bank_transfer: { account_expires_at: expiresAt },
+      metadata: { payment_type: "marketplace_pay_on_delivery", order_id: order.id, order_number: order.order_number, buyer_id: order.buyer_id, assignment_id: assignment.id, agent_id: agent.id },
+    }),
+  });
+  const charge = await chargeResponse.json().catch(() => ({}));
+  const chargeData = charge?.data;
+  if (!chargeResponse.ok || charge.status !== true || !chargeData?.account_number) {
+    throw new Error(cleanText(charge.message || chargeData?.display_text, 300) || "Paystack could not generate a transfer account. Confirm Pay with Transfer is enabled on the live account.");
+  }
+  const transfer = {
+    account_name: cleanText(chargeData.account_name, 120),
+    account_number: cleanText(chargeData.account_number, 30),
+    bank_name: cleanText(chargeData.bank?.name || chargeData.bank_name, 120),
+    expires_at: chargeData.account_expires_at || expiresAt,
+    amount: Number(order.total_amount),
+    status: cleanText(chargeData.status || "pending_bank_transfer", 50),
+    reference,
+  };
+  if (!transfer.account_number || !transfer.bank_name) throw new Error("Paystack returned incomplete transfer account details. No payment instructions were issued.");
+  const responsePayload = {
+    ...(tx.provider_response || {}),
+    payment_type: "marketplace_pay_on_delivery",
+    pod_transfer: transfer,
+  };
+  const { error: saveError } = await adminDb.from("transactions")
+    .update({ provider_response: responsePayload, provider_status: "pending_bank_transfer" })
+    .eq("reference", reference).eq("user_id", order.buyer_id).eq("provider", "paystack").eq("status", "pending");
+  if (saveError) throw saveError;
+  await adminDb.from("marketplace_fulfillment_agent_audit").insert({
+    agent_id: agent.id, assignment_id: assignment.id, order_id: order.id, actor_user_id: actorId,
+    action: "pod_transfer_account_created",
+    details: { reference, amount: transfer.amount, bank_name: transfer.bank_name, account_last4: transfer.account_number.slice(-4), expires_at: transfer.expires_at },
+  });
+  return { pod_transfer: transfer, already_created: false };
 }
 
 async function agentUpdateStatus(body: any, actorId: string) {
@@ -556,6 +719,9 @@ async function agentUpdateStatus(body: any, actorId: string) {
   const currentStatus = assignment.fulfillment_status || "assigned";
   const allowedNext = transitions[agent.agent_type]?.[currentStatus] ?? [];
   const completed = nextStatus === "collected" || nextStatus === "delivered";
+  if (order.payment_method === "pay_on_delivery" && completed) {
+    throw new Error("Pay on Delivery is completed automatically only after Paystack verifies the exact bank transfer. Do not mark this order collected or delivered manually.");
+  }
   if (!allowedNext.includes(nextStatus)) {
     throw new Error(`Invalid fulfillment step. Current status is ${currentStatus}; next allowed status: ${allowedNext.join(", ") || "none"}.`);
   }
@@ -1031,6 +1197,9 @@ Deno.serve(async (req) => {
         break;
       case "agent_orders_list":
         result = await agentOrdersList(authData.user.id);
+        break;
+      case "agent_create_pod_transfer":
+        result = await agentCreatePodTransfer(body, authData.user.id);
         break;
       case "agent_update_status":
         result = await agentUpdateStatus(body, authData.user.id);
