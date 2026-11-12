@@ -49,6 +49,17 @@ async function enqueueOrderPlacedEmails(orderId: string) {
     const { data: items, error: itemsError } = await admin.from("marketplace_order_items")
       .select("seller_id, product_name, quantity, line_total").eq("order_id", orderId);
     if (itemsError) throw itemsError;
+    let assignedAgent: any = null;
+    try {
+      const { data: assignment } = await admin.from("marketplace_order_fulfillment_assignments")
+        .select("marketplace_fulfillment_agents(full_name,phone,agent_type)")
+        .eq("order_id", orderId).eq("status", "assigned").order("assigned_at", { ascending: false }).limit(1).maybeSingle();
+      assignedAgent = Array.isArray(assignment?.marketplace_fulfillment_agents)
+        ? assignment.marketplace_fulfillment_agents[0]
+        : assignment?.marketplace_fulfillment_agents || null;
+    } catch (agentLookupError) {
+      console.error("Optional assigned-agent lookup failed for order email:", agentLookupError);
+    }
     const { data: buyerResult, error: buyerError } = await admin.auth.admin.getUserById(order.buyer_id);
     if (buyerError) throw buyerError;
     const buyerEmail = clean(buyerResult?.user?.email, 254).toLowerCase();
@@ -68,7 +79,7 @@ async function enqueueOrderPlacedEmails(orderId: string) {
       for (const seller of sellers || []) {
         const email = clean(seller.contact_email, 254).toLowerCase();
         if (!email) continue;
-        events.push({ event_key: `order_placed:${order.id}:seller:${seller.user_id}`, order_id: order.id, recipient_user_id: seller.user_id, recipient_email: email, recipient_role: "seller", event_type: "order_placed", payload: { ...base, seller_name: seller.business_name, items: (items || []).filter((x: any) => x.seller_id === seller.user_id) } });
+        events.push({ event_key: `order_placed:${order.id}:seller:${seller.user_id}`, order_id: order.id, recipient_user_id: seller.user_id, recipient_email: email, recipient_role: "seller", event_type: "order_placed", payload: { ...base, seller_name: seller.business_name, items: (items || []).filter((x: any) => x.seller_id === seller.user_id), ...(assignedAgent ? { agent_name: assignedAgent.full_name, agent_phone: assignedAgent.phone, agent_type: assignedAgent.agent_type, agent_contact_notice: "Assigned PanBill fulfillment agent" } : {}) } });
       }
     }
     if (events.length) {
@@ -100,6 +111,19 @@ async function finalizeVerifiedPayment(reference: string, data: any) {
   if (data.status !== "success" || data.reference !== reference ||
       data.currency !== "NGN" || !Number.isFinite(paidKobo) || paidKobo !== expectedKobo) {
     throw new Error("Paystack payment details do not match this PanBill order. The order has not been marked paid.");
+  }
+
+  if (order.payment_method === "pay_on_delivery") {
+    if (data.channel !== "bank_transfer" || data.metadata?.payment_type !== "marketplace_pay_on_delivery") {
+      throw new Error("This Paystack payment is not a verified PanBill Pay on Delivery bank transfer.");
+    }
+    const { data: podFinalized, error: podError } = await admin.rpc("marketplace_finalize_pod_payment", {
+      p_reference: reference,
+      p_provider_reference: clean(data.id, 100),
+      p_provider_response: data,
+    });
+    if (podError) throw podError;
+    return podFinalized;
   }
 
   const { data: finalized, error } = await admin.rpc("marketplace_finalize_checkout_payment", {
@@ -195,12 +219,17 @@ Deno.serve(async (req) => {
         return respond({ success: false, error: "Please clear the collection-centre selection for doorstep delivery." }, 400);
       }
       const paymentMethod = clean(body.payment_method || body.paymentMethod || "online", 40);
-      if (!["online", "cash_on_delivery"].includes(paymentMethod)) {
-        return respond({ success: false, error: "Choose Pay Online or Cash on Delivery." }, 400);
+      if (!["online", "cash_on_delivery", "pay_on_delivery"].includes(paymentMethod)) {
+        return respond({ success: false, error: "Choose Pay Online, Cash on Delivery or Pay on Delivery." }, 400);
+      }
+      if (paymentMethod !== "online" && normalizedItems.length === 0) {
+        return respond({ success: false, error: "A physical marketplace order is required." }, 400);
       }
       const reference = paymentMethod === "cash_on_delivery"
         ? `PBMCOD_${Date.now()}_${crypto.randomUUID().replace(/-/g, "")}`
-        : `PBMKT_${Date.now()}_${crypto.randomUUID().replace(/-/g, "")}`;
+        : paymentMethod === "pay_on_delivery"
+          ? `PBMPOD-${Date.now()}-${crypto.randomUUID().replace(/-/g, "")}`
+          : `PBMKT_${Date.now()}_${crypto.randomUUID().replace(/-/g, "")}`;
 
       if (paymentMethod === "cash_on_delivery") {
         const { data: created, error: createError } = await admin.rpc("marketplace_create_cod_checkout_order", {
@@ -231,6 +260,52 @@ Deno.serve(async (req) => {
           delivery_method: created.delivery_method,
           pickup_point_id: created.pickup_point_id ?? null,
           message: "Your order has been placed. Pay in cash when your order arrives.",
+        }, 201);
+      }
+
+      if (paymentMethod === "pay_on_delivery") {
+        if (!PAYSTACK_SECRET_KEY) return respond({ success: false, error: "Paystack payments are temporarily unavailable." }, 500);
+        const { data: created, error: createError } = await admin.rpc("marketplace_create_checkout_order", {
+          p_buyer_id: user.id,
+          p_items: normalizedItems,
+          p_delivery_name: clean(delivery.name, 120),
+          p_delivery_phone: clean(delivery.phone, 40),
+          p_delivery_address: clean(delivery.address, 500),
+          p_delivery_city: clean(delivery.city, 120),
+          p_delivery_lga: clean(delivery.lga, 120),
+          p_delivery_state: clean(delivery.state, 120),
+          p_delivery_notes: clean(delivery.notes, 500),
+          p_payment_reference: reference,
+          p_delivery_method: deliveryMethod,
+          p_pickup_point_id: deliveryMethod === "pickup_point" ? pickupPointId : null,
+        });
+        if (createError) return respond({ success: false, error: createError.message }, 400);
+        const { data: marked, error: markError } = await admin.rpc("marketplace_set_order_pay_on_delivery", {
+          p_order_id: created.order_id,
+          p_buyer_id: user.id,
+        });
+        if (markError || !marked?.success) {
+          await admin.rpc("marketplace_finalize_checkout_payment", {
+            p_reference: reference,
+            p_success: false,
+            p_provider_reference: null,
+            p_provider_response: { pod_setup_error: markError?.message || "Could not mark POD order." },
+          });
+          return respond({ success: false, error: markError?.message || marked?.error || "Pay on Delivery could not be enabled for this order." }, 400);
+        }
+        await enqueueOrderPlacedEmails(created.order_id);
+        return respond({
+          success: true,
+          payment_method: "pay_on_delivery",
+          order_id: created.order_id,
+          order_number: created.order_number,
+          subtotal: created.subtotal,
+          delivery_fee: created.delivery_fee,
+          total_amount: created.total_amount,
+          reference,
+          delivery_method: created.delivery_method,
+          pickup_point_id: created.pickup_point_id ?? null,
+          message: "Your order has been placed. Your assigned PanBill agent will generate a unique Paystack bank-transfer account when handing over your order. Payment confirmation is automatic.",
         }, 201);
       }
 
