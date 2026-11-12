@@ -574,6 +574,74 @@ async function agentUpdateStatus(body: any, actorId: string) {
     throw new Error("Product ID does not belong to this order. No fulfillment update was made.");
   }
 
+  // COD collection is confirmed only by the assigned, active pickup agent.
+  // The database RPC performs payment, stock, order, assignment and audit
+  // changes in one transaction. The seller COD RPC is not used here.
+  if (nextStatus === "collected" && order.payment_method === "cash_on_delivery") {
+    if (agent.agent_type !== "pickup" || assignment.assignment_type !== "pickup") {
+      throw new Error("Only the assigned pickup agent can confirm COD collection.");
+    }
+
+    const { data: codResult, error: codError } = await adminDb.rpc(
+      "marketplace_agent_confirm_cod_collection",
+      {
+        p_order_id: order.id,
+        p_assignment_id: assignment.id,
+        p_agent_user_id: actorId,
+        p_product_id: submittedProductId,
+        p_reason: "Assigned pickup agent confirmed that the customer received the parcel and the full cash payment was received at the pickup station.",
+      },
+    );
+    if (codError) throw codError;
+    if (!codResult?.success) {
+      throw new Error(codResult?.error || "COD collection could not be confirmed.");
+    }
+
+    let emailQueued: boolean | null = null;
+    let emailError: string | null = null;
+    try {
+      let station: any = null;
+      if (agent.pickup_point_id) {
+        const { data, error } = await adminDb.from("marketplace_pickup_points")
+          .select("name,address,city,state,phone,contact_name,instructions")
+          .eq("id", agent.pickup_point_id).maybeSingle();
+        if (error) throw error;
+        station = data;
+      }
+      await queueBuyerEmail(
+        order,
+        "pickup_collected",
+        `fulfillment:${assignment.id}:collected`,
+        {
+          fulfillment_status: "collected",
+          payment_status: "paid",
+          delivery_payment_status: "collected",
+          agent_name: agent.full_name,
+          agent_phone: agent.phone,
+          pickup_station: station,
+          collection_instructions: station?.instructions ?? null,
+          payment_confirmation: "Cash received by the assigned pickup agent.",
+        },
+      );
+      emailQueued = true;
+    } catch (error) {
+      emailQueued = false;
+      emailError = error instanceof Error ? error.message : "Buyer notification could not be queued.";
+      console.error("COD collection buyer email queue failed:", emailError);
+    }
+
+    return {
+      updated: true,
+      fulfillment_status: "collected",
+      assignment_completed: true,
+      payment_status: "paid",
+      delivery_payment_status: "collected",
+      order_status: "delivered",
+      cod_payment_confirmed_by: "assigned_pickup_agent",
+      ...(emailQueued === null ? {} : { buyer_email_queued: emailQueued, buyer_email_error: emailError }),
+    };
+  }
+
   if (completed) {
     if (order.payment_status !== "paid") {
       throw new Error("Payment has not been verified. This order cannot be completed.");
