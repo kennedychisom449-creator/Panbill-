@@ -688,6 +688,11 @@ main.wrap[data-view="seller-dashboard"] #seller-dashboard-page{display:block!imp
 /* Keep the seller dashboard's own settings/navigation; hide only the global header shortcut. */
 body:has(#seller-dashboard-page:not([hidden])) #settings-top-button{display:none!important}
 </style>
+
+<style id="panbill-vtu-pin-layer-fix">
+/* Keep the transaction PIN prompt above the fixed VTU checkout panel. */
+#transaction-pin-auth-overlay{z-index:1305!important;position:fixed!important;inset:0!important}
+</style>
 </head><body>
 <div aria-label="PanBill is loading" aria-live="polite" id="panbill-loading-screen" role="status"><div aria-hidden="true" class="panbill-loader-mark">P</div><div class="panbill-loader-name">PanBill</div><div class="panbill-loader-caption">One app. All your bills.</div><div aria-hidden="true" class="panbill-loader-ring"></div></div>
 <header class="app-header"><div class="brand"><span class="brand-mark">P</span> PanBill</div><div class="header-actions"><span class="muted" hidden="" id="header-user" style="font-size:12px"></span><button class="pill" id="settings-top-button" type="button" aria-label="Open Settings">⚙ Settings</button><button aria-hidden="true" class="pill" hidden="" id="logout-button" type="button">Log out</button></div></header>
