@@ -102,10 +102,6 @@ async function finalizeVerifiedPayment(reference: string, data: any) {
     .maybeSingle();
   if (orderError) throw orderError;
   if (!order) throw new Error("Marketplace order was not found.");
-  if (order.payment_method === "cash_on_delivery") {
-    throw new Error("This order uses cash on delivery and cannot be verified through Paystack.");
-  }
-
   const expectedKobo = Math.round(Number(order.total_amount) * 100);
   const paidKobo = Number(data.amount);
   if (data.status !== "success" || data.reference !== reference ||
@@ -156,7 +152,7 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return respond({ success: false, error: "Method not allowed." }, 405);
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !SUPABASE_SERVICE_ROLE_KEY) {
-    return respond({ success: false, error: "Server configuration is incomplete. Check the Supabase secrets." }, 500);
+    return respond({ success: false, error: "Server configuration is incomplete. Check SUPABASE_URL, SUPABASE_ANON_KEY and SUPABASE_SERVICE_ROLE_KEY." }, 500);
   }
 
   try {
@@ -219,49 +215,17 @@ Deno.serve(async (req) => {
         return respond({ success: false, error: "Please clear the collection-centre selection for doorstep delivery." }, 400);
       }
       const paymentMethod = clean(body.payment_method || body.paymentMethod || "online", 40);
-      if (!["online", "cash_on_delivery", "pay_on_delivery"].includes(paymentMethod)) {
-        return respond({ success: false, error: "Choose Pay Online, Cash on Delivery or Pay on Delivery." }, 400);
+      // Cash on Delivery is intentionally disabled. Keep this server-side
+      // allow-list even if an older browser/client attempts to submit COD.
+      if (!["online", "pay_on_delivery"].includes(paymentMethod)) {
+        return respond({ success: false, error: "Choose Pay Online or Bank Transfer on Delivery." }, 400);
       }
       if (paymentMethod !== "online" && normalizedItems.length === 0) {
         return respond({ success: false, error: "A physical marketplace order is required." }, 400);
       }
-      const reference = paymentMethod === "cash_on_delivery"
-        ? `PBMCOD_${Date.now()}_${crypto.randomUUID().replace(/-/g, "")}`
-        : paymentMethod === "pay_on_delivery"
-          ? `PBMPOD-${Date.now()}-${crypto.randomUUID().replace(/-/g, "")}`
-          : `PBMKT_${Date.now()}_${crypto.randomUUID().replace(/-/g, "")}`;
-
-      if (paymentMethod === "cash_on_delivery") {
-        const { data: created, error: createError } = await admin.rpc("marketplace_create_cod_checkout_order", {
-          p_buyer_id: user.id,
-          p_items: normalizedItems,
-          p_delivery_name: clean(delivery.name, 120),
-          p_delivery_phone: clean(delivery.phone, 40),
-          p_delivery_address: clean(delivery.address, 500),
-          p_delivery_city: clean(delivery.city, 120),
-          p_delivery_lga: clean(delivery.lga, 120),
-          p_delivery_state: clean(delivery.state, 120),
-          p_delivery_notes: clean(delivery.notes, 500),
-          p_payment_reference: reference,
-          p_delivery_method: deliveryMethod,
-          p_pickup_point_id: deliveryMethod === "pickup_point" ? pickupPointId : null,
-        });
-        if (createError) return respond({ success: false, error: createError.message }, 400);
-        await enqueueOrderPlacedEmails(created.order_id);
-        return respond({
-          success: true,
-          payment_method: "cash_on_delivery",
-          order_id: created.order_id,
-          order_number: created.order_number,
-          subtotal: created.subtotal,
-          delivery_fee: created.delivery_fee,
-          total_amount: created.total_amount,
-          reference,
-          delivery_method: created.delivery_method,
-          pickup_point_id: created.pickup_point_id ?? null,
-          message: "Your order has been placed. Pay in cash when your order arrives.",
-        }, 201);
-      }
+      const reference = paymentMethod === "pay_on_delivery"
+        ? `PBMPOD-${Date.now()}-${crypto.randomUUID().replace(/-/g, "")}`
+        : `PBMKT_${Date.now()}_${crypto.randomUUID().replace(/-/g, "")}`;
 
       if (paymentMethod === "pay_on_delivery") {
         if (!PAYSTACK_SECRET_KEY) return respond({ success: false, error: "Paystack payments are temporarily unavailable." }, 500);
@@ -305,7 +269,7 @@ Deno.serve(async (req) => {
           reference,
           delivery_method: created.delivery_method,
           pickup_point_id: created.pickup_point_id ?? null,
-          message: "Your order has been placed. Your assigned PanBill agent will generate a unique Paystack bank-transfer account when handing over your order. Payment confirmation is automatic.",
+          message: "Your order has been placed with Bank Transfer on Delivery selected. Payment must remain pending until Paystack verifies the transfer against this order. A unique per-order bank account is not generated by this checkout function yet.",
         }, 201);
       }
 
@@ -384,9 +348,6 @@ Deno.serve(async (req) => {
         .maybeSingle();
       if (orderError) throw orderError;
       if (!order || order.buyer_id !== user.id) return respond({ success: false, error: "Order not found for this account." }, 404);
-      if (order.payment_method === "cash_on_delivery") {
-        return respond({ success: false, error: "This order uses Cash on Delivery. Pay the delivery agent when your order arrives.", payment_method: "cash_on_delivery", order_id: order.id, order_number: order.order_number }, 400);
-      }
       if (order.payment_status === "paid") return respond({ success: true, already_paid: true, order_id: order.id, order_number: order.order_number, payment_status: "paid" });
 
       if (!PAYSTACK_SECRET_KEY) return respond({ success: false, error: "Paystack payments are temporarily unavailable." }, 500);
