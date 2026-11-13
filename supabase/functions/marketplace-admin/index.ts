@@ -575,6 +575,14 @@ async function agentOrdersList(actorId: string) {
   if (error) throw error;
   const assignments = await Promise.all((data ?? []).map(async (assignment: any) => {
     const order = Array.isArray(assignment.marketplace_orders) ? assignment.marketplace_orders[0] : assignment.marketplace_orders;
+    if (order?.id) {
+      const { data: orderItems, error: itemsError } = await adminDb
+        .from("marketplace_order_items")
+        .select("product_id,product_name,quantity,line_total")
+        .eq("order_id", order.id);
+      if (itemsError) throw itemsError;
+      assignment.order_items = orderItems ?? [];
+    }
     if (!order || order.payment_method !== "pay_on_delivery" || !order.payment_reference) return assignment;
     const { data: tx, error: txError } = await adminDb.from("transactions")
       .select("provider_response").eq("reference", order.payment_reference).eq("user_id", order.buyer_id).maybeSingle();
@@ -720,7 +728,24 @@ async function agentUpdateStatus(body: any, actorId: string) {
   const allowedNext = transitions[agent.agent_type]?.[currentStatus] ?? [];
   const completed = nextStatus === "collected" || nextStatus === "delivered";
   if (order.payment_method === "pay_on_delivery" && completed) {
-    throw new Error("Pay on Delivery is completed automatically only after Paystack verifies the exact bank transfer. Do not mark this order collected or delivered manually.");
+    if (order.payment_status !== "paid" || order.delivery_payment_status !== "collected") {
+      throw new Error("Paystack has not verified this order's exact bank transfer. The order cannot be handed over yet.");
+    }
+    const { data: verifiedPodTransaction, error: podTransactionError } = await adminDb
+      .from("transactions")
+      .select("provider,status,provider_status,provider_response")
+      .eq("reference", order.payment_reference)
+      .eq("user_id", order.buyer_id)
+      .maybeSingle();
+    if (podTransactionError) throw podTransactionError;
+    const podResponse = verifiedPodTransaction?.provider_response || {};
+    if (!verifiedPodTransaction || verifiedPodTransaction.provider !== "paystack" ||
+        verifiedPodTransaction.status !== "successful" ||
+        verifiedPodTransaction.provider_status !== "success" ||
+        podResponse.pod_outcome !== "verified" ||
+        podResponse.payment_type !== "marketplace_pay_on_delivery") {
+      throw new Error("PanBill cannot confirm handover because the Paystack bank transfer has not been verified.");
+    }
   }
   if (!allowedNext.includes(nextStatus)) {
     throw new Error(`Invalid fulfillment step. Current status is ${currentStatus}; next allowed status: ${allowedNext.join(", ") || "none"}.`);
@@ -931,7 +956,7 @@ async function recordSellerAdminAudit(
 }
 
 const SELLER_PROFILE_FIELDS =
-  "user_id,business_name,slug,business_description,contact_email,contact_phone,business_address,status,commission_rate,approved_at,created_at,updated_at,cash_on_delivery_enabled,dispatch_state,dispatch_city,dispatch_lga,dispatch_location_status,dispatch_location_reviewed_at,dispatch_location_reviewed_by,dispatch_location_review_note";
+  "user_id,business_name,slug,business_description,contact_email,contact_phone,business_address,status,commission_rate,approved_at,created_at,updated_at,dispatch_state,dispatch_city,dispatch_lga,dispatch_location_status,dispatch_location_reviewed_at,dispatch_location_reviewed_by,dispatch_location_review_note";
 
 async function adminPendingSellers(actorId: string) {
   await requireSuperAdmin(actorId);
@@ -1004,29 +1029,6 @@ async function adminReviewSeller(body: any, actorId: string) {
     reason,
   });
   return { reviewed: true, seller: data, message: `Seller application ${decision}.` };
-}
-
-async function adminSetSellerCod(body: any, actorId: string) {
-  await requireSuperAdmin(actorId);
-  const sellerUserId = cleanText(body.seller_user_id, 80);
-  if (!sellerUserId || typeof body.enabled !== "boolean") {
-    throw new Error("seller_user_id and boolean enabled are required.");
-  }
-
-  const { data, error } = await adminDb
-    .from("marketplace_sellers")
-    .update({ cash_on_delivery_enabled: body.enabled, updated_at: new Date().toISOString() })
-    .eq("user_id", sellerUserId)
-    .eq("status", "approved")
-    .select("user_id,business_name,cash_on_delivery_enabled")
-    .maybeSingle();
-  if (error) throw error;
-  if (!data) throw new Error("Approved seller account not found.");
-
-  await recordSellerAdminAudit(actorId, sellerUserId, "seller_cod_updated", {
-    enabled: body.enabled,
-  });
-  return { seller: data, message: `Payment on Delivery ${body.enabled ? "enabled" : "disabled"}.` };
 }
 
 async function adminPendingDispatchLocations(actorId: string) {
@@ -1212,9 +1214,6 @@ Deno.serve(async (req) => {
         break;
       case "approved_sellers":
         result = await adminApprovedSellers(authData.user.id);
-        break;
-      case "set_cash_on_delivery":
-        result = await adminSetSellerCod(body, authData.user.id);
         break;
       case "pending_dispatch_locations":
         result = await adminPendingDispatchLocations(authData.user.id);
