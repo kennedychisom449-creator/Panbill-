@@ -42,6 +42,7 @@ function renderOriginalOrderEmail(event: any) {
   const p = event.payload || {};
   const orderNo = esc(p.order_number || "PanBill order");
   const isEstimate = event.event_type === "delivery_estimate_updated";
+
   const title = isEstimate
     ? "Your delivery estimate has been updated"
     : event.recipient_role === "admin"
@@ -52,7 +53,12 @@ function renderOriginalOrderEmail(event: any) {
 
   const items = Array.isArray(p.items)
     ? p.items.map((x: any) =>
-      `<li>${esc(x.product_name)} × ${esc(x.quantity)} — ${naira(x.line_total)}</li>`
+      `<li style="margin-bottom:14px">
+        <strong>${esc(x.product_name)}</strong> × ${esc(x.quantity)}
+        — ${naira(x.line_total)}
+        <br><strong>Complete Product ID:</strong>
+        <span style="overflow-wrap:anywhere;word-break:break-word">${esc(x.product_id || "Not available")}</span>
+      </li>`
     ).join("")
     : "";
 
@@ -68,12 +74,11 @@ function renderOriginalOrderEmail(event: any) {
     ? `<p><strong>Payment:</strong> ${esc(p.payment_method)} — ${esc(p.payment_status)}</p>
       <p><strong>Delivery:</strong> ${esc(p.delivery_method)} · ${esc(p.delivery_name)} · ${esc(p.delivery_phone)}</p>
       <p><strong>Address:</strong> ${esc(p.delivery_address)}</p>
-      ${items ? `<ul>${items}</ul>` : ""}
+      ${items ? `<ul style="padding-left:20px">${items}</ul>` : ""}
       <p><strong>Order total:</strong> ${naira(p.total_amount)}</p>`
     : "";
 
   // Seller-only follow-up: show the assigned fulfillment agent when available.
-  // These fields are added by the marketplace-admin assignment notification.
   const assignedAgentInfo = !isEstimate && event.recipient_role === "seller" && (p.agent_name || p.agent_phone)
     ? `<div style="background:#f5f7fb;padding:16px;border-radius:8px;margin:18px 0">
         <p><strong>Assigned PanBill agent</strong></p>
@@ -99,11 +104,14 @@ function renderOriginalOrderEmail(event: any) {
 function safeHttpsUrl(value: unknown, fallback: string): string {
   const raw = typeof value === "string" ? value.trim() : "";
   if (!raw) return fallback;
+
   try {
     const parsed = new URL(raw);
     const host = parsed.hostname.toLowerCase();
-    const trustedHost = host === "panbill.com.ng" || host === "www.panbill.com.ng" ||
+    const trustedHost = host === "panbill.com.ng" ||
+      host === "www.panbill.com.ng" ||
       host === "rbvmtrsftnmnlxjmewpp.supabase.co";
+
     return parsed.protocol === "https:" && trustedHost ? parsed.toString() : fallback;
   } catch {
     return fallback;
@@ -117,18 +125,89 @@ function renderAgentWelcome(event: any) {
   const dashboardUrl = safeHttpsUrl(p.dashboard_url, "https://panbill.com.ng/agent.html");
   const activationUrl = safeHttpsUrl(p.activation_url || p.invite_url, "");
   const title = "Welcome to the PanBill Marketplace Agent Team";
+
   const accessLink = activationUrl
     ? `<p>Your appointment has been approved. Use the secure invitation link below to activate your PanBill account and set your password. After activation, open your Agent Dashboard.</p>
        <p style="margin:24px 0"><a href="${esc(activationUrl)}" style="display:inline-block;background:#07152f;color:#ffe4a0;text-decoration:none;padding:13px 22px;border-radius:6px;font-weight:bold">Activate Agent Account</a></p>
        <p>Once your account is activated, sign in at the Agent Dashboard using the email address this message was sent to.</p>`
     : `<p>Your PanBill marketplace agent account has been set up successfully. You can access your personal agent dashboard using your existing PanBill account login.</p>
        <p><strong>Important:</strong> Sign in with the same email address and password you already use for PanBill. No new account or password is required.</p>`;
+
   const body = `<p>Hello ${agentName},</p>
     <p>Your PanBill marketplace agent appointment is approved. Your assigned role is <strong>${agentType}</strong>.</p>
     ${accessLink}
     <p style="margin:24px 0"><a href="${esc(dashboardUrl)}" style="display:inline-block;background:#07152f;color:#ffe4a0;text-decoration:none;padding:13px 22px;border-radius:6px;font-weight:bold">Open Agent Dashboard</a></p>
     <p>Use your dashboard to view orders assigned to you and update their fulfillment status. Please keep your login details and invitation link private.</p>`;
+
   return { subject: `${title} — PanBill`, html: emailLayout(title, body) };
+}
+
+function renderAgentOrderAssigned(event: any) {
+  const p = event.payload || {};
+  const orderNo = esc(p.order_number || "PanBill order");
+  const agentName = esc(p.agent_name || "PanBill Agent");
+  const assignmentId = esc(p.assignment_id || "Not available");
+  const assignmentType = p.assignment_type === "pickup" || p.agent_type === "pickup"
+    ? "Pickup Station"
+    : "Doorstep Delivery";
+
+  const items = Array.isArray(p.items)
+    ? p.items.map((item: any) =>
+      `<li style="margin-bottom:14px">
+        <strong>${esc(item.product_name)}</strong> × ${esc(item.quantity)}
+        — ${naira(item.line_total)}
+        <br><strong>Complete Product ID:</strong>
+        <span style="overflow-wrap:anywhere;word-break:break-word">${esc(item.product_id || "Not available")}</span>
+      </li>`
+    ).join("")
+    : "";
+
+  const title = "A Marketplace Order Has Been Assigned to You";
+
+  const body = `
+    <p>Hello ${agentName},</p>
+    <p>A PanBill marketplace order has been assigned to you. Please review the order details below.</p>
+
+    <div style="background:#f5f7fb;padding:16px;border-radius:8px;margin:18px 0">
+      <p><strong>Order number:</strong> ${orderNo}</p>
+      <p><strong>Assignment ID:</strong>
+        <span style="overflow-wrap:anywhere;word-break:break-word">${assignmentId}</span>
+      </p>
+      <p><strong>Assignment type:</strong> ${esc(assignmentType)}</p>
+    </div>
+
+    <h3>Assigned products</h3>
+    ${items ? `<ul style="padding-left:20px">${items}</ul>` : "<p>No product details were attached to this notification. Please check your dashboard.</p>"}
+
+    <div style="background:#f5f7fb;padding:16px;border-radius:8px;margin:18px 0">
+      <h3>Delivery information</h3>
+      <p><strong>Recipient:</strong> ${esc(p.delivery_name || "Not provided")}</p>
+      <p><strong>Phone:</strong> ${esc(p.delivery_phone || "Not provided")}</p>
+      <p><strong>Address:</strong> ${esc(p.delivery_address || "Not provided")}</p>
+      ${p.delivery_notes ? `<p><strong>Delivery notes:</strong> ${esc(p.delivery_notes)}</p>` : ""}
+    </div>
+
+    <div style="background:#f5f7fb;padding:16px;border-radius:8px;margin:18px 0">
+      <h3>Payment information</h3>
+      <p><strong>Payment method:</strong> ${esc(p.payment_method || "Not provided")}</p>
+      <p><strong>Payment status:</strong> ${esc(p.payment_status || "Not provided")}</p>
+      <p><strong>Order total:</strong> ${naira(p.total_amount)}</p>
+    </div>
+
+    <p>Please sign in to your agent dashboard to review the assignment and carry out the required fulfillment steps.</p>
+    <p style="margin:24px 0">
+      <a href="https://panbill.com.ng/agent.html"
+        style="display:inline-block;background:#07152f;color:#ffe4a0;text-decoration:none;padding:13px 22px;border-radius:6px;font-weight:bold">
+        Open Agent Dashboard
+      </a>
+    </p>
+    <p>Keep the complete product IDs available when verifying the products for this order.</p>
+  `;
+
+  return {
+    subject: `Order Assigned to You — ${orderNo}`,
+    html: emailLayout(title, body),
+  };
 }
 
 function renderBuyerFulfillmentEmail(event: any) {
@@ -139,6 +218,7 @@ function renderBuyerFulfillmentEmail(event: any) {
   const stationAddress = esc(station.address || p.pickup_station_address || "");
   const collectionDate = esc(p.collection_date || p.collection_day || p.ready_for_collection_date || "");
   const collectionInstructions = esc(p.collection_instructions || p.instructions || "");
+
   let title = "Your PanBill order update";
   let message = "";
 
@@ -147,34 +227,41 @@ function renderBuyerFulfillmentEmail(event: any) {
       title = "Pickup station confirmed";
       message = `<p>Your order <strong>${orderNo}</strong> is set for collection at the selected pickup station.</p>`;
       break;
+
     case "ready_for_collection":
     case "pickup_ready_for_collection":
       title = "Your order is ready for collection";
       message = `<p>Good news! Your order <strong>${orderNo}</strong> is ready for collection.</p>`;
       break;
+
     case "collection_day_reminder":
       title = "Reminder: collect your PanBill order today";
       message = `<p>This is a reminder that your order <strong>${orderNo}</strong> is scheduled for collection today.</p>`;
       break;
+
     case "out_for_delivery":
     case "doorstep_out_for_delivery":
       title = "Your order is out for delivery";
       message = `<p>Your order <strong>${orderNo}</strong> has been dispatched and is on its way to your delivery address.</p>`;
       break;
+
     case "delivered":
     case "doorstep_delivered":
       title = "Your order has been delivered";
       message = `<p>Your order <strong>${orderNo}</strong> has been marked as successfully delivered.</p>`;
       break;
+
     case "pickup_collected":
       title = "Your order has been collected";
       message = `<p>Your order <strong>${orderNo}</strong> has been marked as collected from the pickup station.</p>`;
       break;
+
     case "delivery_failed":
       title = "Delivery attempt unsuccessful";
       message = `<p>We could not complete delivery of your order <strong>${orderNo}</strong>. Our team will follow up with the next steps.</p>`;
       if (p.failure_reason) message += `<p><strong>Reason:</strong> ${esc(p.failure_reason)}</p>`;
       break;
+
     default:
       message = `<p>There is an update regarding your PanBill order <strong>${orderNo}</strong>.</p>`;
   }
@@ -201,6 +288,14 @@ function renderBuyerFulfillmentEmail(event: any) {
 function renderEmail(event: any) {
   if (event.event_type === "agent_welcome" && event.recipient_role === "agent") {
     return renderAgentWelcome(event);
+  }
+
+  if (
+    event.event_type === "order_placed" &&
+    event.recipient_role === "agent" &&
+    event.payload?.assignment_id
+  ) {
+    return renderAgentOrderAssigned(event);
   }
 
   const buyerFulfillmentEvents = new Set([
@@ -253,6 +348,7 @@ Deno.serve(async (req) => {
     for (const event of events || []) {
       try {
         const mail = renderEmail(event);
+
         const response = await fetch("https://api.resend.com/emails", {
           method: "POST",
           headers: {
@@ -268,6 +364,7 @@ Deno.serve(async (req) => {
         });
 
         const result = await response.json().catch(() => ({}));
+
         if (!response.ok) {
           throw new Error(
             String(result.message || result.name || `Resend returned ${response.status}`).slice(0, 500),
@@ -296,6 +393,7 @@ Deno.serve(async (req) => {
             updated_at: new Date().toISOString(),
           })
           .eq("id", event.id);
+
         failed++;
       }
     }
