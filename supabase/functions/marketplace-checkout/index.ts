@@ -10,6 +10,7 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") || "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 const PAYSTACK_SECRET_KEY = Deno.env.get("PAYSTACK_SECRET_KEY") || "";
+const EMAIL_WORKER_SECRET = Deno.env.get("PANBILL_EMAIL_WORKER_SECRET") || "";
 
 const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
   auth: { persistSession: false, autoRefreshToken: false },
@@ -46,9 +47,12 @@ async function enqueueOrderPlacedEmails(orderId: string) {
       .select("id, order_number, buyer_id, payment_method, payment_status, fulfillment_type, delivery_method, delivery_name, delivery_phone, delivery_address, delivery_city, delivery_lga, delivery_state, total_amount, created_at")
       .eq("id", orderId).maybeSingle();
     if (orderError || !order) throw orderError || new Error("Order not found for email notification.");
+
     const { data: items, error: itemsError } = await admin.from("marketplace_order_items")
-      .select("seller_id, product_name, quantity, line_total").eq("order_id", orderId);
+      .select("seller_id, product_id, product_name, quantity, line_total")
+      .eq("order_id", orderId);
     if (itemsError) throw itemsError;
+
     let assignedAgent: any = null;
     try {
       const { data: assignment } = await admin.from("marketplace_order_fulfillment_assignments")
@@ -60,33 +64,100 @@ async function enqueueOrderPlacedEmails(orderId: string) {
     } catch (agentLookupError) {
       console.error("Optional assigned-agent lookup failed for order email:", agentLookupError);
     }
+
     const { data: buyerResult, error: buyerError } = await admin.auth.admin.getUserById(order.buyer_id);
     if (buyerError) throw buyerError;
     const buyerEmail = clean(buyerResult?.user?.email, 254).toLowerCase();
-    const base = { order_number: order.order_number, total_amount: order.total_amount,
-      payment_method: order.payment_method, payment_status: order.payment_status,
-      delivery_method: order.delivery_method, delivery_name: order.delivery_name,
-      delivery_phone: order.delivery_phone, delivery_address: [order.delivery_address, order.delivery_city, order.delivery_lga, order.delivery_state].filter(Boolean).join(", "),
-      items: items || [], placed_at: order.created_at };
+
+    const base = {
+      order_number: order.order_number,
+      total_amount: order.total_amount,
+      payment_method: order.payment_method,
+      payment_status: order.payment_status,
+      delivery_method: order.delivery_method,
+      delivery_name: order.delivery_name,
+      delivery_phone: order.delivery_phone,
+      delivery_address: [order.delivery_address, order.delivery_city, order.delivery_lga, order.delivery_state].filter(Boolean).join(", "),
+      items: items || [],
+      placed_at: order.created_at,
+    };
+
     const events: any[] = [];
-    if (buyerEmail) events.push({ event_key: `order_placed:${order.id}:buyer`, order_id: order.id, recipient_user_id: order.buyer_id, recipient_email: buyerEmail, recipient_role: "buyer", event_type: "order_placed", payload: base });
-    events.push({ event_key: `order_placed:${order.id}:admin`, order_id: order.id, recipient_email: ADMIN_ORDER_EMAIL, recipient_role: "admin", event_type: "order_placed", payload: base });
+
+    if (buyerEmail) {
+      events.push({
+        event_key: `order_placed:${order.id}:buyer`,
+        order_id: order.id,
+        recipient_user_id: order.buyer_id,
+        recipient_email: buyerEmail,
+        recipient_role: "buyer",
+        event_type: "order_placed",
+        payload: base,
+      });
+    }
+
+    events.push({
+      event_key: `order_placed:${order.id}:admin`,
+      order_id: order.id,
+      recipient_email: ADMIN_ORDER_EMAIL,
+      recipient_role: "admin",
+      event_type: "order_placed",
+      payload: base,
+    });
+
     const sellerIds = [...new Set((items || []).map((x: any) => x.seller_id).filter(Boolean))];
+
     if (sellerIds.length) {
       const { data: sellers, error: sellerError } = await admin.from("marketplace_sellers")
-        .select("user_id, business_name, contact_email").in("user_id", sellerIds);
+        .select("user_id, business_name, contact_email")
+        .in("user_id", sellerIds);
       if (sellerError) throw sellerError;
+
       for (const seller of sellers || []) {
         const email = clean(seller.contact_email, 254).toLowerCase();
         if (!email) continue;
-        events.push({ event_key: `order_placed:${order.id}:seller:${seller.user_id}`, order_id: order.id, recipient_user_id: seller.user_id, recipient_email: email, recipient_role: "seller", event_type: "order_placed", payload: { ...base, seller_name: seller.business_name, items: (items || []).filter((x: any) => x.seller_id === seller.user_id), ...(assignedAgent ? { agent_name: assignedAgent.full_name, agent_phone: assignedAgent.phone, agent_type: assignedAgent.agent_type, agent_contact_notice: "Assigned PanBill fulfillment agent" } : {}) } });
+
+        events.push({
+          event_key: `order_placed:${order.id}:seller:${seller.user_id}`,
+          order_id: order.id,
+          recipient_user_id: seller.user_id,
+          recipient_email: email,
+          recipient_role: "seller",
+          event_type: "order_placed",
+          payload: {
+            ...base,
+            seller_name: seller.business_name,
+            items: (items || []).filter((x: any) => x.seller_id === seller.user_id),
+            ...(assignedAgent ? {
+              agent_name: assignedAgent.full_name,
+              agent_phone: assignedAgent.phone,
+              agent_type: assignedAgent.agent_type,
+              agent_contact_notice: "Assigned PanBill fulfillment agent",
+            } : {}),
+          },
+        });
       }
     }
+
     if (events.length) {
-      const { error } = await admin.from("marketplace_email_events").upsert(events, { onConflict: "event_key", ignoreDuplicates: true });
+      const { error } = await admin.from("marketplace_email_events")
+        .upsert(events, { onConflict: "event_key", ignoreDuplicates: true });
       if (error) throw error;
-      const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-      await fetch(`${SUPABASE_URL}/functions/v1/marketplace-email-worker`, { method: "POST", headers: { Authorization: `Bearer ${serviceKey}`, "Content-Type": "application/json" }, body: "{}" }).catch((e) => console.error("Email worker invoke failed:", e));
+
+      // The email worker requires PANBILL_EMAIL_WORKER_SECRET.
+      // If it is not configured, the queued events remain available for a later worker run.
+      if (EMAIL_WORKER_SECRET) {
+        await fetch(`${SUPABASE_URL}/functions/v1/marketplace-email-worker`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${EMAIL_WORKER_SECRET}`,
+            "Content-Type": "application/json",
+          },
+          body: "{}",
+        }).catch((e) => console.error("Email worker invoke failed:", e));
+      } else {
+        console.error("Email worker was not invoked: PANBILL_EMAIL_WORKER_SECRET is not configured.");
+      }
     }
   } catch (error) {
     // Email queue failure must never undo a successfully placed or paid order.
@@ -102,8 +173,10 @@ async function finalizeVerifiedPayment(reference: string, data: any) {
     .maybeSingle();
   if (orderError) throw orderError;
   if (!order) throw new Error("Marketplace order was not found.");
+
   const expectedKobo = Math.round(Number(order.total_amount) * 100);
   const paidKobo = Number(data.amount);
+
   if (data.status !== "success" || data.reference !== reference ||
       data.currency !== "NGN" || !Number.isFinite(paidKobo) || paidKobo !== expectedKobo) {
     throw new Error("Paystack payment details do not match this PanBill order. The order has not been marked paid.");
@@ -113,6 +186,7 @@ async function finalizeVerifiedPayment(reference: string, data: any) {
     if (data.channel !== "bank_transfer" || data.metadata?.payment_type !== "marketplace_pay_on_delivery") {
       throw new Error("This Paystack payment is not a verified PanBill Pay on Delivery bank transfer.");
     }
+
     const { data: podFinalized, error: podError } = await admin.rpc("marketplace_finalize_pod_payment", {
       p_reference: reference,
       p_provider_reference: clean(data.id, 100),
@@ -142,15 +216,20 @@ async function verifyPaystackWebhookSignature(rawBody: string, signature: string
   const digest = await crypto.subtle.sign("HMAC", key, encoder.encode(rawBody));
   const expected = Array.from(new Uint8Array(digest))
     .map((byte) => byte.toString(16).padStart(2, "0")).join("");
+
   if (signature.length !== expected.length) return false;
+
   let mismatch = 0;
-  for (let i = 0; i < expected.length; i++) mismatch |= expected.charCodeAt(i) ^ signature.toLowerCase().charCodeAt(i);
+  for (let i = 0; i < expected.length; i++) {
+    mismatch |= expected.charCodeAt(i) ^ signature.toLowerCase().charCodeAt(i);
+  }
   return mismatch === 0;
 }
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return respond({ success: false, error: "Method not allowed." }, 405);
+
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !SUPABASE_SERVICE_ROLE_KEY) {
     return respond({ success: false, error: "Server configuration is incomplete. Check SUPABASE_URL, SUPABASE_ANON_KEY and SUPABASE_SERVICE_ROLE_KEY." }, 500);
   }
@@ -158,18 +237,24 @@ Deno.serve(async (req) => {
   try {
     // Paystack server-to-server webhook. Signature is verified before trusting its payload.
     const signature = req.headers.get("x-paystack-signature");
+
     if (signature) {
-      if (!PAYSTACK_SECRET_KEY) return respond({ success: false, error: "Paystack webhook verification is not configured." }, 500);
+      if (!PAYSTACK_SECRET_KEY) {
+        return respond({ success: false, error: "Paystack webhook verification is not configured." }, 500);
+      }
+
       const rawBody = await req.text();
       if (!(await verifyPaystackWebhookSignature(rawBody, signature))) {
         return respond({ success: false, error: "Invalid Paystack webhook signature." }, 401);
       }
+
       const event = JSON.parse(rawBody);
       if (event.event === "charge.success" && event.data?.reference) {
         const verified = await paystackVerify(String(event.data.reference));
         const result = await finalizeVerifiedPayment(String(event.data.reference), verified);
         return respond({ received: true, result });
       }
+
       return respond({ received: true, ignored: true });
     }
 
@@ -177,58 +262,79 @@ Deno.serve(async (req) => {
     if (!authorization?.startsWith("Bearer ")) {
       return respond({ success: false, error: "Please sign in first." }, 401);
     }
+
     const authClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       global: { headers: { Authorization: authorization } },
       auth: { persistSession: false, autoRefreshToken: false },
     });
+
     const { data: userData, error: authError } = await authClient.auth.getUser();
     const user = userData?.user;
-    if (authError || !user) return respond({ success: false, error: "Invalid or expired session." }, 401);
+    if (authError || !user) {
+      return respond({ success: false, error: "Invalid or expired session." }, 401);
+    }
 
     const body = await req.json();
     const action = clean(body.action, 40);
 
     if (action === "create_checkout") {
       const items = Array.isArray(body.items) ? body.items : [];
-      if (!items.length || items.length > 30) return respond({ success: false, error: "Your cart is empty or too large." }, 400);
+      if (!items.length || items.length > 30) {
+        return respond({ success: false, error: "Your cart is empty or too large." }, 400);
+      }
+
       const normalizedItems = items.map((item: any) => ({
         product_id: clean(item.product_id, 50),
         quantity: Number(item.quantity),
       }));
-      if (normalizedItems.some((item: any) => !/^[0-9a-f-]{36}$/i.test(item.product_id) || !Number.isInteger(item.quantity))) {
+
+      if (normalizedItems.some((item: any) =>
+        !/^[0-9a-f-]{36}$/i.test(item.product_id) || !Number.isInteger(item.quantity)
+      )) {
         return respond({ success: false, error: "Your cart contains an invalid product or quantity." }, 400);
       }
 
       const delivery = body.delivery && typeof body.delivery === "object" ? body.delivery : {};
+
       // Default existing clients to doorstep delivery. Pickup is accepted only
       // when a valid active PanBill pickup-point UUID is supplied; the database
       // function independently verifies that the centre is active.
       const deliveryMethod = clean(body.delivery_method || delivery.method || "doorstep", 30);
       const pickupPointId = clean(body.pickup_point_id || delivery.pickup_point_id || "", 50);
+
       if (!["doorstep", "pickup_point"].includes(deliveryMethod)) {
         return respond({ success: false, error: "Choose doorstep delivery or a PanBill collection centre." }, 400);
       }
+
       if (deliveryMethod === "pickup_point" && !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(pickupPointId)) {
         return respond({ success: false, error: "Select an available PanBill collection centre." }, 400);
       }
+
       if (deliveryMethod === "doorstep" && pickupPointId) {
         return respond({ success: false, error: "Please clear the collection-centre selection for doorstep delivery." }, 400);
       }
+
       const paymentMethod = clean(body.payment_method || body.paymentMethod || "online", 40);
+
       // Cash on Delivery is intentionally disabled. Keep this server-side
       // allow-list even if an older browser/client attempts to submit COD.
       if (!["online", "pay_on_delivery"].includes(paymentMethod)) {
         return respond({ success: false, error: "Choose Pay Online or Bank Transfer on Delivery." }, 400);
       }
+
       if (paymentMethod !== "online" && normalizedItems.length === 0) {
         return respond({ success: false, error: "A physical marketplace order is required." }, 400);
       }
+
       const reference = paymentMethod === "pay_on_delivery"
         ? `PBMPOD-${Date.now()}-${crypto.randomUUID().replace(/-/g, "")}`
         : `PBMKT_${Date.now()}_${crypto.randomUUID().replace(/-/g, "")}`;
 
       if (paymentMethod === "pay_on_delivery") {
-        if (!PAYSTACK_SECRET_KEY) return respond({ success: false, error: "Paystack payments are temporarily unavailable." }, 500);
+        if (!PAYSTACK_SECRET_KEY) {
+          return respond({ success: false, error: "Paystack payments are temporarily unavailable." }, 500);
+        }
+
         const { data: created, error: createError } = await admin.rpc("marketplace_create_checkout_order", {
           p_buyer_id: user.id,
           p_items: normalizedItems,
@@ -243,11 +349,14 @@ Deno.serve(async (req) => {
           p_delivery_method: deliveryMethod,
           p_pickup_point_id: deliveryMethod === "pickup_point" ? pickupPointId : null,
         });
+
         if (createError) return respond({ success: false, error: createError.message }, 400);
+
         const { data: marked, error: markError } = await admin.rpc("marketplace_set_order_pay_on_delivery", {
           p_order_id: created.order_id,
           p_buyer_id: user.id,
         });
+
         if (markError || !marked?.success) {
           await admin.rpc("marketplace_finalize_checkout_payment", {
             p_reference: reference,
@@ -255,9 +364,12 @@ Deno.serve(async (req) => {
             p_provider_reference: null,
             p_provider_response: { pod_setup_error: markError?.message || "Could not mark POD order." },
           });
+
           return respond({ success: false, error: markError?.message || marked?.error || "Pay on Delivery could not be enabled for this order." }, 400);
         }
+
         await enqueueOrderPlacedEmails(created.order_id);
+
         return respond({
           success: true,
           payment_method: "pay_on_delivery",
@@ -273,7 +385,10 @@ Deno.serve(async (req) => {
         }, 201);
       }
 
-      if (!PAYSTACK_SECRET_KEY) return respond({ success: false, error: "Paystack payments are temporarily unavailable." }, 500);
+      if (!PAYSTACK_SECRET_KEY) {
+        return respond({ success: false, error: "Paystack payments are temporarily unavailable." }, 500);
+      }
+
       const { data: created, error: createError } = await admin.rpc("marketplace_create_checkout_order", {
         p_buyer_id: user.id,
         p_items: normalizedItems,
@@ -288,6 +403,7 @@ Deno.serve(async (req) => {
         p_delivery_method: deliveryMethod,
         p_pickup_point_id: deliveryMethod === "pickup_point" ? pickupPointId : null,
       });
+
       if (createError) return respond({ success: false, error: createError.message }, 400);
 
       try {
@@ -311,10 +427,12 @@ Deno.serve(async (req) => {
             },
           }),
         });
+
         const initialized = await initResponse.json().catch(() => ({}));
         if (!initResponse.ok || initialized.status !== true || !initialized.data?.authorization_url) {
           throw new Error(clean(initialized.message, 250) || "Paystack could not initialize this payment.");
         }
+
         return respond({
           success: true,
           order_id: created.order_id,
@@ -332,31 +450,68 @@ Deno.serve(async (req) => {
           p_reference: reference,
           p_success: false,
           p_provider_reference: null,
-          p_provider_response: { initialization_error: initError instanceof Error ? initError.message : "Paystack initialization failed" },
+          p_provider_response: {
+            initialization_error: initError instanceof Error ? initError.message : "Paystack initialization failed",
+          },
         });
+
         throw initError;
       }
     }
 
     if (action === "verify_payment") {
       const reference = clean(body.reference, 120);
-      if (reference.length < 10) return respond({ success: false, error: "A valid payment reference is required." }, 400);
+      if (reference.length < 10) {
+        return respond({ success: false, error: "A valid payment reference is required." }, 400);
+      }
+
       const { data: order, error: orderError } = await admin
         .from("marketplace_orders")
         .select("id, order_number, buyer_id, payment_status, payment_method")
         .eq("payment_reference", reference)
         .maybeSingle();
-      if (orderError) throw orderError;
-      if (!order || order.buyer_id !== user.id) return respond({ success: false, error: "Order not found for this account." }, 404);
-      if (order.payment_status === "paid") return respond({ success: true, already_paid: true, order_id: order.id, order_number: order.order_number, payment_status: "paid" });
 
-      if (!PAYSTACK_SECRET_KEY) return respond({ success: false, error: "Paystack payments are temporarily unavailable." }, 500);
+      if (orderError) throw orderError;
+      if (!order || order.buyer_id !== user.id) {
+        return respond({ success: false, error: "Order not found for this account." }, 404);
+      }
+
+      if (order.payment_status === "paid") {
+        return respond({
+          success: true,
+          already_paid: true,
+          order_id: order.id,
+          order_number: order.order_number,
+          payment_status: "paid",
+        });
+      }
+
+      if (!PAYSTACK_SECRET_KEY) {
+        return respond({ success: false, error: "Paystack payments are temporarily unavailable." }, 500);
+      }
+
       const verified = await paystackVerify(reference);
+
       if (verified.status === "success") {
         const result = await finalizeVerifiedPayment(reference, verified);
-        if (!result?.success) return respond({ success: false, error: result?.message || "The stock reservation expired. Please contact PanBill support with your order number.", order_number: order.order_number, payment_review_required: true }, 409);
-        return respond({ success: true, order_id: order.id, order_number: order.order_number, payment_status: "paid" });
+
+        if (!result?.success) {
+          return respond({
+            success: false,
+            error: result?.message || "The stock reservation expired. Please contact PanBill support with your order number.",
+            order_number: order.order_number,
+            payment_review_required: true,
+          }, 409);
+        }
+
+        return respond({
+          success: true,
+          order_id: order.id,
+          order_number: order.order_number,
+          payment_status: "paid",
+        });
       }
+
       if (verified.status === "failed" || verified.status === "abandoned") {
         const { data: failed, error: failError } = await admin.rpc("marketplace_finalize_checkout_payment", {
           p_reference: reference,
@@ -364,15 +519,31 @@ Deno.serve(async (req) => {
           p_provider_reference: clean(verified.id, 100),
           p_provider_response: verified,
         });
+
         if (failError) throw failError;
-        return respond({ success: false, payment_status: "failed", order_number: order.order_number, message: "Payment was not successful." }, 402);
+
+        return respond({
+          success: false,
+          payment_status: "failed",
+          order_number: order.order_number,
+          message: "Payment was not successful.",
+        }, 402);
       }
-      return respond({ success: false, payment_status: "pending", order_number: order.order_number, message: "Paystack has not confirmed this payment yet. Please check again shortly." }, 202);
+
+      return respond({
+        success: false,
+        payment_status: "pending",
+        order_number: order.order_number,
+        message: "Paystack has not confirmed this payment yet. Please check again shortly.",
+      }, 202);
     }
 
     return respond({ success: false, error: "Unknown action. Use create_checkout or verify_payment." }, 400);
   } catch (error) {
     console.error("marketplace-checkout error:", error);
-    return respond({ success: false, error: error instanceof Error ? error.message : "Unexpected checkout error." }, 500);
+    return respond({
+      success: false,
+      error: error instanceof Error ? error.message : "Unexpected checkout error.",
+    }, 500);
   }
 });
