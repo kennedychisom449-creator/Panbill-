@@ -775,6 +775,67 @@ body:has(#seller-dashboard-page:not([hidden])) #settings-top-button{display:none
 @media(max-width:520px){#auth-overlay .auth-network-item{min-height:55px}#auth-overlay .auth-present-scene{min-height:76px;padding:6px 8px}#auth-overlay .auth-boys{height:59px}#auth-overlay .auth-boy{font-size:33px}#auth-overlay .auth-boy-two{font-size:30px}#auth-overlay .auth-phone{width:49px;height:69px}#auth-overlay .auth-present-copy{margin-left:68px}#auth-overlay .auth-present-copy strong{font-size:9px}}
 @media(prefers-reduced-motion:reduce){#auth-overlay .auth-network-item,#auth-overlay .auth-network-item b,#auth-overlay .auth-promo-heading strong,#auth-overlay .auth-boy,#auth-overlay .auth-phone,#auth-overlay .auth-phone-vtu,#auth-overlay .auth-phone-market,#auth-overlay #auth-heading{animation:none!important}#auth-overlay .auth-phone-market{opacity:0}#auth-overlay .auth-phone-vtu{opacity:1}}
 </style>
+
+<style id="panbill-login-viewport-and-dashboard-isolation">
+/* Keep the signed-in app/dashboard completely out of sight while login is open. */
+body:has(#auth-overlay:not([hidden])){overflow:hidden!important;min-height:100dvh;background:#06142d!important}
+body:has(#auth-overlay:not([hidden])) .app-header,
+body:has(#auth-overlay:not([hidden])) main.wrap{visibility:hidden!important;pointer-events:none!important}
+body:has(#auth-overlay:not([hidden])) #auth-overlay{
+  position:fixed!important;inset:0!important;z-index:1200!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  width:100vw!important;height:100vh!important;height:100dvh!important;
+  max-height:100dvh!important;overflow-x:hidden!important;overflow-y:auto!important;
+  padding:max(8px,env(safe-area-inset-top)) 10px max(8px,env(safe-area-inset-bottom))!important;
+  background:#06142d!important;
+  background-image:radial-gradient(ellipse at 15% 15%,#087f5b45,transparent 38%),
+    radial-gradient(ellipse at 85% 85%,#f2c15d1b,transparent 38%),
+    linear-gradient(135deg,#041027,#07152f 58%,#0b3d32)!important;
+}
+body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-card{
+  flex:0 0 auto!important;width:min(100%,435px)!important;
+  max-height:calc(100dvh - 16px)!important;overflow-y:auto!important;
+  overscroll-behavior:contain!important;margin:auto!important;
+  padding:clamp(10px,2.2vh,18px)!important;
+}
+@media(max-width:520px){
+ body:has(#auth-overlay:not([hidden])) #auth-overlay{padding:6px 9px!important}
+ body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-card{
+  width:min(100%,420px)!important;max-height:calc(100dvh - 12px)!important;
+  padding:clamp(9px,1.7vh,13px)!important;border-radius:17px!important;
+ }
+ body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-network-promo{margin:5px 0 6px!important;padding:6px 7px!important}
+ body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-network-item{min-height:48px!important}
+ body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-present-scene{min-height:68px!important;margin:5px 0 3px!important}
+ body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-boys{height:53px!important}
+ body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-boy{font-size:29px!important}
+ body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-boy-two{font-size:27px!important}
+ body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-phone{width:44px!important;height:62px!important}
+ body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-present-copy{margin-left:61px!important}
+ body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-app-promise{margin:3px 0 1px!important;font-size:8px!important}
+ body:has(#auth-overlay:not([hidden])) #auth-overlay #auth-heading{margin:5px 0 1px!important;font-size:18px!important}
+ body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-sub{margin-bottom:6px!important}
+ body:has(#auth-overlay:not([hidden])) #auth-overlay .tabs{margin:6px 0!important}
+ body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-card label{margin:6px 0 3px!important}
+ body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-card input{min-height:36px!important;padding:7px 9px!important}
+ body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-links{margin:6px 0!important}
+ body:has(#auth-overlay:not([hidden])) #auth-overlay .biometric-note{margin-top:6px!important;padding:5px!important}
+ body:has(#auth-overlay:not([hidden])) #auth-overlay .passkey-icon-button{width:48px!important;height:48px!important}
+ body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-note{margin-top:6px!important}
+}
+@media(max-height:700px){
+ body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-card{padding:9px 12px!important}
+ body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-brand{margin-bottom:3px!important;font-size:19px!important}
+ body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-brand .brand-mark{width:27px!important;height:27px!important;font-size:18px!important}
+ body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-network-item{min-height:43px!important}
+ body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-present-scene{min-height:61px!important}
+ body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-boys{height:48px!important}
+ body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-phone{height:55px!important;width:40px!important}
+ body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-phone-screen{padding-top:6px!important}
+ body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-sub{margin-bottom:4px!important}
+ body:has(#auth-overlay:not([hidden])) #auth-overlay .tabs{margin:5px 0!important}
+}
+</style>
 </head><body>
 <div aria-label="PanBill is loading" aria-live="polite" id="panbill-loading-screen" role="status"><div aria-hidden="true" class="panbill-loader-mark">P</div><div class="panbill-loader-name">PanBill</div><div class="panbill-loader-caption">One app. All your bills.</div><div aria-hidden="true" class="panbill-loader-ring"></div></div>
 <header class="app-header"><div class="brand"><span class="brand-mark">P</span> PanBill</div><div class="header-actions"><span class="muted" hidden="" id="header-user" style="font-size:12px"></span><button class="pill" id="settings-top-button" type="button" aria-label="Open Settings">⚙ Settings</button><button aria-hidden="true" class="pill" hidden="" id="logout-button" type="button">Log out</button></div></header>
