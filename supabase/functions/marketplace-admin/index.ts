@@ -10,6 +10,7 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const PAYSTACK_SECRET_KEY = Deno.env.get("PAYSTACK_SECRET_KEY") ?? "";
+const EMAIL_WORKER_SECRET = Deno.env.get("PANBILL_EMAIL_WORKER_SECRET") ?? "";
 
 const respond = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -91,6 +92,13 @@ async function queueBuyerEmail(order: any, eventType: string, eventKey: string, 
   const email = authData.user?.email;
   if (!email) return;
 
+  // Include the complete product IDs in every buyer fulfillment email payload.
+  const { data: items, error: itemsError } = await adminDb
+    .from("marketplace_order_items")
+    .select("product_id,product_name,quantity,line_total")
+    .eq("order_id", order.id);
+  if (itemsError) throw itemsError;
+
   const payload = {
     order_number: order.order_number,
     delivery_method: order.delivery_method,
@@ -101,6 +109,7 @@ async function queueBuyerEmail(order: any, eventType: string, eventKey: string, 
     delivery_lga: order.delivery_lga,
     delivery_state: order.delivery_state,
     total_amount: order.total_amount,
+    items: items ?? [],
     ...extra,
   };
 
@@ -244,7 +253,7 @@ async function adminReviewApplication(body: any, actorId: string) {
     : (body.pickup_point_id ? cleanText(body.pickup_point_id, 80) : null);
   if (agentType !== "pickup" && agentType !== "delivery") throw new Error("Choose pickup or delivery agent function.");
   if ((agentType === "pickup" && !pickupPointId) || (agentType === "delivery" && pickupPointId)) {
-    throw new Error("Pickup agents require an active station; delivery agents must not have a station.");
+    throw new Error("Pickup agents require an active station; delivery agents must not have one.");
   }
   if (agentType === "pickup") {
     const { data: station, error } = await adminDb.from("marketplace_pickup_points")
@@ -381,16 +390,25 @@ async function queueSellerAgentAssignedEmails(orderId: string, assignmentId: str
     const { data: order, error: orderError } = await adminDb.from("marketplace_orders")
       .select(ORDER_FIELDS).eq("id", orderId).maybeSingle();
     if (orderError) throw orderError;
-    if (!order) throw new Error("Order not found for seller agent notification.");
+    if (!order) throw new Error("Order not found for seller/agent assignment notification.");
+
     const { data: items, error: itemsError } = await adminDb.from("marketplace_order_items")
-      .select("seller_id,product_name,quantity,line_total").eq("order_id", orderId);
+      .select("seller_id,product_id,product_name,quantity,line_total")
+      .eq("order_id", orderId);
     if (itemsError) throw itemsError;
+
     const sellerIds = [...new Set((items || []).map((item: any) => item.seller_id).filter(Boolean))];
-    if (!sellerIds.length) return false;
-    const { data: sellers, error: sellersError } = await adminDb.from("marketplace_sellers")
-      .select("user_id,business_name,contact_email").in("user_id", sellerIds);
-    if (sellersError) throw sellersError;
-    const events = (sellers || []).filter((seller: any) => cleanText(seller.contact_email, 254).includes("@"))
+    let sellers: any[] = [];
+    if (sellerIds.length) {
+      const { data, error } = await adminDb.from("marketplace_sellers")
+        .select("user_id,business_name,contact_email")
+        .in("user_id", sellerIds);
+      if (error) throw error;
+      sellers = data ?? [];
+    }
+
+    const events: any[] = sellers
+      .filter((seller: any) => cleanText(seller.contact_email, 254).includes("@"))
       .map((seller: any) => ({
         event_key: `agent_assigned:${orderId}:${assignmentId}:seller:${seller.user_id}`,
         order_id: orderId,
@@ -401,6 +419,7 @@ async function queueSellerAgentAssignedEmails(orderId: string, assignmentId: str
         status: "queued",
         updated_at: new Date().toISOString(),
         payload: {
+          assignment_id: assignmentId,
           order_number: order.order_number,
           total_amount: order.total_amount,
           payment_method: order.payment_method,
@@ -410,6 +429,7 @@ async function queueSellerAgentAssignedEmails(orderId: string, assignmentId: str
           delivery_phone: order.delivery_phone,
           delivery_address: [order.delivery_address, order.delivery_city, order.delivery_lga, order.delivery_state].filter(Boolean).join(", "),
           seller_name: seller.business_name,
+          // Keep each seller's email scoped to only that seller's order items.
           items: (items || []).filter((item: any) => item.seller_id === seller.user_id),
           agent_name: agent.full_name,
           agent_phone: agent.phone,
@@ -418,19 +438,72 @@ async function queueSellerAgentAssignedEmails(orderId: string, assignmentId: str
           agent_contact_notice: "Your order has been assigned. Contact the assigned PanBill fulfillment agent using the number below for order coordination.",
         },
       }));
-    if (events.length) {
-      const { error } = await adminDb.from("marketplace_email_events").upsert(events, { onConflict: "event_key", ignoreDuplicates: true });
-      if (error) throw error;
+
+    // Retrieve the assigned agent's verified account email.
+    const { data: agentAuth, error: agentAuthError } =
+      await adminDb.auth.admin.getUserById(agent.user_id);
+    if (agentAuthError) throw agentAuthError;
+    const agentEmail = cleanText(agentAuth?.user?.email, 254).toLowerCase();
+
+    if (agentEmail.includes("@")) {
+      events.push({
+        event_key: `agent_order_assigned:${orderId}:${assignmentId}:${agent.id}`,
+        order_id: orderId,
+        recipient_user_id: agent.user_id,
+        recipient_email: agentEmail,
+        recipient_role: "agent",
+        // Reuse the existing event type to avoid introducing a new DB enum/check value.
+        event_type: "order_placed",
+        status: "queued",
+        updated_at: new Date().toISOString(),
+        payload: {
+          assignment_id: assignmentId,
+          assignment_type: agent.agent_type,
+          order_number: order.order_number,
+          total_amount: order.total_amount,
+          payment_method: order.payment_method,
+          payment_status: order.payment_status,
+          delivery_method: order.delivery_method,
+          delivery_name: order.delivery_name,
+          delivery_phone: order.delivery_phone,
+          delivery_address: [order.delivery_address, order.delivery_city, order.delivery_lga, order.delivery_state].filter(Boolean).join(", "),
+          agent_name: agent.full_name,
+          agent_phone: agent.phone,
+          agent_type: agent.agent_type,
+          items: (items || []).map((item: any) => ({
+            product_id: item.product_id,
+            product_name: item.product_name,
+            quantity: item.quantity,
+            line_total: item.line_total,
+          })),
+        },
+      });
+    } else {
+      console.error("Assigned agent has no valid account email; agent assignment email was not queued.");
+    }
+
+    if (!events.length) return false;
+
+    const { error: queueError } = await adminDb.from("marketplace_email_events")
+      .upsert(events, { onConflict: "event_key", ignoreDuplicates: true });
+    if (queueError) throw queueError;
+
+    // The worker has its own shared secret. Never send the service-role key to it.
+    if (!EMAIL_WORKER_SECRET) {
+      console.error("PANBILL_EMAIL_WORKER_SECRET is not configured; assignment email events remain queued.");
+    } else {
       await fetch(`${SUPABASE_URL}/functions/v1/marketplace-email-worker`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`, "Content-Type": "application/json" },
+        headers: {
+          Authorization: `Bearer ${EMAIL_WORKER_SECRET}`,
+          "Content-Type": "application/json",
+        },
         body: "{}",
-      }).catch((error) => console.error("Seller agent-assignment email worker invoke failed:", error));
-      return true;
+      }).catch((error) => console.error("Seller/agent assignment email worker invoke failed:", error));
     }
-    return false;
+    return true;
   } catch (error) {
-    console.error("PanBill seller agent-assignment email queue failed:", error);
+    console.error("PanBill seller/agent assignment email queue failed:", error);
     return false;
   }
 }
@@ -849,6 +922,7 @@ async function agentUpdateStatus(body: any, actorId: string) {
         eventType,
         `fulfillment:${assignment.id}:${nextStatus}`,
         {
+          assignment_id: assignment.id,
           fulfillment_status: nextStatus,
           agent_name: agent.full_name,
           agent_phone: agent.phone,
