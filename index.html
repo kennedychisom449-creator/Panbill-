@@ -1902,8 +1902,8 @@ main.wrap[data-view="history"] #history-area>section:not(#transaction-panel){dis
   main.dataset.view='history';
   const area=document.getElementById('history-area');
   const panel=document.getElementById('transaction-panel');
-  if(area){area.hidden=true;area.style.setProperty('display','none','important')}
-  if(panel)panel.style.setProperty('display','none','important');
+  if(area){area.hidden=false;area.style.setProperty('display','block','important')}
+  if(panel){panel.hidden=false;panel.style.setProperty('display','block','important')}
   document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.toggle('nav-active',b.id==='nav-transactions'));
   window.scrollTo({top:0,behavior:'smooth'});
  };
@@ -3142,7 +3142,15 @@ html, body { max-width:100%; overflow-x:hidden; }
   try{
    if(route==='market')document.getElementById('nav-market')?.click();
    else if(route==='wallet')document.getElementById('nav-wallet')?.click();
-   else if(route==='history')document.getElementById('nav-transactions')?.click();
+   else if(route==='history'){
+    main.dataset.view='history';
+    const area=document.getElementById('history-area');
+    const panel=document.getElementById('transaction-panel');
+    if(area){area.hidden=false;area.style.setProperty('display','block','important')}
+    if(panel){panel.hidden=false;panel.style.setProperty('display','block','important')}
+    document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.toggle('nav-active',b.id==='nav-transactions'));
+    window.scrollTo({top:0,behavior:'auto'});
+   }
    else if(route==='settings')document.getElementById('nav-settings')?.click();
    else if(route==='seller'){
     const entry=document.getElementById('open-become-seller')||document.getElementById('open-add-product');
