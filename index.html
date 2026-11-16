@@ -837,12 +837,70 @@ body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-card{
  body:has(#auth-overlay:not([hidden])) #auth-overlay .tabs{margin:5px 0!important}
 }
 </style>
+<style>
+
+/* PanBill seasonal greeting motion graphics — additive; keeps all existing features */
+.seasonal-art{position:relative;isolation:isolate;overflow:visible}
+.seasonal-art:before{
+  content:"";position:absolute;width:86px;height:86px;border-radius:50%;
+  background:radial-gradient(circle,#fff8 0%,#ffe4a044 34%,transparent 72%);
+  filter:blur(2px);animation:pb-season-glow 3.8s ease-in-out infinite;z-index:0
+}
+.seasonal-art:after{
+  content:"";position:absolute;width:104px;height:48px;border:1px solid #ffe4a080;
+  border-radius:50%;transform:rotate(-28deg);animation:pb-season-orbit 8s linear infinite;z-index:1
+}
+.seasonal-motion-orbit{
+  position:absolute;width:78px;height:78px;border:1px dashed #fff9;border-radius:50%;
+  animation:pb-season-orbit 13s linear infinite reverse;z-index:1
+}
+.seasonal-motion-particle{position:absolute;z-index:3;color:#fff2b8;
+  text-shadow:0 0 10px #fff,0 0 18px #f6c65c;pointer-events:none}
+.particle-one{top:8%;left:18%;font-size:13px;animation:pb-season-particle-a 3.6s ease-in-out infinite}
+.particle-two{top:18%;right:12%;font-size:18px;animation:pb-season-particle-b 4.2s ease-in-out infinite .4s}
+.particle-three{bottom:12%;left:15%;font-size:17px;animation:pb-season-particle-c 3.9s ease-in-out infinite .8s}
+.particle-four{bottom:18%;right:13%;font-size:12px;animation:pb-season-particle-a 4.5s ease-in-out infinite 1s}
+.seasonal-art .season-main{z-index:4;filter:drop-shadow(0 5px 9px #0005);animation:pb-season-main-float 3.4s ease-in-out infinite}
+.seasonal-art .season-sparkles{z-index:2;pointer-events:none}
+.seasonal-card[data-theme="christmas"] .seasonal-art .season-main{animation:season-tree-sway 3.5s ease-in-out infinite;transform-origin:50% 90%}
+.seasonal-card[data-theme="newyear"] .seasonal-art .season-main{animation:pb-season-fireworks 1.9s ease-in-out infinite}
+.seasonal-card[data-theme="ramadan"] .seasonal-art .season-main,
+.seasonal-card[data-theme="eid"] .seasonal-art .season-main{animation:season-moon 5s ease-in-out infinite}
+.seasonal-card[data-theme="catholic"] .seasonal-art .season-main{animation:pb-season-halo 3.8s ease-in-out infinite}
+.seasonal-card[data-theme="newmonth"] .seasonal-art .season-main{animation:pb-season-main-float 2.8s ease-in-out infinite}
+@keyframes pb-season-glow{0%,100%{transform:scale(.82);opacity:.48}50%{transform:scale(1.16);opacity:.95}}
+@keyframes pb-season-orbit{to{transform:rotate(332deg)}}
+@keyframes pb-season-particle-a{0%,100%{transform:translate(0,0) scale(.75);opacity:.35}50%{transform:translate(5px,-10px) scale(1.25);opacity:1}}
+@keyframes pb-season-particle-b{0%,100%{transform:translateY(4px) rotate(0) scale(.8);opacity:.45}50%{transform:translateY(-9px) rotate(80deg) scale(1.2);opacity:1}}
+@keyframes pb-season-particle-c{0%,100%{transform:translate(0,0) rotate(0);opacity:.35}50%{transform:translate(-6px,-8px) rotate(35deg);opacity:1}}
+@keyframes pb-season-main-float{0%,100%{transform:translateY(2px) scale(.97)}50%{transform:translateY(-7px) scale(1.06)}}
+@keyframes pb-season-fireworks{0%,100%{transform:scale(.82) rotate(-5deg);filter:drop-shadow(0 0 3px #ffe4a0)}50%{transform:scale(1.18) rotate(5deg);filter:drop-shadow(0 0 15px #ffe4a0)}}
+@keyframes pb-season-halo{0%,100%{transform:translateY(1px) scale(.96);filter:drop-shadow(0 0 4px #ffe4a0)}50%{transform:translateY(-6px) scale(1.08);filter:drop-shadow(0 0 16px #ffe4a0)}}
+@media(max-width:520px){
+ .seasonal-art:after{width:82px;height:40px}
+ .seasonal-motion-orbit{width:64px;height:64px}
+ .seasonal-art:before{width:70px;height:70px}
+}
+@media(prefers-reduced-motion:reduce){
+ .seasonal-art:before,.seasonal-art:after,.seasonal-motion-orbit,.seasonal-motion-particle,
+ .seasonal-art .season-main{animation:none!important}
+}
+
+</style>
 </head><body>
 <div aria-label="PanBill is loading" aria-live="polite" id="panbill-loading-screen" role="status"><div aria-hidden="true" class="panbill-loader-mark">P</div><div class="panbill-loader-name">PanBill</div><div class="panbill-loader-caption">One app. All your bills.</div><div aria-hidden="true" class="panbill-loader-ring"></div></div>
 <header class="app-header"><div class="brand"><span class="brand-mark">P</span> PanBill</div><div class="header-actions"><span class="muted" hidden="" id="header-user" style="font-size:12px"></span><button class="pill" id="settings-top-button" type="button" aria-label="Open Settings">⚙ Settings</button><button aria-hidden="true" class="pill" hidden="" id="logout-button" type="button">Log out</button></div></header>
 <main class="wrap"><section class="hero"><div class="hero-copy"><div class="eyebrow">Simple • Secure • Convenient</div><h1>Your bills,<br/><span>beautifully handled.</span></h1><p>Recharge airtime, buy data, pay bills, add money to your wallet, shop and explore the marketplace every day — all in one secure app.</p><div class="trust"><span>✦ Secure account</span><span>✦ Clear transactions</span><span>✦ Fast checkout</span></div></div><div aria-label="PanBill animated seasonal background" class="portrait-card" role="img"></div></section>
 <div class="signed-greeting"><div><div class="eyebrow">YOUR PANBILL DASHBOARD</div><h2 id="greeting">Welcome to PanBill <span aria-hidden="true" class="greeting-spark">✦</span></h2><div class="muted" id="account-status" style="font-size:13px">Sign in to access your wallet.</div></div><span aria-hidden="true" class="greeting-decoration">✧</span><button aria-label="Open account settings" class="outline-btn" id="open-account" type="button" hidden="">Settings</button></div>
-<section aria-label="PanBill dashboard and seasonal message" aria-live="polite" class="seasonal-card" id="dashboard-seasonal-greeting"><div class="seasonal-copy"><div class="dashboard-brand-message"><strong>Your bills, beautifully handled.</strong><span>Recharge airtime, buy data, pay bills, add money, shop and explore — all in one secure app.</span></div><div class="seasonal-kicker" data-season-kicker="">SEASONAL GREETINGS</div><h2 class="seasonal-title" data-season-title="">Wishing you joy</h2><p class="seasonal-message" data-season-message="">Warm wishes from PanBill.</p></div><div aria-hidden="true" class="seasonal-art"><span class="season-main" data-season-art="">✦</span><span class="season-sparkles">✧ ✦</span></div></section>
+<section aria-label="PanBill dashboard and seasonal message" aria-live="polite" class="seasonal-card" id="dashboard-seasonal-greeting"><div class="seasonal-copy"><div class="dashboard-brand-message"><strong>Your bills, beautifully handled.</strong><span>Recharge airtime, buy data, pay bills, add money, shop and explore — all in one secure app.</span></div><div class="seasonal-kicker" data-season-kicker="">SEASONAL GREETINGS</div><h2 class="seasonal-title" data-season-title="">Wishing you joy</h2><p class="seasonal-message" data-season-message="">Warm wishes from PanBill.</p></div><div aria-hidden="true" class="seasonal-art">
+  <span class="seasonal-motion-orbit"></span>
+  <span class="seasonal-motion-particle particle-one">✦</span>
+  <span class="seasonal-motion-particle particle-two">✧</span>
+  <span class="seasonal-motion-particle particle-three">✦</span>
+  <span class="seasonal-motion-particle particle-four">✧</span>
+  <span class="season-main" data-season-art="">✦</span>
+  <span class="season-sparkles">✧ ✦</span>
+</div></section>
 <section class="panel wallet" hidden="" id="wallet-panel"><div class="wallet-top"><span class="wallet-label">AVAILABLE WALLET BALANCE</span><button aria-label="Hide balance" class="pill" id="toggle-balance" style="color:#101b30;border-color:#07152f30" type="button">◉</button></div><div class="balance" id="wallet-balance">₦••••••</div><div class="wallet-actions"><button id="fund-wallet-button" type="button"><span class="ico">＋</span>Add Money</button><button id="wallet-history-button" type="button"><span class="ico">↗</span>Transactions</button><button id="refresh-wallet" type="button"><span class="ico">⟳</span>Refresh</button></div><div id="wallet-message" style="font-size:12px;margin-top:12px;position:relative;z-index:1">Wallet information loads after sign-in.</div></section>
 <div class="section-head" id="vtu-section-heading"><h2 id="vtu-section-title">Pay a bill</h2><span class="muted" id="vtu-section-subtitle" style="font-size:12px">Choose a service</span><button class="outline-btn" hidden id="more-vtu-back" type="button">← Dashboard</button></div><section aria-label="VTU services" class="services">
 <button aria-label="Open Marketplace" class="service-card market-service-shortcut" id="home-marketplace-shortcut" type="button">
