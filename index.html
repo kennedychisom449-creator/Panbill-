@@ -842,9 +842,9 @@ body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-card{
 <header class="app-header"><div class="brand"><span class="brand-mark">P</span> PanBill</div><div class="header-actions"><span class="muted" hidden="" id="header-user" style="font-size:12px"></span><button class="pill" id="settings-top-button" type="button" aria-label="Open Settings">⚙ Settings</button><button aria-hidden="true" class="pill" hidden="" id="logout-button" type="button">Log out</button></div></header>
 <main class="wrap"><section class="hero"><div class="hero-copy"><div class="eyebrow">Simple • Secure • Convenient</div><h1>Your bills,<br/><span>beautifully handled.</span></h1><p>Recharge airtime, buy data, pay bills, add money to your wallet, shop and explore the marketplace every day — all in one secure app.</p><div class="trust"><span>✦ Secure account</span><span>✦ Clear transactions</span><span>✦ Fast checkout</span></div></div><div aria-label="PanBill animated seasonal background" class="portrait-card" role="img"></div></section>
 <div class="signed-greeting"><div><div class="eyebrow">YOUR PANBILL DASHBOARD</div><h2 id="greeting">Welcome to PanBill <span aria-hidden="true" class="greeting-spark">✦</span></h2><div class="muted" id="account-status" style="font-size:13px">Sign in to access your wallet.</div></div><span aria-hidden="true" class="greeting-decoration">✧</span><button aria-label="Open account settings" class="outline-btn" id="open-account" type="button" hidden="">Settings</button></div>
-<section aria-label="PanBill seasonal greeting" aria-live="polite" class="seasonal-card" id="dashboard-seasonal-greeting"><div class="seasonal-copy"><div class="seasonal-kicker" data-season-kicker="">SEASONAL GREETINGS</div><h2 class="seasonal-title" data-season-title="">Wishing you joy</h2><p class="seasonal-message" data-season-message="">Warm wishes from PanBill.</p></div><div aria-hidden="true" class="seasonal-art"><span class="season-main" data-season-art="">✦</span><span class="season-sparkles">✧ ✦</span></div></section>
+<section aria-label="PanBill dashboard and seasonal message" aria-live="polite" class="seasonal-card" id="dashboard-seasonal-greeting"><div class="seasonal-copy"><div class="dashboard-brand-message"><strong>Your bills, beautifully handled.</strong><span>Recharge airtime, buy data, pay bills, add money, shop and explore — all in one secure app.</span></div><div class="seasonal-kicker" data-season-kicker="">SEASONAL GREETINGS</div><h2 class="seasonal-title" data-season-title="">Wishing you joy</h2><p class="seasonal-message" data-season-message="">Warm wishes from PanBill.</p></div><div aria-hidden="true" class="seasonal-art"><span class="season-main" data-season-art="">✦</span><span class="season-sparkles">✧ ✦</span></div></section>
 <section class="panel wallet" hidden="" id="wallet-panel"><div class="wallet-top"><span class="wallet-label">AVAILABLE WALLET BALANCE</span><button aria-label="Hide balance" class="pill" id="toggle-balance" style="color:#101b30;border-color:#07152f30" type="button">◉</button></div><div class="balance" id="wallet-balance">₦••••••</div><div class="wallet-actions"><button id="fund-wallet-button" type="button"><span class="ico">＋</span>Add Money</button><button id="wallet-history-button" type="button"><span class="ico">↗</span>Transactions</button><button id="refresh-wallet" type="button"><span class="ico">⟳</span>Refresh</button></div><div id="wallet-message" style="font-size:12px;margin-top:12px;position:relative;z-index:1">Wallet information loads after sign-in.</div></section>
-<div class="section-head"><h2>Pay a bill</h2><span class="muted" style="font-size:12px">Choose a service</span></div><section aria-label="VTU services" class="services">
+<div class="section-head" id="vtu-section-heading"><h2 id="vtu-section-title">Pay a bill</h2><span class="muted" id="vtu-section-subtitle" style="font-size:12px">Choose a service</span><button class="outline-btn" hidden id="more-vtu-back" type="button">← Dashboard</button></div><section aria-label="VTU services" class="services">
 <button aria-label="Open Marketplace" class="service-card market-service-shortcut" id="home-marketplace-shortcut" type="button">
 <span aria-hidden="true" class="service-icon">🛍</span><strong>Marketplace</strong><small>Shop products</small>
 </button>
@@ -853,6 +853,7 @@ body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-card{
 </button>
 <button class="service-card" data-service="airtime" type="button"><span class="service-icon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm3 14h4"></path></svg></span><strong>Airtime</strong><small>All mobile networks</small></button>
 <button class="service-card" data-service="data" type="button"><span class="service-icon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M3 9a13 13 0 0 1 18 0M6.5 12.5a8 8 0 0 1 11 0M10 16a3 3 0 0 1 4 0M12 20h.01"></path></svg></span><strong>Data</strong><small>Internet bundles</small></button>
+<button aria-label="Open more VTU services" class="service-card more-vtu-shortcut" id="home-more-vtu-shortcut" type="button"><span aria-hidden="true" class="service-icon">＋</span><strong>More</strong><small>More VTU services</small></button>
 <button class="service-card" data-service="tv" type="button"><span class="service-icon"><svg aria-hidden="true" viewbox="0 0 24 24"><rect height="13" rx="2" width="18" x="3" y="6"></rect><path d="m8 3 4 3 4-3M8 22h8"></path></svg></span><strong>TV</strong><small>GOtv, DStv &amp; more</small></button>
 <button class="service-card" data-service="electricity" type="button"><span class="service-icon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="m13 2-9 12h7l-1 8 10-13h-7z"></path></svg></span><strong>Electricity</strong><small>Prepaid &amp; postpaid</small></button>
 <button class="service-card" data-service="exam" type="button"><span class="service-icon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M5 3h14v18H5zM8 8h8M8 12h8M8 16h5"></path></svg></span><strong>Exam PINs</strong><small>WAEC, JAMB &amp; more</small></button>
@@ -1080,7 +1081,22 @@ body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-card{
 <p class="muted" style="font-size:11px;margin-top:14px">Your PIN is stored as a one-way bcrypt hash and verified on the PanBill server. It is not stored in your profile or browser.</p>
 </section>
 </div>
-<div class="modal-backdrop" hidden="" id="account-overlay"><section aria-labelledby="account-settings-title" class="modal"><div class="modal-top"><h2 id="account-settings-title">Account Settings</h2><button class="close" id="close-account" type="button">Close</button></div><p class="muted" id="account-email">Sign in to view account details.</p><form id="account-settings-form"><h3 style="margin:18px 0 4px">Personal information</h3><label for="settings-full-name">Full name</label><input autocomplete="name" id="settings-full-name" maxlength="100" placeholder="Enter your full name" required="" type="text"/><label for="settings-phone">Contact phone number</label><input autocomplete="tel" id="settings-phone" inputmode="tel" maxlength="25" placeholder="e.g. 08012345678" type="tel"/><p class="muted" style="font-size:11px;margin:6px 0">Contact number only — it is not SMS-verified and is not used for phone login.</p><button class="gold-btn" id="save-account-settings" style="width:100%;margin-top:10px" type="submit">Save changes</button></form><div aria-live="polite" class="status" id="account-settings-message" role="status"></div><section class="passkey-settings"><strong>Biometric security</strong><p class="muted" style="font-size:12px;margin:6px 0 10px">Register a fresh passkey for panbill.com.ng. Your fingerprint or face data stays on your device.</p><button class="gold-btn" id="register-passkey-button" type="button">Register fingerprint / passkey</button><div aria-live="polite" class="status" id="passkey-register-message" role="status"></div></section><button class="outline-btn" id="account-reset-password" type="button">Send password reset link</button><div class="status" id="account-message"></div></section></div>
+<div class="modal-backdrop" hidden="" id="account-overlay"><section aria-labelledby="account-settings-title" class="modal"><div class="modal-top"><h2 id="account-settings-title">Account Settings</h2><button class="close" id="close-account" type="button">Close</button></div><p class="muted" id="account-email">Sign in to view account details.</p><form id="account-settings-form"><h3 style="margin:18px 0 4px">Personal information</h3><label for="settings-full-name">Full name</label><input autocomplete="name" id="settings-full-name" maxlength="100" placeholder="Enter your full name" required="" type="text"/><label for="settings-phone">Contact phone number</label><input autocomplete="tel" id="settings-phone" inputmode="tel" maxlength="25" placeholder="e.g. 08012345678" type="tel"/><p class="muted" style="font-size:11px;margin:6px 0">Contact number only — it is not SMS-verified and is not used for phone login.</p><button class="gold-btn" id="save-account-settings" style="width:100%;margin-top:10px" type="submit">Save changes</button></form><div aria-live="polite" class="status" id="account-settings-message" role="status"></div>
+<section class="passkey-settings" id="transaction-pin-recovery-settings">
+<strong>Recover / change Transaction PIN</strong>
+<p class="muted" style="font-size:12px;margin:6px 0 10px">Confirm your PanBill login password, then create and confirm a new four-digit Transaction PIN.</p>
+<form id="recover-transaction-pin-form">
+<label for="recover-pin-login-password">PanBill login password</label>
+<input autocomplete="current-password" id="recover-pin-login-password" minlength="6" placeholder="Enter your login password" required type="password"/>
+<label for="recover-pin-new">New four-digit Transaction PIN</label>
+<input autocomplete="new-password" id="recover-pin-new" inputmode="numeric" maxlength="4" minlength="4" pattern="[0-9]{4}" placeholder="••••" required type="password"/>
+<label for="recover-pin-confirm">Confirm new Transaction PIN</label>
+<input autocomplete="new-password" id="recover-pin-confirm" inputmode="numeric" maxlength="4" minlength="4" pattern="[0-9]{4}" placeholder="••••" required type="password"/>
+<button class="gold-btn" id="recover-transaction-pin-submit" style="width:100%;margin-top:14px" type="submit">Verify password and update PIN</button>
+</form>
+<div aria-live="polite" class="status" id="recover-transaction-pin-message" role="status"></div>
+</section>
+<section class="passkey-settings"><strong>Biometric security</strong><p class="muted" style="font-size:12px;margin:6px 0 10px">Register a fresh passkey for panbill.com.ng. Your fingerprint or face data stays on your device.</p><button class="gold-btn" id="register-passkey-button" type="button">Register fingerprint / passkey</button><div aria-live="polite" class="status" id="passkey-register-message" role="status"></div></section><button class="outline-btn" id="account-reset-password" type="button">Send password reset link</button><div class="status" id="account-message"></div></section></div>
 <script id="panbill-startup-watchdog">
 (()=>{
  window.setTimeout(()=>{
@@ -1168,6 +1184,36 @@ $('register-passkey-button').addEventListener('click',async()=>{if(!currentSessi
 function openReset(){$('reset-email').value=currentSession?.user?.email||$('email')?.value?.trim()||'';$('reset-overlay').hidden=false;$('reset-title').textContent='Reset password';$('reset-description').textContent='Enter your account email and we’ll send a secure reset link.';$('reset-email-field').hidden=false;$('reset-email').required=true;$('new-password-field').hidden=true;$('new-password').required=false;$('reset-submit').textContent='Send reset link';message($('reset-message'),'')}
 $('forgot-button').onclick=openReset;$('close-reset').onclick=()=> $('reset-overlay').hidden=true;$('reset-form').addEventListener('submit',async e=>{e.preventDefault();if(!authClient)return message($('reset-message'),'Password recovery is unavailable. Check your connection and try again.',true);let b=$('reset-submit');b.disabled=true;message($('reset-message'),'Please wait…');try{if(!$('reset-email-field').hidden){let email=$('reset-email').value.trim();const {error}=await authClient.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});if(error)throw error;message($('reset-message'),'If an account exists for that address, a password reset link has been sent. Check your inbox and spam folder.')}else{const {error}=await authClient.auth.updateUser({password:$('new-password').value});if(error)throw error;message($('reset-message'),'Password updated successfully.');setTimeout(()=>{$('reset-overlay').hidden=true},1200)}}catch(err){message($('reset-message'),err.message||'Password reset could not be completed.',true)}finally{b.disabled=false}});
 $('open-account').onclick=()=>{if(!currentSession){$('auth-overlay').hidden=false;authMessage('Please log in to manage your account.');return}$('account-overlay').hidden=false;const user=currentSession.user||{};const meta=user.user_metadata||{};$('account-email').textContent='Signed in as '+(user.email||'Account');$('settings-full-name').value=meta.full_name||meta.name||'';$('settings-phone').value=meta.phone_number||meta.contact_phone||meta.phone||'';message($('account-settings-message'),'');message($('account-message'),'');message($('passkey-register-message'),'');$('register-passkey-button').textContent='Register fingerprint / passkey';updatePasskeyAvailability()};$('close-account').onclick=()=> $('account-overlay').hidden=true;$('account-reset-password').onclick=()=>{ $('account-overlay').hidden=true;openReset()};
+$('recover-transaction-pin-form').addEventListener('submit',async e=>{
+ e.preventDefault();
+ if(!authClient||!currentSession?.user?.email){message($('recover-transaction-pin-message'),'Please sign in again before recovering your Transaction PIN.',true);return}
+ const password=$('recover-pin-login-password').value;
+ const pin=$('recover-pin-new').value.trim();
+ const confirmPin=$('recover-pin-confirm').value.trim();
+ if(!password)return message($('recover-transaction-pin-message'),'Enter your PanBill login password.',true);
+ if(!/^[0-9]{4}$/.test(pin))return message($('recover-transaction-pin-message'),'Your new Transaction PIN must contain exactly four digits.',true);
+ if(pin!==confirmPin)return message($('recover-transaction-pin-message'),'The new PIN entries do not match.',true);
+ const button=$('recover-transaction-pin-submit');
+ button.disabled=true;
+ message($('recover-transaction-pin-message'),'Verifying your login password…');
+ try{
+  const {data,error}=await authClient.auth.signInWithPassword({email:currentSession.user.email,password});
+  if(error)throw new Error('Your PanBill login password could not be verified. Please check it and try again.');
+  if(!data?.session||!data?.user)throw new Error('Password verification did not return a valid session. Please sign in again.');
+  currentSession=data.session;
+  message($('recover-transaction-pin-message'),'Password verified. Updating your Transaction PIN securely…');
+  const result=await invoke({action:'set_transaction_pin',pin});
+  if(!result.success)throw new Error(result.message||'The server could not update your Transaction PIN. Your existing PIN has not been confirmed as changed.');
+  transactionPinCheckedUser=currentSession.user.id;
+  transactionPinHasPin=true;
+  $('recover-transaction-pin-form').reset();
+  message($('recover-transaction-pin-message'),'Your Transaction PIN has been updated successfully.');
+ }catch(error){
+  message($('recover-transaction-pin-message'),error.message||'Transaction PIN recovery failed. Please try again.',true);
+ }finally{
+  button.disabled=false;
+ }
+});
 $('account-settings-form').addEventListener('submit',async e=>{e.preventDefault();if(!authClient||!currentSession){message($('account-settings-message'),'Please sign in before saving your details.',true);return}const fullName=$('settings-full-name').value.trim();const phone=$('settings-phone').value.trim();if(fullName.length<2){message($('account-settings-message'),'Please enter your full name.',true);return}if(phone&&!/^[+0-9()\s.-]{7,25}$/.test(phone)){message($('account-settings-message'),'Please enter a valid phone number.',true);return}const button=$('save-account-settings');button.disabled=true;message($('account-settings-message'),'Saving your account details…');try{const existing=currentSession.user.user_metadata||{};const {data,error}=await authClient.auth.updateUser({data:{...existing,full_name:fullName,phone_number:phone}});if(error)throw error;if(!data?.user)throw new Error('The updated account details were not returned.');currentSession={...currentSession,user:data.user};const firstName=fullName.split(/\s+/)[0];const hour=new Date().getHours();const greeting=hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';$('greeting').replaceChildren(document.createTextNode(greeting+(firstName?', '+firstName:'')+' '));const greetingSpark=document.createElement('span');greetingSpark.className='greeting-spark';greetingSpark.setAttribute('aria-hidden','true');greetingSpark.textContent='✦';$('greeting').append(greetingSpark);message($('account-settings-message'),'Your account details have been saved.')}catch(err){message($('account-settings-message'),err.message||'Could not save your account details.',true)}finally{button.disabled=false}});
 $('logout-button').onclick=async()=>{if(authClient)await authClient.auth.signOut()};async function marketplaceSellerRequest(body){if(!authClient)throw Error('PanBill authentication is not ready. Refresh the page and sign in again.');const sessionResult=await authClient.auth.getSession();if(sessionResult.error)throw Error(sessionResult.error.message||'Could not confirm your PanBill login session.');const session=sessionResult.data?.session;if(!session?.access_token)throw Error('Your PanBill login session has expired. Please sign out and sign in again.');currentSession=session;const result=await authClient.functions.invoke('marketplace-seller',{body,headers:{Authorization:`Bearer ${session.access_token}`}});if(result.error){let detail='';try{detail=await result.error.context?.json?.().then(x=>x.error||x.message||'').catch(()=> '')}catch{}throw Error(detail||result.data?.error||result.error.message||'Seller service request failed.')}if(result.data?.success===false)throw Error(result.data.error||'Seller request could not be completed.');return result.data||{}}
 let sellerCodOrdersLoadPromise=null;
@@ -3176,3 +3222,108 @@ html, body { max-width:100%; overflow-x:hidden; }
 })();
 </script>
 </body></html>
+
+<style id="panbill-compact-dashboard-more">
+/* Compact dashboard: keep the primary VTU actions visible and move the rest to More. */
+main.wrap .hero{display:none!important}
+main.wrap .signed-greeting{min-height:0!important;margin:5px 0 8px!important;padding:9px 12px!important}
+main.wrap .signed-greeting h2{font-size:16px!important;line-height:1.2!important;margin:0 0 3px!important}
+main.wrap .signed-greeting .muted{font-size:10px!important}
+main.wrap #dashboard-seasonal-greeting{
+  display:grid!important;grid-template-columns:minmax(0,1fr) 42px!important;gap:8px!important;
+  min-height:0!important;margin:6px 0 10px!important;padding:9px 11px!important;
+  border-radius:13px!important;transition:opacity .75s ease,transform .75s ease,max-height .75s ease,
+  margin .75s ease,padding .75s ease,border-width .75s ease!important;
+  max-height:150px;opacity:1;transform:translateY(0);overflow:hidden!important
+}
+main.wrap #dashboard-seasonal-greeting .dashboard-brand-message{display:grid;gap:2px;margin:0 0 5px}
+main.wrap #dashboard-seasonal-greeting .dashboard-brand-message strong{font-size:11px;line-height:1.2;color:#fff}
+main.wrap #dashboard-seasonal-greeting .dashboard-brand-message span{font-size:9px;line-height:1.3;color:#e6f2ed}
+main.wrap #dashboard-seasonal-greeting .seasonal-kicker{font-size:8px!important;letter-spacing:.8px!important}
+main.wrap #dashboard-seasonal-greeting .seasonal-title{font-size:13px!important;line-height:1.15!important;margin:2px 0!important}
+main.wrap #dashboard-seasonal-greeting .seasonal-message{font-size:9px!important;line-height:1.3!important;margin:2px 0 0!important}
+main.wrap #dashboard-seasonal-greeting .seasonal-art{transform:scale(.62);transform-origin:center}
+main.wrap #dashboard-seasonal-greeting.is-dismissed{
+  opacity:0!important;transform:translateY(-8px)!important;max-height:0!important;
+  min-height:0!important;margin-top:0!important;margin-bottom:0!important;
+  padding-top:0!important;padding-bottom:0!important;border-width:0!important;pointer-events:none!important
+}
+main.wrap .section-head{margin:13px 0 8px!important}
+main.wrap .section-head h2{font-size:16px!important}
+main.wrap .services{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:7px!important}
+main.wrap .service-card{padding:8px 5px!important;border-radius:12px!important}
+main.wrap .service-icon{width:32px!important;height:32px!important;border-radius:10px!important;font-size:17px!important;margin:0 auto 5px!important}
+main.wrap .service-icon svg{width:18px!important;height:18px!important}
+main.wrap .service-card strong{font-size:10px!important;line-height:1.2!important}
+main.wrap .service-card small{font-size:8px!important;line-height:1.2!important;margin-top:2px!important}
+main.wrap[data-view="home"] .services [data-service="tv"],
+main.wrap[data-view="home"] .services [data-service="electricity"],
+main.wrap[data-view="home"] .services [data-service="exam"]{display:none!important}
+main.wrap[data-view="home"] .provider-hub{display:none!important}
+#home-more-vtu-shortcut .service-icon{font-size:19px!important;font-weight:800}
+#more-vtu-back{padding:6px 9px!important;font-size:10px!important;white-space:nowrap}
+main.wrap[data-view="services"]{max-width:980px!important;min-height:calc(100vh - 72px)}
+main.wrap[data-view="services"]>:not(.section-head):not(.services):not(.provider-hub):not(.footer):not(.bottom-nav):not(#service-panel):not(#transaction-pin-auth-overlay):not(#transaction-detail-overlay){display:none!important}
+main.wrap[data-view="services"] .section-head{display:flex!important;align-items:center;flex-wrap:wrap}
+main.wrap[data-view="services"] #more-vtu-back{display:inline-flex!important}
+main.wrap[data-view="services"] .services{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important}
+main.wrap[data-view="services"] .services .service-card{display:block!important;padding:13px 8px!important}
+main.wrap[data-view="services"] .provider-hub{display:block!important;margin-top:16px!important}
+@media(max-width:600px){
+  main.wrap .services{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  main.wrap[data-view="services"] .services{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+@media(max-width:360px){
+  main.wrap .services{gap:5px!important}
+  main.wrap .service-card{padding:7px 3px!important}
+  main.wrap .service-card small{font-size:7px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  main.wrap #dashboard-seasonal-greeting{transition:none!important}
+}
+</style>
+<script id="panbill-compact-dashboard-controller">
+(()=>{
+  const main=document.querySelector('main.wrap');
+  if(!main)return;
+  const title=document.getElementById('vtu-section-title');
+  const subtitle=document.getElementById('vtu-section-subtitle');
+  const back=document.getElementById('more-vtu-back');
+  const navServices=document.getElementById('nav-services');
+  const navHome=document.getElementById('nav-home');
+  const activate=(id)=>{
+    document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.toggle('nav-active',b.id===id));
+  };
+  const showMore=()=>{
+    main.dataset.view='services';
+    if(title)title.textContent='More VTU services';
+    if(subtitle)subtitle.textContent='Choose another service';
+    if(back)back.hidden=false;
+    activate('nav-services');
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+  const showHome=()=>{
+    main.dataset.view='home';
+    if(title)title.textContent='Pay a bill';
+    if(subtitle)subtitle.textContent='Choose a service';
+    if(back)back.hidden=true;
+    activate('nav-home');
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+  document.getElementById('home-more-vtu-shortcut')?.addEventListener('click',showMore,true);
+  back?.addEventListener('click',showHome);
+  navServices?.addEventListener('click',event=>{
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    showMore();
+  },true);
+  navHome?.addEventListener('click',showHome,true);
+  const greeting=document.getElementById('dashboard-seasonal-greeting');
+  if(greeting){
+    window.setTimeout(()=>{
+      greeting.classList.add('is-dismissed');
+      greeting.setAttribute('aria-hidden','true');
+    },12000);
+  }
+})();
+</script>
