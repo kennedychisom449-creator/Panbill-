@@ -679,28 +679,34 @@ Deno.serve(async (req) => {
       return respond({ success: true, payout_profile: data });
     }
 
-    // Seller-only payout wallet summary. This reads the existing per-order payout
-    // ledger; it is deliberately separate from the customer's VTU wallet.
+    // Seller-only payout wallet summary.
+    // This reads the seller's own ledger and does not modify payout records.
     if (action === "seller_payout_summary") {
-      const [{ data: profile, error: profileError }] = await Promise.all([
-        adminClient.from("marketplace_seller_payout_profiles")
-          .select("bank_name, account_name, account_number_last4, verification_status, payout_enabled")
-          .eq("seller_id", user.id).maybeSingle(),
-      ]);
+      const { data: profile, error: profileError } = await adminClient.from("marketplace_seller_payout_profiles")
+        .select("bank_name, account_name, account_number_last4, verification_status, payout_enabled")
+        .eq("seller_id", user.id).maybeSingle();
+
       if (profileError) throw profileError;
+
       const rows: any[] = [];
-      // Aggregate the complete seller ledger in pages so balances are not based
-      // only on the most recent 100 records.
+
       for (let offset = 0; ; offset += 500) {
         const { data: page, error: payoutError } = await adminClient.from("marketplace_seller_payouts")
           .select("id, order_id, gross_amount, platform_fee, net_amount, currency, status, transfer_reference, failure_reason, eligible_at, processed_at, created_at")
-          .eq("seller_id", user.id).order("created_at", { ascending: false }).range(offset, offset + 499);
+          .eq("seller_id", user.id)
+          .order("created_at", { ascending: false })
+          .range(offset, offset + 499);
+
         if (payoutError) throw payoutError;
+
         rows.push(...(page || []));
         if (!page || page.length < 500) break;
       }
-      const sum = (statuses: string[]) => rows.filter((row: any) => statuses.includes(String(row.status)))
+
+      const sum = (statuses: string[]) => rows
+        .filter((row: any) => statuses.includes(String(row.status)))
         .reduce((total: number, row: any) => total + Number(row.net_amount || 0), 0);
+
       return respond({
         success: true,
         currency: "NGN",
@@ -716,29 +722,102 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Seller payout request/status check. Never change eligible_at here: doing so
-    // could bypass an existing settlement hold. The original ledger rows remain
-    // under the payout worker's atomic claim and transfer safeguards.
+    // Seller payout request.
+    // Never change eligible_at, payout amounts, or ledger statuses here.
+    // The worker must perform the seller-scoped atomic claim.
     if (action === "seller_payout_request") {
-      const { data: profile, error: profileError } = await adminClient.from("marketplace_seller_payout_profiles")
+      const { data: profile, error: profileError } = await adminClient
+        .from("marketplace_seller_payout_profiles")
         .select("verification_status, payout_enabled, recipient_code")
-        .eq("seller_id", user.id).maybeSingle();
+        .eq("seller_id", user.id)
+        .maybeSingle();
+
       if (profileError) throw profileError;
-      if (!profile || profile.verification_status !== "verified" || profile.payout_enabled !== true || !profile.recipient_code) {
-        return respond({ success: false, error: "Verify and enable your bank payout account before requesting a payout." }, 400);
+
+      if (
+        !profile ||
+        profile.verification_status !== "verified" ||
+        profile.payout_enabled !== true ||
+        !profile.recipient_code
+      ) {
+        return respond({
+          success: false,
+          error: "Verify and enable your bank payout account before requesting a payout.",
+        }, 400);
       }
-      const { data: eligible, error: eligibleError } = await adminClient.from("marketplace_seller_payouts")
-        .select("id, net_amount")
-        .eq("seller_id", user.id).eq("status", "queued")
-        .lte("eligible_at", new Date().toISOString());
-      if (eligibleError) throw eligibleError;
-      const count = (eligible || []).length;
+
+      const workerToken = Deno.env.get("PAYOUT_WORKER_TOKEN") || "";
+
+      if (!workerToken || !serviceRoleKey || !supabaseUrl) {
+        return respond({
+          success: false,
+          error: "Payout worker configuration is incomplete.",
+        }, 503);
+      }
+
+      let workerResponse: Response;
+
+      try {
+        workerResponse = await fetch(
+          `${supabaseUrl.replace(/\/+$/, "")}/functions/v1/marketplace-payout-worker`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${serviceRoleKey}`,
+              apikey: serviceRoleKey,
+              "Content-Type": "application/json",
+              "x-panbill-worker-token": workerToken,
+            },
+            body: JSON.stringify({
+              mode: "process_seller",
+              seller_id: user.id,
+            }),
+          },
+        );
+      } catch (error) {
+        console.error("Seller payout worker connection error:", error);
+
+        return respond({
+          success: false,
+          error: "Unable to contact payout worker. Check payout status before trying again.",
+        }, 502);
+      }
+
+      const result = await workerResponse.json().catch(() => null);
+
+      if (
+        !workerResponse.ok ||
+        (result?.ok !== true && result?.success !== true)
+      ) {
+        console.error("Seller payout worker error:", {
+          status: workerResponse.status,
+          result,
+        });
+
+        return respond({
+          success: false,
+          error: cleanText(result?.error || result?.message, 250) ||
+            "Payout processing failed. Please check your payout status.",
+        }, workerResponse.status >= 400 ? workerResponse.status : 502);
+      }
+
+      if (result?.transfer_initiated === true) {
+        return respond({
+          success: true,
+          transfer_initiated: true,
+          paid: false,
+          status: result.status || "processing",
+          reference: result.reference || null,
+          message: "Paystack accepted the transfer request. PanBill is awaiting final transfer confirmation.",
+        });
+      }
+
       return respond({
         success: true,
-        eligible_count: count,
-        message: count
-          ? `${count} eligible seller payout record(s) are already in PanBill's secure payout queue. The existing worker will process them when its automation controls permit. No duplicate payout was created.`
-          : "No seller payout is currently eligible. Pending settlement holds and unfulfilled orders cannot be withdrawn early.",
+        transfer_initiated: false,
+        paid: false,
+        message: cleanText(result?.message, 300) ||
+          "No transfer was initiated. Check payout eligibility and worker settings.",
       });
     }
 
@@ -847,7 +926,6 @@ Deno.serve(async (req) => {
         return respond({ success: false, error: "Digital product not found in your shop." }, 404);
       }
 
-      // Verify that the exact object exists before recording its metadata.
       const fileExists = await verifyStoredDigitalFile(adminClient, user.id, productId, path);
 
       if (!fileExists) {
@@ -869,7 +947,6 @@ Deno.serve(async (req) => {
 
       if (insertError) throw insertError;
 
-      // Activate only after verifying the uploaded file and registering it.
       const { error: activateError } = await adminClient.from("marketplace_products")
         .update({ status: "active", updated_at: new Date().toISOString() })
         .eq("id", productId)
