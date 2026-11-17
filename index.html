@@ -3567,4 +3567,54 @@ main.wrap[data-view="services"] .services .service-card{display:flex!important;m
 })();
 </script>
 
+
+<script id="panbill-signed-out-settings-guard-v1">
+(() => {
+  'use strict';
+  const main = document.querySelector('main.wrap');
+  const settings = document.getElementById('settings-dashboard');
+  const authOverlay = document.getElementById('auth-overlay');
+  const securityOverlay = document.getElementById('security-overlay');
+
+  function returnToLogin() {
+    if (main) main.dataset.view = 'home';
+    if (settings) settings.hidden = true;
+    if (securityOverlay) securityOverlay.hidden = true;
+    const pinOverlay = document.getElementById('transaction-pin-overlay');
+    if (pinOverlay) pinOverlay.hidden = true;
+    if (authOverlay) authOverlay.hidden = false;
+    document.body.classList.remove('settings-open');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }
+
+  // A signed-out user must never remain on the protected Settings screen.
+  if (typeof window.showSignedIn === 'function') {
+    const originalShowSignedIn = window.showSignedIn;
+    window.showSignedIn = function(session) {
+      const result = originalShowSignedIn.apply(this, arguments);
+      if (!session) returnToLogin();
+      else if (settings) settings.hidden = false;
+      return result;
+    };
+  }
+
+  // Guard Settings entry points as well as the settings navigation tab.
+  ['settings-top-button', 'nav-settings', 'settings-back-home'].forEach(id => {
+    const button = document.getElementById(id);
+    if (!button) return;
+    button.addEventListener('click', event => {
+      if (window.currentSession || (typeof currentSession !== 'undefined' && currentSession)) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      returnToLogin();
+    }, true);
+  });
+
+  // If the current page loads without a valid session, keep Settings closed.
+  if (!(window.currentSession || (typeof currentSession !== 'undefined' && currentSession))) {
+    returnToLogin();
+  }
+})();
+</script>
+
 </body></html>
