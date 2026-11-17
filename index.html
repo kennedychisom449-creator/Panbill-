@@ -857,6 +857,61 @@ body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-card{
 <meta name="apple-mobile-web-app-title" content="PanBill">
 <link rel="apple-touch-icon" href="/icons/panbill-192.png">
 
+
+<style id="panbill-auth-full-viewport-height-v2">
+/* Make the login experience occupy the full available screen height on phones,
+   tablets and desktop browsers. The card can still scroll on short screens. */
+html:has(body #auth-overlay:not([hidden])),
+body:has(#auth-overlay:not([hidden])){
+  min-height:100%;
+  min-height:100dvh;
+}
+body:has(#auth-overlay:not([hidden])) #auth-overlay{
+  align-items:stretch!important;
+  justify-content:center!important;
+  height:100vh!important;
+  height:100dvh!important;
+  min-height:100vh!important;
+  min-height:100dvh!important;
+  max-height:none!important;
+  padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  box-sizing:border-box!important;
+}
+body:has(#auth-overlay:not([hidden])) #auth-overlay>.auth-card{
+  flex:1 0 auto!important;
+  width:min(100%,435px)!important;
+  min-height:100%!important;
+  max-height:none!important;
+  height:auto!important;
+  margin:0 auto!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:space-evenly!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  box-sizing:border-box!important;
+  padding:clamp(16px,3.2vh,30px) clamp(15px,4vw,26px)!important;
+  border-radius:0!important;
+}
+@media(max-width:520px){
+  body:has(#auth-overlay:not([hidden])) #auth-overlay{
+    padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)!important;
+  }
+  body:has(#auth-overlay:not([hidden])) #auth-overlay>.auth-card{
+    width:100%!important;
+    padding:clamp(14px,2.8vh,26px) clamp(16px,4.5vw,24px)!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  body:has(#auth-overlay:not([hidden])) #auth-overlay,
+  body:has(#auth-overlay:not([hidden])) #auth-overlay>.auth-card{
+    scroll-behavior:auto!important;
+  }
+}
+</style>
+
 </head><body>
 <div aria-label="PanBill is loading" aria-live="polite" id="panbill-loading-screen" role="status"><div aria-hidden="true" class="panbill-loader-mark">P</div><div class="panbill-loader-name">PanBill</div><div class="panbill-loader-caption">One app. All your bills.</div><div aria-hidden="true" class="panbill-loader-ring"></div></div>
 <header class="app-header"><div class="brand"><span class="brand-mark">P</span> PanBill</div><div class="header-actions"><span class="muted" hidden="" id="header-user" style="font-size:12px"></span><button class="pill" id="settings-top-button" type="button" aria-label="Open Settings">⚙ Settings</button><button aria-hidden="true" class="pill" hidden="" id="logout-button" type="button">Log out</button></div></header>
