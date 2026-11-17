@@ -1,0 +1,734 @@
+
+/**
+ * PANBILL MARKETPLACE SELLER PAYOUT WORKER
+ * Function: marketplace-payout-worker
+ * verify_jwt = false
+ *
+ * Secrets:
+ * SUPABASE_URL
+ * SUPABASE_SERVICE_ROLE_KEY
+ * PAYSTACK_SECRET_KEY
+ * PAYSTACK_WEBHOOK_SECRET
+ * PAYOUT_WORKER_TOKEN
+ * PAYSTACK_TRANSFERS_ENABLED
+ * PAYOUT_AUTOMATION_ENABLED
+ *
+ * Keep PAYOUT_AUTOMATION_ENABLED=false until the database claim
+ * functions, webhook, recipient and live payout controls are verified.
+ *
+ * Never automatically retry a transfer with an uncertain outcome.
+ */
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const cors = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-panbill-worker-token, x-paystack-signature, paystack-signature",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
+const reply = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { ...cors, "Content-Type": "application/json" },
+  });
+
+function env(name: string) {
+  const value = Deno.env.get(name);
+  if (!value) throw new Error(`Missing required secret: ${name}`);
+  return value;
+}
+
+const supabase = () =>
+  createClient(env("SUPABASE_URL"), env("SUPABASE_SERVICE_ROLE_KEY"), {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+
+function equal(a: string, b: string) {
+  if (a.length !== b.length) return false;
+  let result = 0;
+  for (let i = 0; i < a.length; i++) {
+    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return result === 0;
+}
+
+function hex(buffer: ArrayBuffer) {
+  return [...new Uint8Array(buffer)]
+    .map((value) => value.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function hmac(keyText: string, message: Uint8Array) {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(keyText),
+    { name: "HMAC", hash: "SHA-512" },
+    false,
+    ["sign"],
+  );
+
+  return hex(await crypto.subtle.sign("HMAC", key, message));
+}
+
+async function validSignature(
+  raw: Uint8Array,
+  modern: string,
+  legacy: string,
+) {
+  if (modern) {
+    let timestamp: number | null = null;
+    const signatures: string[] = [];
+
+    for (const part of modern.split(",")) {
+      const index = part.indexOf("=");
+      if (index < 0) continue;
+
+      const key = part.slice(0, index).trim();
+      const value = part.slice(index + 1).trim();
+
+      if (key === "t") {
+        if (timestamp !== null || !/^\d+$/.test(value)) return false;
+        timestamp = Number(value);
+      } else if (key === "v1") {
+        const separator = value.indexOf(":");
+
+        if (
+          separator > 0 &&
+          /^whk_[A-Za-z0-9]+$/.test(value.slice(0, separator)) &&
+          /^[a-f0-9]{128}$/i.test(value.slice(separator + 1))
+        ) {
+          signatures.push(value.slice(separator + 1).toLowerCase());
+        }
+      }
+    }
+
+    if (
+      timestamp === null ||
+      !signatures.length ||
+      Math.abs(Math.floor(Date.now() / 1000) - timestamp) > 300
+    ) {
+      return false;
+    }
+
+    const prefix = new TextEncoder().encode(`${timestamp}.`);
+    const message = new Uint8Array(prefix.length + raw.length);
+    message.set(prefix);
+    message.set(raw, prefix.length);
+
+    const expected = await hmac(env("PAYSTACK_WEBHOOK_SECRET"), message);
+    return signatures.some((signature) => equal(expected, signature));
+  }
+
+  if (!legacy || !/^[a-f0-9]{128}$/i.test(legacy)) return false;
+
+  return equal(
+    await hmac(env("PAYSTACK_SECRET_KEY"), raw),
+    legacy.toLowerCase(),
+  );
+}
+
+function kobo(value: unknown): number | null {
+  const amount = Number(value);
+
+  if (!Number.isFinite(amount) || amount <= 0) return null;
+
+  const result = Math.round(amount * 100);
+
+  return Number.isSafeInteger(result) &&
+      Math.abs(amount * 100 - result) < 0.000001
+    ? result
+    : null;
+}
+
+function recipient(value: any): string | null {
+  if (typeof value === "string" && /^RCP_[A-Za-z0-9]+$/.test(value)) {
+    return value;
+  }
+
+  if (
+    value &&
+    typeof value.recipient_code === "string" &&
+    /^RCP_[A-Za-z0-9]+$/.test(value.recipient_code)
+  ) {
+    return value.recipient_code;
+  }
+
+  return null;
+}
+
+async function updatePayout(
+  db: ReturnType<typeof supabase>,
+  id: string,
+  patch: Record<string, unknown>,
+  statuses?: string[],
+) {
+  let query = db
+    .from("marketplace_seller_payouts")
+    .update({
+      ...patch,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+
+  if (statuses) query = query.in("status", statuses);
+
+  const { data, error } = await query.select("id");
+
+  if (error) throw error;
+
+  return Array.isArray(data) && data.length === 1;
+}
+
+async function payoutByRef(
+  db: ReturnType<typeof supabase>,
+  reference: string,
+) {
+  const { data, error } = await db
+    .from("marketplace_seller_payouts")
+    .select(
+      "id,seller_id,net_amount,currency,status,transfer_reference,transfer_code",
+    )
+    .eq("transfer_reference", reference)
+    .maybeSingle();
+
+  if (error) throw error;
+
+  return data;
+}
+
+async function recipientFor(
+  db: ReturnType<typeof supabase>,
+  sellerId: string,
+) {
+  const { data, error } = await db
+    .from("marketplace_seller_payout_profiles")
+    .select("recipient_code")
+    .eq("seller_id", sellerId)
+    .maybeSingle();
+
+  if (error) throw error;
+
+  return data?.recipient_code || null;
+}
+
+async function verifyTransfer(reference: string) {
+  const response = await fetch(
+    `https://api.paystack.co/transfer/verify/${
+      encodeURIComponent(reference)
+    }`,
+    {
+      headers: {
+        Authorization: `Bearer ${env("PAYSTACK_SECRET_KEY")}`,
+      },
+    },
+  );
+
+  const result = await response.json().catch(() => null);
+
+  return {
+    response,
+    result,
+    transfer: result?.data || null,
+  };
+}
+
+function mappedStatus(
+  status: unknown,
+): "success" | "failed" | "reversed" | "otp" | "processing" | null {
+  const value = String(status || "").toLowerCase();
+
+  if (["success", "failed", "reversed", "otp"].includes(value)) {
+    return value as any;
+  }
+
+  if (["pending", "queued", "processing"].includes(value)) {
+    return "processing";
+  }
+
+  return null;
+}
+
+async function reconcile(
+  db: ReturnType<typeof supabase>,
+  reference: string,
+) {
+  const payout = await payoutByRef(db, reference);
+
+  if (!payout) {
+    return reply({
+      error: "No PanBill payout matches this reference.",
+    }, 404);
+  }
+
+  if (["success", "failed", "reversed"].includes(payout.status)) {
+    return reply({
+      ok: true,
+      reference,
+      status: payout.status,
+      message: "Final status; no new transfer sent.",
+    });
+  }
+
+  const { response, result, transfer } = await verifyTransfer(reference);
+
+  if (!response.ok || result?.status !== true || !transfer) {
+    await updatePayout(
+      db,
+      payout.id,
+      {
+        provider_response: {
+          reconciliation: result || { http_status: response.status },
+          checked_at: new Date().toISOString(),
+        },
+        failure_reason:
+          "No verifiable Paystack transfer record. Do not resend.",
+      },
+      ["processing", "otp", "on_hold"],
+    );
+
+    return reply({
+      ok: false,
+      reference,
+      message: "No verifiable transfer record. No new transfer sent.",
+    }, 202);
+  }
+
+  const expectedRecipient = await recipientFor(db, payout.seller_id);
+  const actualRecipient =
+    recipient(transfer.recipient) ||
+    recipient(transfer.recipient_code);
+
+  const valid =
+    transfer.reference === reference &&
+    Number(transfer.amount) === kobo(payout.net_amount) &&
+    String(transfer.currency || "").toUpperCase() ===
+      String(payout.currency).toUpperCase() &&
+    actualRecipient === expectedRecipient &&
+    !!expectedRecipient &&
+    transfer.source === "balance" &&
+    transfer.domain === "live";
+
+  if (!valid) {
+    await updatePayout(
+      db,
+      payout.id,
+      {
+        status: "on_hold",
+        transfer_code: transfer.transfer_code || payout.transfer_code,
+        provider_response: {
+          reconciliation: result,
+          checked_at: new Date().toISOString(),
+        },
+        failure_reason:
+          "Paystack transfer details mismatch. Manual review required.",
+      },
+      ["processing", "otp", "on_hold"],
+    );
+
+    return reply({
+      error: "Transfer mismatch; payout placed on hold.",
+      reference,
+    }, 409);
+  }
+
+  const next = mappedStatus(transfer.status);
+
+  if (!next) {
+    return reply({
+      ok: false,
+      reference,
+      message: "Unrecognized provider status; manual review required.",
+    }, 202);
+  }
+
+  const final = ["success", "failed", "reversed"].includes(next);
+
+  const updated = await updatePayout(
+    db,
+    payout.id,
+    {
+      status: next,
+      transfer_code: transfer.transfer_code || payout.transfer_code,
+      provider_response: {
+        reconciliation: result,
+        checked_at: new Date().toISOString(),
+      },
+      failure_reason:
+        next === "failed" || next === "reversed"
+          ? String(transfer.failures?.message || transfer.reason || next)
+          : null,
+      ...(final ? { processed_at: new Date().toISOString() } : {}),
+    },
+    ["processing", "otp", "on_hold"],
+  );
+
+  return reply({
+    ok: updated,
+    reference,
+    status: updated ? next : payout.status,
+    message: updated
+      ? "Existing transfer reconciled; no new transfer initiated."
+      : "Payout changed concurrently.",
+  });
+}
+
+async function webhook(req: Request) {
+  const raw = new Uint8Array(await req.arrayBuffer());
+
+  if (
+    !await validSignature(
+      raw,
+      req.headers.get("paystack-signature") || "",
+      req.headers.get("x-paystack-signature") || "",
+    )
+  ) {
+    return reply({ error: "Invalid Paystack signature" }, 401);
+  }
+
+  let event: any;
+
+  try {
+    event = JSON.parse(new TextDecoder().decode(raw));
+  } catch {
+    return reply({ error: "Invalid JSON" }, 400);
+  }
+
+  if (event?.event === "ping") return reply({ received: true });
+
+  const states: Record<string, "success" | "failed" | "reversed"> = {
+    "transfer.success": "success",
+    "transfer.failed": "failed",
+    "transfer.reversed": "reversed",
+  };
+
+  const next = states[event?.event];
+
+  if (!next) return reply({ received: true, ignored: true });
+
+  const data = event?.data || {};
+  const reference =
+    typeof data.reference === "string" ? data.reference : "";
+
+  if (!reference) {
+    return reply({ error: "Missing transfer reference" }, 400);
+  }
+
+  if (data.domain !== "live") {
+    return reply({ error: "Only live Paystack events accepted" }, 400);
+  }
+
+  const db = supabase();
+  const payout = await payoutByRef(db, reference);
+
+  if (!payout) return reply({ received: true, unmatched: true });
+
+  if (
+    Number(data.amount) !== kobo(payout.net_amount) ||
+    String(data.currency || "").toUpperCase() !==
+      String(payout.currency).toUpperCase()
+  ) {
+    return reply({
+      error: "Transfer amount or currency mismatch",
+    }, 400);
+  }
+
+  const expected = await recipientFor(db, payout.seller_id);
+  const actual =
+    recipient(data.recipient) ||
+    recipient(data.recipient_code);
+
+  if (!expected || actual !== expected) {
+    return reply({ error: "Transfer recipient mismatch" }, 400);
+  }
+
+  const allowed = next === "reversed"
+    ? ["queued", "processing", "otp", "success", "failed", "on_hold", "reversed"]
+    : next === "success"
+    ? ["queued", "processing", "otp", "on_hold", "success"]
+    : ["queued", "processing", "otp", "on_hold", "failed"];
+
+  const updated = await updatePayout(
+    db,
+    payout.id,
+    {
+      status: next,
+      provider_response: {
+        event,
+        received_at: new Date().toISOString(),
+      },
+      processed_at: new Date().toISOString(),
+      failure_reason: next === "success"
+        ? null
+        : String(data.failures?.message || data.reason || event.event),
+      ...(data.transfer_code
+        ? { transfer_code: data.transfer_code }
+        : {}),
+    },
+    allowed,
+  );
+
+  return reply({
+    received: true,
+    updated,
+    status: updated ? next : payout.status,
+  });
+}
+
+async function worker(req: Request) {
+  const supplied = req.headers.get("x-panbill-worker-token") || "";
+
+  if (!equal(supplied, env("PAYOUT_WORKER_TOKEN"))) {
+    return reply({ error: "Unauthorized" }, 401);
+  }
+
+  const body = await req.json().catch(() => ({}));
+  const mode = body?.mode || "process";
+  const db = supabase();
+
+  // Diagnostic mode never claims a payout or calls Paystack transfers.
+  if (mode === "status") {
+    return reply({
+      ok: true,
+      mode: "status",
+      automation_enabled:
+        Deno.env.get("PAYOUT_AUTOMATION_ENABLED") === "true",
+      transfers_enabled:
+        Deno.env.get("PAYSTACK_TRANSFERS_ENABLED") === "true",
+      message:
+        "Diagnostic only; no payout claimed and no transfer sent.",
+    });
+  }
+
+  if (mode === "reconcile") {
+    if (typeof body?.reference !== "string" || !body.reference) {
+      return reply({
+        error: "Provide the existing transfer reference.",
+      }, 400);
+    }
+
+    return reconcile(db, body.reference);
+  }
+
+  if (mode !== "process" && mode !== "process_seller") {
+    return reply({
+      error: "Modes: status, process, process_seller, reconcile.",
+    }, 400);
+  }
+
+  // Seller-initiated processing must be seller-scoped.
+  let sellerId: string | null = null;
+
+  if (mode === "process_seller") {
+    sellerId = typeof body?.seller_id === "string"
+      ? body.seller_id
+      : "";
+
+    if (
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+        .test(sellerId)
+    ) {
+      return reply({
+        error: "A valid authenticated seller ID is required.",
+      }, 400);
+    }
+  }
+
+  // Fail closed when either payout switch is disabled.
+  if (Deno.env.get("PAYOUT_AUTOMATION_ENABLED") !== "true") {
+    return reply({
+      ok: true,
+      automation_enabled: false,
+      message: "Automation disabled; no payout claimed or sent.",
+    });
+  }
+
+  if (Deno.env.get("PAYSTACK_TRANSFERS_ENABLED") !== "true") {
+    return reply({
+      ok: true,
+      transfers_enabled: false,
+      message: "Transfers disabled; no payout claimed or sent.",
+    });
+  }
+
+  const { data, error } = mode === "process_seller"
+    ? await db.rpc("marketplace_claim_seller_payout", {
+      p_seller_id: sellerId,
+    })
+    : await db.rpc("marketplace_claim_next_seller_payout");
+
+  if (error) throw error;
+
+  const payout = Array.isArray(data) ? data[0] : data;
+
+  if (!payout) {
+    return reply({
+      ok: true,
+      message: "No eligible queued payout.",
+    });
+  }
+
+  const amount = kobo(payout.net_amount);
+  const reference = String(payout.transfer_reference || "");
+  const recipientCode = String(payout.recipient_code || "");
+
+  if (
+    !amount ||
+    payout.currency !== "NGN" ||
+    !/^RCP_[A-Za-z0-9]+$/.test(recipientCode) ||
+    !/^[a-z0-9_-]{16,50}$/.test(reference)
+  ) {
+    await updatePayout(
+      db,
+      payout.payout_id,
+      {
+        status: "on_hold",
+        failure_reason:
+          "Invalid amount, currency, recipient or reference; manual review required.",
+      },
+      ["processing"],
+    );
+
+    return reply({
+      error: "Payout validation failed; placed on hold.",
+    }, 422);
+  }
+
+  let response: Response;
+  let result: any;
+
+  try {
+    response = await fetch("https://api.paystack.co/transfer", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${env("PAYSTACK_SECRET_KEY")}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        source: "balance",
+        amount,
+        recipient: recipientCode,
+        reference,
+        currency: "NGN",
+        reason:
+          `PanBill marketplace order ${String(payout.order_number || "")}`
+            .slice(0, 100),
+      }),
+    });
+
+    result = await response.json().catch(() => null);
+  } catch (error) {
+    await updatePayout(
+      db,
+      payout.payout_id,
+      {
+        provider_response: {
+          outcome: "unknown_network_result",
+          message: String(error),
+          reference,
+        },
+        failure_reason:
+          "Transfer outcome unknown. Reconcile this same reference before any retry.",
+      },
+      ["processing"],
+    );
+
+    return reply({
+      error: "Transfer outcome unknown; reconcile before retrying.",
+      reference,
+    }, 502);
+  }
+
+  const transfer = result?.data || {};
+  const actualRecipient =
+    recipient(transfer.recipient) ||
+    recipient(transfer.recipient_code);
+
+  const matches =
+    result?.status === true &&
+    transfer.reference === reference &&
+    Number(transfer.amount) === amount &&
+    String(transfer.currency || "").toUpperCase() === "NGN" &&
+    actualRecipient === recipientCode &&
+    transfer.source === "balance" &&
+    transfer.domain === "live" &&
+    typeof transfer.transfer_code === "string" &&
+    /^TRF_[A-Za-z0-9]+$/.test(transfer.transfer_code);
+
+  if (!response.ok || !matches) {
+    await updatePayout(
+      db,
+      payout.payout_id,
+      {
+        transfer_code: transfer.transfer_code || null,
+        provider_response: result || {
+          http_status: response.status,
+        },
+        failure_reason:
+          "Paystack response requires reconciliation; do not resend.",
+      },
+      ["processing"],
+    );
+
+    return reply({
+      error:
+        "Paystack response requires reconciliation; no automatic retry.",
+      reference,
+    }, 502);
+  }
+
+  const status =
+    String(transfer.status || "").toLowerCase() === "otp"
+      ? "otp"
+      : "processing";
+
+  const saved = await updatePayout(
+    db,
+    payout.payout_id,
+    {
+      status,
+      transfer_code: transfer.transfer_code,
+      provider_response: result,
+      failure_reason: null,
+    },
+    ["processing"],
+  );
+
+  return reply({
+    ok: saved,
+    processed: saved,
+    transfer_initiated: true,
+    reference,
+    status,
+    message: saved
+      ? "Paystack accepted the transfer request; awaiting final webhook/reconciliation."
+      : "Paystack accepted this transfer, but the payout row changed concurrently. Reconcile the same reference; do not send another transfer.",
+  });
+}
+
+Deno.serve(async (req: Request) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: cors });
+  }
+
+  if (req.method !== "POST") {
+    return reply({ error: "Method not allowed" }, 405);
+  }
+
+  try {
+    if (
+      req.headers.has("paystack-signature") ||
+      req.headers.has("x-paystack-signature")
+    ) {
+      return await webhook(req);
+    }
+
+    return await worker(req);
+  } catch (error) {
+    console.error("PanBill seller payout worker error:", error);
+
+    return reply({
+      error: "Internal payout worker error",
+    }, 500);
+  }
+});
