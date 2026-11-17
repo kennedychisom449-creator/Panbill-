@@ -1076,7 +1076,20 @@ body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-card{
 <div><label for="second-name">Second name</label><input autocomplete="family-name" id="second-name" maxlength="60" placeholder="Second name" type="text"/></div>
 <div class="field-full"><label for="middle-name">Middle name</label><input autocomplete="additional-name" id="middle-name" maxlength="60" placeholder="Middle name" type="text"/></div>
 </div><div id="email-wrap"><label for="email">Email address</label><input autocomplete="email" id="email" placeholder="you@example.com" required="" type="email"/></div><div id="password-wrap"><label for="password">Password</label><div class="password-wrap"><input autocomplete="current-password" id="password" minlength="6" placeholder="Enter your password" required="" type="password"/><button aria-label="Show password" class="pill" id="show-password" type="button">Show</button></div></div>
-<div hidden="" id="confirm-password-wrap"><label for="confirm-password">Confirm password</label><input autocomplete="new-password" id="confirm-password" minlength="6" placeholder="Re-enter your password" type="password"/></div><div class="auth-links" id="forgot-row"><span class="muted">Keep your account secure</span><button class="text-button" id="forgot-button" type="button">Forgot password?</button></div><button class="gold-btn" id="auth-submit" style="width:100%;margin-top:10px" type="submit">Log in</button><p class="auth-message" id="auth-message" role="alert"></p></form><div class="biometric-note" id="biometric-note"><button aria-label="Sign in with fingerprint or passkey" class="passkey-icon-button" id="passkey-login-button" type="button">🫆</button><span class="passkey-copy"><strong>Sign in securely</strong><small>Use your device fingerprint, face or screen lock</small></span></div><button class="text-button auth-login-method-switch" id="show-password-login" type="button">Login with password</button><button class="text-button auth-login-method-switch" hidden id="show-passkey-login" type="button">Use fingerprint / passkey instead</button><p class="auth-note" id="auth-note">Your account is protected by PanBill secure sign-in. Never share your password or verification codes.</p>
+<div hidden="" id="confirm-password-wrap"><label for="confirm-password">Confirm password</label><input autocomplete="new-password" id="confirm-password" minlength="6" placeholder="Re-enter your password" type="password"/></div><div class="auth-links" id="forgot-row"><span class="muted">Keep your account secure</span><button class="text-button" id="forgot-button" type="button">Forgot password?</button></div><button class="gold-btn" id="auth-submit" style="width:100%;margin-top:10px" type="submit">Log in</button><p class="auth-message" id="auth-message" role="alert"></p></form><div class="biometric-note" id="biometric-note"><button aria-label="Sign in with fingerprint or passkey" class="passkey-icon-button" id="passkey-login-button" type="button">
+<svg class="opay-fingerprint-icon" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+ <path d="M24 5.5c-10.2 0-18.5 8.3-18.5 18.5" />
+ <path d="M24 11c-7.2 0-13 5.8-13 13" />
+ <path d="M24 16.5c-4.1 0-7.5 3.4-7.5 7.5" />
+ <path d="M24 5.5c10.2 0 18.5 8.3 18.5 18.5" />
+ <path d="M24 11c7.2 0 13 5.8 13 13" />
+ <path d="M24 16.5c4.1 0 7.5 3.4 7.5 7.5" />
+ <path d="M11 26c0 9.2 3.2 14.2 6.2 17" />
+ <path d="M16.5 26c0 6.3 1.8 10.6 4.2 13.7" />
+ <path d="M22 27c0 4.4.7 7.5 2 10" />
+ <path d="M37 26c0 5.1-1 9.1-2.8 12.3" />
+ <path d="M31.5 26c0 4.3-.5 7.2-1.7 9.8" />
+</svg></button><span class="passkey-copy"><strong>Sign in securely</strong><small>Use your device fingerprint, face or screen lock</small></span></div><button class="text-button auth-login-method-switch" id="show-password-login" type="button">Login with password</button><button class="text-button auth-login-method-switch" hidden id="show-passkey-login" type="button">Use fingerprint / passkey instead</button><p class="auth-note" id="auth-note">Your account is protected by PanBill secure sign-in. Never share your password or verification codes.</p>
 <section class="email-otp-panel" hidden="" id="email-otp-panel" aria-live="polite">
 <h3>Verify your email address</h3>
 <p class="muted" id="email-otp-description">Enter the six-digit code sent to your email address. The code expires in five minutes.</p>
@@ -3433,6 +3446,43 @@ main.wrap[data-view="services"] .services .service-card{display:flex!important;m
 @media(max-width:390px){main.wrap{padding-left:10px!important;padding-right:10px!important}#wallet-panel.wallet{padding:17px 14px!important}.wallet-actions{gap:6px!important}#wallet-panel .wallet-actions button{min-height:76px!important;font-size:10px!important}.services .service-card{min-height:126px!important;padding:10px 5px!important}.services .service-card strong{font-size:12px!important}}
 @media(prefers-reduced-motion:reduce){main.wrap .services .service-card{transition:none!important}}
 
+
+/* Mobile authentication screen: portrait 9:16-friendly layout */
+.auth-layer{
+ min-height:100vh;min-height:100svh;min-height:100dvh;
+ padding: max(12px,env(safe-area-inset-top)) 14px max(12px,env(safe-area-inset-bottom));
+ overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;
+}
+.auth-card{max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));overflow-y:auto;overscroll-behavior:contain}
+.passkey-icon-button{
+ width:54px;height:54px;flex:0 0 54px;display:grid;place-items:center;
+ border:1px solid #00b87570;border-radius:16px;
+ background:linear-gradient(145deg,#eafff5,#d8f8e9);
+ box-shadow:0 5px 16px #00b87522;padding:8px;
+}
+.passkey-icon-button:focus-visible{outline:3px solid #00b875;outline-offset:3px}
+.passkey-icon-button:disabled{opacity:.55}
+.opay-fingerprint-icon{display:block;width:100%;height:100%;fill:none;stroke:#00a968;stroke-width:2.7;stroke-linecap:round;stroke-linejoin:round}
+@media(max-width:600px){
+ .auth-layer{align-items:center;padding: max(8px,env(safe-area-inset-top)) 12px max(8px,env(safe-area-inset-bottom))}
+ .auth-card{width:100%;max-width:435px;padding:clamp(15px,4.3vw,22px);border-radius:20px;max-height:calc(100dvh - 16px - env(safe-area-inset-top) - env(safe-area-inset-bottom))}
+ .auth-brand{font-size:clamp(23px,6vw,27px);margin-bottom:4px}
+ .auth-card h2{font-size:clamp(21px,5.6vw,25px);margin:9px 0 3px}
+ .auth-sub{margin-bottom:12px}
+ .tabs{margin:12px 0}
+ .tabs button{padding:9px}
+ .auth-card label{margin-top:10px}
+ .auth-card input{min-height:44px;padding:11px 12px}
+ .biometric-note{padding:10px;margin-top:10px}
+ .auth-note{margin-top:12px}
+}
+@media(max-width:380px){
+ .auth-card{padding:14px}
+ .auth-brand{font-size:23px}
+ .auth-card h2{font-size:21px}
+ .auth-sub{font-size:12px}
+ .passkey-icon-button{width:49px;height:49px;flex-basis:49px}
+}
 </style>
 <script id="panbill-premium-dashboard-labels-v1">
 (()=>{
