@@ -265,8 +265,8 @@ tbody tr:hover{background:#192b43}
   <div id="mobileTransactionsList" class="mobile-transaction-list"></div>
   <div class="table-wrap">
    <table>
-    <thead><tr><th>DATE</th><th>SERVICE</th><th>AMOUNT</th><th>STATUS</th><th>REFERENCE</th><th>CUSTOMER ID</th><th>DETAILS</th></tr></thead>
-    <tbody id="transactionsBody"><tr><td colspan="7" class="loading">Loading transactions...</td></tr></tbody>
+    <thead><tr><th>DATE</th><th>SERVICE</th><th>PROVIDER</th><th>AMOUNT</th><th>STATUS</th><th>REFERENCE</th><th>CUSTOMER ID</th><th>DETAILS</th></tr></thead>
+    <tbody id="transactionsBody"><tr><td colspan="8" class="loading">Loading transactions...</td></tr></tbody>
    </table>
   </div>
   <div class="pagination"><button class="btn" id="transactionsPrev">Previous</button><span id="transactionsPage">Page 1</span><button class="btn" id="transactionsNext">Next</button></div>
@@ -519,6 +519,17 @@ function escapeHTML(v){
 function money(v){
  return "₦"+Number(v||0).toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2});
 }
+
+function displayTransactionProvider(transaction){
+ const raw=String(transaction?.provider||"").trim();
+ const type=String(transaction?.type||"").trim().toLowerCase();
+ if(type==="vtu_purchase"||raw.toLowerCase()==="wisesub")return "PanBill";
+ return raw||"—";
+}
+function displayFulfilmentProvider(transaction){
+ const raw=String(transaction?.provider||"").trim();
+ return raw.toLowerCase()==="wisesub"?"WiseSub":"—";
+}
 function date(v){
  if(!v)return "—";
  const d=new Date(v);
@@ -670,13 +681,14 @@ function renderTransactions(){
   const id=escapeHTML(t.id);
   const ref=escapeHTML(t.reference||"—");
   const type=escapeHTML(t.type||"—");
+  const provider=escapeHTML(displayTransactionProvider(t));
   const amount=money(t.amount);
   const created=date(t.created_at);
   const customer=escapeHTML(t.user_id||"—");
 
   return {
    table:`<tr class="clickable-row" data-view-transaction="${id}" title="Open transaction details">
-    <td>${created}</td><td>${type}</td><td>${amount}</td>
+    <td>${created}</td><td>${type}</td><td>${provider}</td><td>${amount}</td>
     <td><span class="status ${cls}">${escapeHTML(s)}</span></td>
     <td>${ref}</td><td>${customer}</td>
     <td><button class="btn" type="button" data-open-transaction="${id}">View details</button></td>
@@ -684,6 +696,7 @@ function renderTransactions(){
    mobile:`<article class="mobile-transaction-card">
     <div class="mobile-transaction-top"><strong>${type}</strong><span class="status ${cls}">${escapeHTML(s)}</span></div>
     <div class="mobile-transaction-info">
+     <div><strong>PROVIDER</strong><span>${provider}</span></div>
      <div><strong>AMOUNT</strong><span>${amount}</span></div>
      <div><strong>DATE</strong><span>${created}</span></div>
      <div><strong>REFERENCE</strong><span>${ref}</span></div>
@@ -695,7 +708,7 @@ function renderTransactions(){
  });
 
  $("transactionsBody").innerHTML=rows.map(r=>r.table).join("")||
-  '<tr><td colspan="7" class="empty">No transactions match your search and filter.</td></tr>';
+  '<tr><td colspan="8" class="empty">No transactions match your search and filter.</td></tr>';
  $("mobileTransactionsList").innerHTML=rows.map(r=>r.mobile).join("")||
   '<div class="empty">No transactions match your search and filter.</div>';
 
@@ -766,7 +779,8 @@ async function openTransactionDetail(id){
     <div class="detail-item"><strong>CUSTOMER WALLET BALANCE</strong><span>${money(t.customer_wallet_balance)}</span></div>
     <div class="detail-item"><strong>SERVICE / TYPE</strong><span>${escapeHTML(t.type||"—")}</span></div>
     <div class="detail-item"><strong>TRANSACTION REFERENCE</strong><span>${escapeHTML(t.reference||"—")}</span></div>
-    <div class="detail-item"><strong>PROVIDER</strong><span>${escapeHTML(t.provider||"—")}</span></div>
+    <div class="detail-item"><strong>PROVIDER</strong><span>${escapeHTML(displayTransactionProvider(t))}</span></div>
+    <div class="detail-item"><strong>FULFILMENT PROVIDER (INTERNAL)</strong><span>${escapeHTML(displayFulfilmentProvider(t))}</span></div>
     <div class="detail-item"><strong>PROVIDER REFERENCE</strong><span>${escapeHTML(t.provider_reference||"—")}</span></div>
     <div class="detail-item"><strong>PROVIDER STATUS</strong><span>${escapeHTML(t.provider_status||"—")}</span></div>
     <div class="detail-item"><strong>TRANSACTION DATE</strong><span>${date(t.created_at)}</span></div>
@@ -928,16 +942,17 @@ async function openCustomerDetail(id){
    <h2 style="margin:22px 0 10px">Recent transactions</h2>
    <div class="table-wrap">
     <table style="min-width:550px">
-     <thead><tr><th>DATE</th><th>SERVICE</th><th>AMOUNT</th><th>STATUS</th><th>REFERENCE</th>${isSuperAdmin?"<th>ADMIN ACTION</th>":""}</tr></thead>
+     <thead><tr><th>DATE</th><th>SERVICE</th><th>PROVIDER</th><th>AMOUNT</th><th>STATUS</th><th>REFERENCE</th>${isSuperAdmin?"<th>ADMIN ACTION</th>":""}</tr></thead>
      <tbody>
       ${tx.map(t=>`<tr>
        <td>${date(t.created_at)}</td>
        <td>${escapeHTML(t.type||"—")}</td>
+       <td>${escapeHTML(displayTransactionProvider(t))}</td>
        <td>${money(t.amount)}</td>
        <td>${escapeHTML(t.status||"—")}</td>
        <td>${escapeHTML(t.reference||"—")}</td>
        ${isSuperAdmin?`<td>${t.status==="pending"?`<button class="btn btn-primary" type="button" data-manual-credit="${escapeHTML(t.id)}">Confirm &amp; credit</button>`:"—"}</td>`:""}
-      </tr>`).join("")||'<tr><td colspan="6" class="empty">No transactions found.</td></tr>'}
+      </tr>`).join("")||'<tr><td colspan="${isSuperAdmin?7:6}" class="empty">No transactions found.</td></tr>'}
      </tbody>
     </table>
    </div>
