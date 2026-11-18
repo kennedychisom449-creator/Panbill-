@@ -965,7 +965,7 @@ async function recordSellerAdminAudit(
 }
 
 const SELLER_PROFILE_FIELDS =
-  "user_id,business_name,slug,business_description,contact_email,contact_phone,business_address,status,commission_rate,approved_at,created_at,updated_at,dispatch_state,dispatch_city,dispatch_lga,dispatch_location_status,dispatch_location_reviewed_at,dispatch_location_reviewed_by,dispatch_location_review_note";
+  "user_id,business_name,slug,business_description,contact_email,contact_phone,business_address,status,commission_rate,cash_on_delivery_enabled,approved_at,created_at,updated_at,dispatch_state,dispatch_city,dispatch_lga,dispatch_location_status,dispatch_location_reviewed_at,dispatch_location_reviewed_by,dispatch_location_review_note";
 
 async function adminPendingSellers(actorId: string) {
   await requireSuperAdmin(actorId);
@@ -987,6 +987,66 @@ async function adminApprovedSellers(actorId: string) {
     .order("created_at", { ascending: false });
   if (error) throw error;
   return { sellers: data ?? [] };
+}
+
+async function adminSetSellerCashOnDelivery(body: any, actorId: string) {
+  await requireSuperAdmin(actorId);
+  const sellerUserId = cleanText(body.seller_user_id, 80);
+  if (!sellerUserId || typeof body.enabled !== "boolean") {
+    throw new Error("seller_user_id and a boolean enabled value are required.");
+  }
+
+  const { data: current, error: lookupError } = await adminDb
+    .from("marketplace_sellers")
+    .select("user_id,status,cash_on_delivery_enabled")
+    .eq("user_id", sellerUserId)
+    .maybeSingle();
+  if (lookupError) throw lookupError;
+  if (!current) throw new Error("Seller account not found.");
+  if (current.status !== "approved") {
+    throw new Error("Payment on Delivery can only be changed for approved sellers.");
+  }
+
+  const { data, error } = await adminDb
+    .from("marketplace_sellers")
+    .update({
+      cash_on_delivery_enabled: body.enabled,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("user_id", sellerUserId)
+    .eq("status", "approved")
+    .select(SELLER_PROFILE_FIELDS)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) throw new Error("Seller status changed before the Payment on Delivery setting could be saved.");
+
+  // The permission update is the primary operation. Audit logging is attempted
+  // immediately afterwards, but an audit-table failure must not misreport a
+  // successfully committed seller permission update as a failed POD change.
+  let auditLogged = true;
+  let auditWarning: string | null = null;
+  try {
+    await recordSellerAdminAudit(actorId, sellerUserId, "seller_cash_on_delivery_updated", {
+      enabled: body.enabled,
+      previous_enabled: current.cash_on_delivery_enabled === true,
+    });
+  } catch (auditError) {
+    auditLogged = false;
+    auditWarning = auditError instanceof Error
+      ? auditError.message
+      : "The POD setting was saved, but its audit record could not be written.";
+    console.error("Seller POD audit logging failed after permission update:", auditWarning);
+  }
+
+  return {
+    updated: true,
+    seller: data,
+    audit_logged: auditLogged,
+    ...(auditWarning ? { audit_warning: auditWarning } : {}),
+    message: auditLogged
+      ? `Payment on Delivery ${body.enabled ? "enabled" : "disabled"} for this seller.`
+      : `Payment on Delivery was ${body.enabled ? "enabled" : "disabled"}, but the audit record could not be saved. Please check the marketplace seller audit table.`,
+  };
 }
 
 async function adminReviewSeller(body: any, actorId: string) {
@@ -1223,6 +1283,9 @@ Deno.serve(async (req) => {
         break;
       case "approved_sellers":
         result = await adminApprovedSellers(authData.user.id);
+        break;
+      case "set_cash_on_delivery":
+        result = await adminSetSellerCashOnDelivery(body, authData.user.id);
         break;
       case "pending_dispatch_locations":
         result = await adminPendingDispatchLocations(authData.user.id);
