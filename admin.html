@@ -476,7 +476,7 @@ tbody tr:hover{background:#192b43}
  <div class="modal-card">
   <button class="btn modal-close" id="closeCustomerModal">Close</button>
   <h2>Customer account details</h2>
-  <p class="panel-desc">Account information, wallet balance and recent transactions.</p>
+  <p class="panel-desc">Account information, wallet balance and recent transactions. Super Admins can confirm provider-verified pending transactions and credit them once.</p>
   <div id="customerDetailContent" class="loading">Loading customer account...</div>
  </div>
 </div>
@@ -928,7 +928,7 @@ async function openCustomerDetail(id){
    <h2 style="margin:22px 0 10px">Recent transactions</h2>
    <div class="table-wrap">
     <table style="min-width:550px">
-     <thead><tr><th>DATE</th><th>SERVICE</th><th>AMOUNT</th><th>STATUS</th><th>REFERENCE</th></tr></thead>
+     <thead><tr><th>DATE</th><th>SERVICE</th><th>AMOUNT</th><th>STATUS</th><th>REFERENCE</th>${isSuperAdmin?"<th>ADMIN ACTION</th>":""}</tr></thead>
      <tbody>
       ${tx.map(t=>`<tr>
        <td>${date(t.created_at)}</td>
@@ -936,13 +936,48 @@ async function openCustomerDetail(id){
        <td>${money(t.amount)}</td>
        <td>${escapeHTML(t.status||"—")}</td>
        <td>${escapeHTML(t.reference||"—")}</td>
-      </tr>`).join("")||'<tr><td colspan="5" class="empty">No transactions found.</td></tr>'}
+       ${isSuperAdmin?`<td>${t.status==="pending"?`<button class="btn btn-primary" type="button" data-manual-credit="${escapeHTML(t.id)}">Confirm &amp; credit</button>`:"—"}</td>`:""}
+      </tr>`).join("")||'<tr><td colspan="6" class="empty">No transactions found.</td></tr>'}
      </tbody>
     </table>
    </div>
    <p class="panel-desc">Showing up to 50 recent transactions for this customer.</p>`;
 
   if(isSuperAdmin){
+   document.querySelectorAll("[data-manual-credit]").forEach(button=>{
+    button.addEventListener("click",async()=>{
+     const transactionId=Number(button.dataset.manualCredit);
+     const transaction=tx.find(item=>Number(item.id)===transactionId);
+     if(!transaction||transaction.status!=="pending"){
+      alert("This transaction is no longer pending. Refresh the customer account and try again.");
+      return;
+     }
+     const reason=prompt("Enter why this pending transaction is being manually credited (10–500 characters). Include how provider success was verified:");
+     if(reason===null)return;
+     if(reason.trim().length<10||reason.trim().length>500){
+      alert("Please enter a reason between 10 and 500 characters.");
+      return;
+     }
+     if(!confirm("Confirm that the service provider has verified this transaction as successful, and credit "+money(transaction.amount)+" to "+(c.email||c.id)+"? This action cannot be repeated."))return;
+     button.disabled=true;
+     button.textContent="Processing...";
+     try{
+      const result=await adminRequest("manual_credit_pending_transaction",{
+       transactionId,
+       reason:reason.trim(),
+       providerConfirmed:true
+      });
+      alert(result.message||"Customer wallet credited successfully.");
+      await openCustomerDetail(c.id);
+      await loadCustomers();
+     }catch(e){
+      alert(e.message||"The transaction could not be credited.");
+      button.disabled=false;
+      button.textContent="Confirm & credit";
+     }
+    });
+   });
+
    $("toggleCustomerAccess").addEventListener("click",async()=>{
     const next=suspended?"active":"suspended";
     const reason=prompt("Enter the reason for "+next+" this account (10–500 characters):");
