@@ -914,7 +914,7 @@ body:has(#auth-overlay:not([hidden])) #auth-overlay>.auth-card{
 
 </head><body>
 <div aria-label="PanBill is loading" aria-live="polite" id="panbill-loading-screen" role="status"><div aria-hidden="true" class="panbill-loader-mark">P</div><div class="panbill-loader-name">PanBill</div><div class="panbill-loader-caption">One app. All your bills.</div><div aria-hidden="true" class="panbill-loader-ring"></div></div>
-<header class="app-header"><div class="brand"><span class="brand-mark">P</span> PanBill</div><div class="header-actions"><span class="muted" hidden="" id="header-user" style="font-size:12px"></span><button class="pill" id="settings-top-button" type="button" aria-label="Open Settings">⚙ Settings</button><button aria-hidden="true" class="pill" hidden="" id="logout-button" type="button">Log out</button></div></header>
+<header class="app-header"><div class="brand"><span class="brand-mark">P</span> PanBill</div><div class="header-actions"><span class="muted" hidden="" id="header-user" style="font-size:12px"></span><button class="pill" id="settings-top-button" type="button" aria-label="Open Settings menu" title="Settings">☰</button><button aria-hidden="true" class="pill" hidden="" id="logout-button" type="button">Log out</button></div></header>
 <main class="wrap"><section class="hero"><div class="hero-copy"><div class="eyebrow">Simple • Secure • Convenient</div><h1>Your bills,<br/><span>beautifully handled.</span></h1><p>Recharge airtime, buy data, pay bills, add money to your wallet, shop and explore the marketplace every day — all in one secure app.</p><div class="trust"><span>✦ Secure account</span><span>✦ Clear transactions</span><span>✦ Fast checkout</span></div></div><div aria-label="PanBill animated seasonal background" class="portrait-card" role="img"></div></section>
 <div class="signed-greeting"><div><div class="eyebrow">YOUR PANBILL DASHBOARD</div><h2 id="greeting">Welcome to PanBill <span aria-hidden="true" class="greeting-spark">✦</span></h2><div class="muted" id="account-status" style="font-size:13px">Sign in to access your wallet.</div></div><span aria-hidden="true" class="greeting-decoration">✧</span><button aria-label="Open account settings" class="outline-btn" id="open-account" type="button" hidden="">Settings</button></div>
 <section aria-label="PanBill dashboard and seasonal message" aria-live="polite" class="seasonal-card" id="dashboard-seasonal-greeting"><div class="seasonal-copy"><div class="dashboard-brand-message"><strong>Your bills, beautifully handled.</strong><span>Recharge airtime, buy data, pay bills, add money, shop and explore — all in one secure app.</span></div><div class="seasonal-kicker" data-season-kicker="">SEASONAL GREETINGS</div><h2 class="seasonal-title" data-season-title="">Wishing you joy</h2><p class="seasonal-message" data-season-message="">Warm wishes from PanBill.</p></div><div aria-hidden="true" class="seasonal-art"><span class="season-main" data-season-art="">✦</span><span class="season-sparkles">✧ ✦</span></div></section>
@@ -3617,4 +3617,16 @@ main.wrap[data-view="services"] .services .service-card{display:flex!important;m
 })();
 </script>
 
+
+<style id="panbill-requested-settings-more-greeting-fixes-v1">
+/* Settings is a dedicated page: never show its contents on the VTU dashboard or other views. */
+main.wrap:not([data-view="settings"]) #settings-dashboard{display:none!important}
+main.wrap[data-view="settings"] #settings-dashboard{display:block!important}
+/* The More shortcut belongs only on the main VTU dashboard, not inside its More page. */
+main.wrap[data-view="services"] .services #home-more-vtu-shortcut{display:none!important}
+/* Seasonal greetings remain in the file for possible future reactivation, but stay disabled. */
+#dashboard-seasonal-greeting{display:none!important}
+/* Compact, accessible header menu icon. */
+#settings-top-button{min-width:42px;min-height:40px;padding:7px 11px!important;font-size:22px!important;line-height:1!important}
+</style>
 </body></html>
