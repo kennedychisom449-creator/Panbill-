@@ -232,7 +232,7 @@ tbody tr:hover{background:#192b43}
   <div class="panel-head"><div><h2>Management centre</h2><div class="panel-desc">Available administrative capabilities</div></div></div>
   <div class="quick-grid">
    <div class="quick-item"><strong>♙ Customer management</strong><span>Inspect customer accounts, wallet balances, account status and recent transactions.</span></div>
-   <div class="quick-item"><strong>⇄ Transaction monitoring</strong><span>Search, filter and inspect transaction records and provider responses.</span></div>
+   <div class="quick-item"><strong>⇄ Transaction monitoring</strong><span>Search, filter and inspect PanBill transaction records.</span></div>
    <div class="quick-item"><strong>⌑ Account protection</strong><span>Super Admin can suspend or reactivate accounts with a recorded reason.</span></div>
   </div>
  </div>
@@ -256,7 +256,7 @@ tbody tr:hover{background:#192b43}
 <section id="transactionsTab" class="section">
  <div class="panel">
   <div class="panel-head">
-   <div><h2>Transaction monitoring</h2><div class="panel-desc">Search by email, customer ID, transaction reference or provider reference.</div></div>
+   <div><h2>Transaction monitoring</h2><div class="panel-desc">Search by email, customer ID or transaction reference.</div></div>
    <input class="search" id="transactionSearch" placeholder="Search email, customer ID or reference..." aria-label="Search transactions">
    <select class="search" id="transactionStatusFilter" aria-label="Filter transaction status">
     <option value="all">All statuses</option><option value="successful">Successful</option><option value="pending">Pending</option><option value="failed">Failed</option>
@@ -485,7 +485,7 @@ tbody tr:hover{background:#192b43}
  <div class="modal-card">
   <button class="btn modal-close" id="closeTransactionModal">Close</button>
   <h2>Transaction details</h2>
-  <p class="panel-desc">Complete transaction record, customer information and provider response.</p>
+  <p class="panel-desc">Complete PanBill transaction record and customer information.</p>
   <div id="transactionDetailContent" class="loading">Loading transaction details...</div>
  </div>
 </div>
@@ -521,14 +521,7 @@ function money(v){
 }
 
 function displayTransactionProvider(transaction){
- const raw=String(transaction?.provider||"").trim();
- const type=String(transaction?.type||"").trim().toLowerCase();
- if(type==="vtu_purchase"||raw.toLowerCase()==="wisesub")return "PanBill";
- return raw||"—";
-}
-function displayFulfilmentProvider(transaction){
- const raw=String(transaction?.provider||"").trim();
- return raw.toLowerCase()==="wisesub"?"WiseSub":"—";
+ return "PanBill";
 }
 function date(v){
  if(!v)return "—";
@@ -758,15 +751,6 @@ async function openTransactionDetail(id){
   const t=r.transaction||{};
   const s=String(t.status||"unknown").toLowerCase();
   const cls=["successful","failed","pending"].includes(s)?s:"other";
-  let response=t.provider_response;
-
-  if(response===null||response===undefined||response===""){
-   response="No provider response was stored for this transaction.";
-  }else if(typeof response==="object"){
-   response=JSON.stringify(response,null,2);
-  }else{
-   response=String(response);
-  }
 
   $("transactionDetailContent").innerHTML=`
    <div class="detail-grid">
@@ -780,14 +764,10 @@ async function openTransactionDetail(id){
     <div class="detail-item"><strong>SERVICE / TYPE</strong><span>${escapeHTML(t.type||"—")}</span></div>
     <div class="detail-item"><strong>TRANSACTION REFERENCE</strong><span>${escapeHTML(t.reference||"—")}</span></div>
     <div class="detail-item"><strong>PROVIDER</strong><span>${escapeHTML(displayTransactionProvider(t))}</span></div>
-    <div class="detail-item"><strong>FULFILMENT PROVIDER (INTERNAL)</strong><span>${escapeHTML(displayFulfilmentProvider(t))}</span></div>
-    <div class="detail-item"><strong>PROVIDER REFERENCE</strong><span>${escapeHTML(t.provider_reference||"—")}</span></div>
-    <div class="detail-item"><strong>PROVIDER STATUS</strong><span>${escapeHTML(t.provider_status||"—")}</span></div>
     <div class="detail-item"><strong>TRANSACTION DATE</strong><span>${date(t.created_at)}</span></div>
     <div class="detail-item"><strong>TRANSACTION ID</strong><span>${escapeHTML(t.id||"—")}</span></div>
    </div>
-   <div class="detail-item" style="margin-bottom:12px"><strong>DESCRIPTION</strong><span>${escapeHTML(t.description||"No description stored.")}</span></div>
-   <div class="detail-item"><strong>PROVIDER RESPONSE</strong><pre class="provider-response">${escapeHTML(response)}</pre></div>`;
+   <div class="detail-item" style="margin-bottom:12px"><strong>DESCRIPTION</strong><span>${escapeHTML(t.description||"No description stored.")}</span></div>`;
  }catch(e){
   $("transactionDetailContent").innerHTML=`<p class="red">${escapeHTML(e.message)}</p>`;
  }
