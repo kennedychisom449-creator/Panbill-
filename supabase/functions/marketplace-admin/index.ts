@@ -1026,7 +1026,7 @@ async function adminSetSellerCashOnDelivery(body: any, actorId: string) {
   let auditLogged = true;
   let auditWarning: string | null = null;
   try {
-    await recordSellerAdminAudit(actorId, sellerUserId, "seller_cash_on_delivery_updated", {
+    await recordSellerAdminAudit(actorId, sellerUserId, "seller_cod_updated", {
       enabled: body.enabled,
       previous_enabled: current.cash_on_delivery_enabled === true,
     });
