@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1424">
 <title>PanBill | Admin Console</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -153,6 +153,91 @@ tbody tr:hover{background:#192b43}
  #transactionsTab .table-wrap{display:none}
  #transactionsTab .mobile-transaction-list{display:block}
 }
+
+/* PanBill login: fill the available viewport on phones, tablets and desktops */
+html, body {
+  min-height: 100%;
+  margin: 0;
+}
+.login-screen {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
+  box-sizing: border-box;
+  display: grid;
+  place-items: stretch;
+  padding:
+    max(16px, env(safe-area-inset-top))
+    max(16px, env(safe-area-inset-right))
+    max(16px, env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
+}
+.login-card {
+  width: 100%;
+  max-width: 560px;
+  min-height: calc(100vh - 32px);
+  min-height: calc(100svh - 32px);
+  min-height: calc(100dvh - 32px);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-self: stretch;
+  margin: 0 auto;
+  padding: clamp(22px, 4vw, 42px);
+}
+.login-brand {
+  margin-bottom: clamp(18px, 3.5vh, 32px);
+}
+.login-card input {
+  box-sizing: border-box;
+  min-height: 50px;
+  font-size: 16px;
+}
+.login-card button[type=submit] {
+  min-height: 52px;
+}
+@media (max-width: 700px) {
+  .login-screen {
+    padding:
+      max(8px, env(safe-area-inset-top))
+      max(8px, env(safe-area-inset-right))
+      max(8px, env(safe-area-inset-bottom))
+      max(8px, env(safe-area-inset-left));
+  }
+  .login-card {
+    max-width: none;
+    min-height: calc(100vh - 16px);
+    min-height: calc(100svh - 16px);
+    min-height: calc(100dvh - 16px);
+    padding: clamp(20px, 5vw, 32px);
+    border-radius: 18px;
+  }
+}
+@media (max-height: 560px) and (orientation: landscape) {
+  .login-screen {
+    place-items: start stretch;
+  }
+  .login-card {
+    min-height: calc(100dvh - 16px);
+    justify-content: flex-start;
+    padding-top: 18px;
+    padding-bottom: 18px;
+  }
+  .login-brand {
+    margin-bottom: 12px;
+  }
+  .login-brand .brand-icon {
+    width: 42px;
+    height: 42px;
+  }
+  .login-brand h1 {
+    margin: 8px 0 3px;
+  }
+}
+
+
 </style>
 </head>
 <body>
