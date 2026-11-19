@@ -1003,10 +1003,8 @@ main.wrap[data-view="bill-tools"] #panbill-bill-tools-page{display:block!importa
 <button aria-label="Open flight and hotel booking" class="service-card" data-service="travel" id="home-travel-shortcut" type="button">
 <span aria-hidden="true" class="service-icon">✈</span><strong>Travel</strong><small>Flights &amp; hotels</small>
 </button>
-<button aria-label="Open transaction history" class="service-card history-service-shortcut" id="home-history-shortcut" onclick="(function(){var m=document.querySelector('main.wrap'),a=document.getElementById('history-area'),t=document.getElementById('transaction-panel');if(!m||!a||!t)return;m.setAttribute('data-view','history');a.hidden=false;a.style.setProperty('display','block','important');t.style.setProperty('display','block','important');window.scrollTo({top:0,behavior:'smooth'});})();" type="button">
 <button aria-label="Open bill tools" class="service-card" id="home-bill-tools-shortcut" type="button"><span aria-hidden="true" class="service-icon">▤</span><strong>Bill Tools</strong><small>Saved &amp; scheduled</small></button>
-<span aria-hidden="true" class="service-icon">◷</span><strong>History</strong><small>View transactions</small>
-</button>
+<button aria-label="Open transaction history" class="service-card history-service-shortcut" id="home-history-shortcut" onclick="(function(){var m=document.querySelector('main.wrap'),a=document.getElementById('history-area'),t=document.getElementById('transaction-panel');if(!m||!a||!t)return;m.setAttribute('data-view','history');a.hidden=false;a.style.setProperty('display','block','important');t.style.setProperty('display','block','important');window.scrollTo({top:0,behavior:'smooth'});})();" type="button"><span aria-hidden="true" class="service-icon">◷</span><strong>History</strong><small>View transactions</small></button>
 <button class="service-card" data-service="airtime" type="button"><span class="service-icon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm3 14h4"></path></svg></span><strong>Airtime</strong><small>All mobile networks</small></button>
 <button class="service-card" data-service="data" type="button"><span class="service-icon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M3 9a13 13 0 0 1 18 0M6.5 12.5a8 8 0 0 1 11 0M10 16a3 3 0 0 1 4 0M12 20h.01"></path></svg></span><strong>Data</strong><small>Internet bundles</small></button>
 <button aria-label="Open more VTU services" class="service-card more-vtu-shortcut" id="home-more-vtu-shortcut" type="button"><span aria-hidden="true" class="service-icon">＋</span><strong>More</strong><small>More VTU services</small></button>
@@ -3835,4 +3833,45 @@ main.wrap[data-view="travel"] #panbill-travel-page{display:block!important}
 })();
 </script>
 
+
+<style id="panbill-more-vtu-layout-repair-v1">
+/* Repair the More VTU Services grid and keep each shortcut as one independent card. */
+main.wrap[data-view="services"] #vtu-section-heading{
+ display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;
+ grid-template-rows:auto auto;align-items:center!important;column-gap:14px!important;row-gap:3px!important;
+ margin:20px 0 16px!important;
+}
+main.wrap[data-view="services"] #vtu-section-title{grid-column:1;grid-row:1;margin:0!important;line-height:1.25!important}
+main.wrap[data-view="services"] #vtu-section-subtitle{grid-column:1;grid-row:2;display:block!important;white-space:normal!important}
+main.wrap[data-view="services"] #more-vtu-back{grid-column:2;grid-row:1 / span 2;align-self:center;white-space:nowrap!important}
+main.wrap[data-view="services"] .services{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ grid-auto-flow:row!important;align-items:stretch!important;gap:12px!important;
+}
+main.wrap[data-view="services"] .services #home-bill-tools-shortcut{order:1!important;display:flex!important}
+main.wrap[data-view="services"] .services #home-history-shortcut{order:2!important;display:flex!important}
+main.wrap[data-view="services"] .services [data-service="airtime"]{order:3!important}
+main.wrap[data-view="services"] .services [data-service="data"]{order:4!important}
+main.wrap[data-view="services"] .services [data-service="electricity"]{order:5!important}
+main.wrap[data-view="services"] .services [data-service="tv"]{order:6!important}
+main.wrap[data-view="services"] .services #home-marketplace-shortcut{order:7!important}
+main.wrap[data-view="services"] .services [data-service="exam"]{order:8!important}
+main.wrap[data-view="services"] .services #home-travel-shortcut{order:9!important}
+main.wrap[data-view="services"] .services .service-card{
+ display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;
+ min-width:0!important;min-height:142px!important;height:100%!important;padding:15px 9px!important;
+ text-align:center!important;gap:5px!important;
+}
+main.wrap[data-view="services"] .services .service-card .service-icon{flex:0 0 50px!important}
+main.wrap[data-view="services"] .services .service-card strong{display:block!important;line-height:1.25!important}
+main.wrap[data-view="services"] .services .service-card small{display:block!important;line-height:1.35!important;overflow-wrap:anywhere!important}
+@media(max-width:420px){
+ main.wrap[data-view="services"] .services{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+ main.wrap[data-view="services"] .services .service-card{min-height:132px!important;padding:13px 8px!important}
+ main.wrap[data-view="services"] #vtu-section-heading{column-gap:8px!important}
+ main.wrap[data-view="services"] #vtu-section-title{font-size:21px!important}
+ main.wrap[data-view="services"] #more-vtu-back{padding:9px 10px!important;font-size:12px!important}
+}
+@media(min-width:900px){main.wrap[data-view="services"] .services{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
+</style>
 </body></html>
