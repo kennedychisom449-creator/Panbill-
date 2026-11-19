@@ -912,6 +912,74 @@ body:has(#auth-overlay:not([hidden])) #auth-overlay>.auth-card{
 }
 </style>
 
+
+<style id="panbill-marketplace-motion-v1">
+/* PanBill Marketplace motion polish — visual only; no checkout or data logic changed. */
+@keyframes pbMarketRiseIn {
+  from { opacity: 0; transform: translate3d(0, 22px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes pbMarketHeroGlow {
+  0%, 100% { box-shadow: 0 12px 30px rgba(7, 21, 47, .10); }
+  50%      { box-shadow: 0 18px 38px rgba(7, 21, 47, .19); }
+}
+@keyframes pbMarketBagFloat {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50%      { transform: translateY(-9px) rotate(2deg); }
+}
+@keyframes pbMarketSparkle {
+  0%, 100% { opacity: .55; transform: scale(.82) rotate(0deg); }
+  50%      { opacity: 1; transform: scale(1.16) rotate(18deg); }
+}
+@keyframes pbMarketCartPulse {
+  0%, 100% { box-shadow: 0 8px 22px rgba(0,0,0,.20); }
+  50%      { box-shadow: 0 10px 28px rgba(242,193,93,.28); }
+}
+#customer-marketplace .jm-market-topline,
+#customer-marketplace .jm-market-hero,
+#customer-marketplace .jm-category-section,
+#customer-marketplace .jm-search-row,
+#customer-marketplace .jm-promo-strip,
+#customer-marketplace .marketplace-products-heading {
+  animation: pbMarketRiseIn .7s cubic-bezier(.2,.75,.25,1) both;
+}
+#customer-marketplace .jm-market-hero { animation-delay: .08s, .8s; animation-name: pbMarketRiseIn, pbMarketHeroGlow; animation-duration: .7s, 5s; animation-iteration-count: 1, infinite; }
+#customer-marketplace .jm-category-section { animation-delay: .16s; }
+#customer-marketplace .jm-search-row { animation-delay: .23s; }
+#customer-marketplace .jm-promo-strip { animation-delay: .30s; }
+#customer-marketplace .jm-hero-art .jm-art-bag { display: inline-block; animation: pbMarketBagFloat 3.8s ease-in-out infinite; will-change: transform; }
+#customer-marketplace .jm-hero-art .jm-art-spark { animation: pbMarketSparkle 2.4s ease-in-out infinite; transform-origin: center; }
+#customer-marketplace .marketplace-category-chip {
+  transition: transform .22s ease, box-shadow .22s ease, background-color .22s ease, border-color .22s ease;
+}
+#customer-marketplace .marketplace-category-chip:active { transform: scale(.96); }
+#customer-marketplace .marketplace-category-chip:hover { transform: translateY(-3px); box-shadow: 0 7px 16px rgba(7,21,47,.13); }
+#customer-marketplace .jm-product-card {
+  animation: pbMarketRiseIn .55s cubic-bezier(.2,.75,.25,1) both;
+  transition: transform .24s ease, box-shadow .24s ease, border-color .24s ease;
+}
+#customer-marketplace .jm-product-card:nth-child(4n+1) { animation-delay: .02s; }
+#customer-marketplace .jm-product-card:nth-child(4n+2) { animation-delay: .08s; }
+#customer-marketplace .jm-product-card:nth-child(4n+3) { animation-delay: .14s; }
+#customer-marketplace .jm-product-card:nth-child(4n) { animation-delay: .20s; }
+#customer-marketplace .jm-product-card:active { transform: scale(.985); }
+#customer-marketplace .jm-product-card>img { transition: transform .35s ease; }
+#customer-marketplace .jm-product-card:hover>img { transform: scale(1.035); }
+#customer-marketplace #marketplace-floating-cart-open { animation: pbMarketCartPulse 3.8s ease-in-out infinite; }
+#customer-marketplace .jm-hero-cta { transition: transform .2s ease, box-shadow .2s ease; }
+#customer-marketplace .jm-hero-cta:hover { transform: translateY(-3px); box-shadow: 0 9px 20px rgba(7,21,47,.18); }
+@media (prefers-reduced-motion: reduce) {
+  #customer-marketplace *,
+  #customer-marketplace *::before,
+  #customer-marketplace *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+}
+</style>
+
 </head><body>
 <div aria-label="PanBill is loading" aria-live="polite" id="panbill-loading-screen" role="status"><div aria-hidden="true" class="panbill-loader-mark">P</div><div class="panbill-loader-name">PanBill</div><div class="panbill-loader-caption">One app. All your bills.</div><div aria-hidden="true" class="panbill-loader-ring"></div></div>
 <header class="app-header"><div class="brand"><span class="brand-mark">P</span> PanBill</div><div class="header-actions"><span class="muted" hidden="" id="header-user" style="font-size:12px"></span><button class="pill" id="settings-top-button" type="button" aria-label="Open Settings menu" title="Settings">☰</button><button aria-hidden="true" class="pill" hidden="" id="logout-button" type="button">Log out</button></div></header>
