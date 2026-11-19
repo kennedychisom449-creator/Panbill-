@@ -923,6 +923,9 @@ body:has(#auth-overlay:not([hidden])) #auth-overlay>.auth-card{
 <button aria-label="Open Marketplace" class="service-card market-service-shortcut" id="home-marketplace-shortcut" type="button">
 <span aria-hidden="true" class="service-icon">🛍</span><strong>Marketplace</strong><small>Shop products</small>
 </button>
+<button aria-label="Open flight and hotel booking" class="service-card" data-service="travel" id="home-travel-shortcut" type="button">
+<span aria-hidden="true" class="service-icon">✈</span><strong>Travel</strong><small>Flights &amp; hotels</small>
+</button>
 <button aria-label="Open transaction history" class="service-card history-service-shortcut" id="home-history-shortcut" onclick="(function(){var m=document.querySelector('main.wrap'),a=document.getElementById('history-area'),t=document.getElementById('transaction-panel');if(!m||!a||!t)return;m.setAttribute('data-view','history');a.hidden=false;a.style.setProperty('display','block','important');t.style.setProperty('display','block','important');window.scrollTo({top:0,behavior:'smooth'});})();" type="button">
 <span aria-hidden="true" class="service-icon">◷</span><strong>History</strong><small>View transactions</small>
 </button>
@@ -933,6 +936,44 @@ body:has(#auth-overlay:not([hidden])) #auth-overlay>.auth-card{
 <button class="service-card" data-service="electricity" type="button"><span class="service-icon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="m13 2-9 12h7l-1 8 10-13h-7z"></path></svg></span><strong>Electricity</strong><small>Prepaid &amp; postpaid</small></button>
 <button class="service-card" data-service="exam" type="button"><span class="service-icon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M5 3h14v18H5zM8 8h8M8 12h8M8 16h5"></path></svg></span><strong>Exam PINs</strong><small>WAEC, JAMB &amp; more</small></button>
 </section>
+<section id="panbill-travel-page" aria-label="PanBill Travel" hidden>
+ <div class="travel-page-head">
+  <button class="outline-btn" id="travel-back-home" type="button">← Dashboard</button>
+  <div class="eyebrow">PANBILL TRAVEL</div>
+  <h2>Where would you like to go?</h2>
+  <p>Search flights and discover hotels from one place.</p>
+ </div>
+ <div class="travel-tabs" role="tablist" aria-label="Travel booking type">
+  <button type="button" class="travel-tab active" id="travel-flights-tab" role="tab" aria-selected="true" aria-controls="travel-flights-panel">✈ Flights</button>
+  <button type="button" class="travel-tab" id="travel-hotels-tab" role="tab" aria-selected="false" aria-controls="travel-hotels-panel">▣ Hotels</button>
+ </div>
+ <section class="travel-search-panel" id="travel-flights-panel" role="tabpanel" aria-labelledby="travel-flights-tab">
+  <div class="travel-panel-title"><div><span class="eyebrow">FLIGHT SEARCH</span><h3>Find your next flight</h3><p>Compare routes, dates and passenger options.</p></div><span class="travel-illustration">✈</span></div>
+  <form id="panbill-flight-search" class="travel-form">
+   <div><label for="flight-origin">From</label><input id="flight-origin" name="origin" placeholder="City or airport (e.g. Lagos)" autocomplete="off" required></div>
+   <div><label for="flight-destination">To</label><input id="flight-destination" name="destination" placeholder="City or airport (e.g. Abuja)" autocomplete="off" required></div>
+   <div><label for="flight-departure">Departure</label><input id="flight-departure" name="departure_date" type="date" required></div>
+   <div><label for="flight-return">Return (optional)</label><input id="flight-return" name="return_date" type="date"></div>
+   <div><label for="flight-passengers">Passengers</label><select id="flight-passengers" name="passengers"><option value="1">1 passenger</option><option value="2">2 passengers</option><option value="3">3 passengers</option><option value="4">4 passengers</option><option value="5">5 passengers</option><option value="6">6 passengers</option><option value="7">7 passengers</option><option value="8">8 passengers</option><option value="9">9 passengers</option></select></div>
+   <div><label for="flight-cabin">Cabin class</label><select id="flight-cabin" name="cabin_class"><option value="economy">Economy</option><option value="premium_economy">Premium economy</option><option value="business">Business</option><option value="first">First class</option></select></div>
+   <button class="gold-btn travel-search-button" type="submit" disabled>Flight search coming soon</button>
+  </form>
+ </section>
+ <section class="travel-search-panel" id="travel-hotels-panel" role="tabpanel" aria-labelledby="travel-hotels-tab" hidden>
+  <div class="travel-panel-title"><div><span class="eyebrow">HOTEL SEARCH</span><h3>Find a place to stay</h3><p>Explore accommodation for your next trip.</p></div><span class="travel-illustration">⌂</span></div>
+  <form id="panbill-hotel-search" class="travel-form">
+   <div class="travel-field-wide"><label for="hotel-destination">Destination</label><input id="hotel-destination" name="destination" placeholder="City, area or hotel name" autocomplete="off" required></div>
+   <div><label for="hotel-checkin">Check-in</label><input id="hotel-checkin" name="check_in" type="date" required></div>
+   <div><label for="hotel-checkout">Check-out</label><input id="hotel-checkout" name="check_out" type="date" required></div>
+   <div><label for="hotel-guests">Guests</label><select id="hotel-guests" name="guests"><option value="1">1 guest</option><option value="2">2 guests</option><option value="3">3 guests</option><option value="4">4 guests</option><option value="5">5 guests</option><option value="6">6 guests</option><option value="7">7 guests</option><option value="8">8 guests</option></select></div>
+   <div><label for="hotel-rooms">Rooms</label><select id="hotel-rooms" name="rooms"><option value="1">1 room</option><option value="2">2 rooms</option><option value="3">3 rooms</option><option value="4">4 rooms</option></select></div>
+   <button class="gold-btn travel-search-button" type="submit" disabled>Hotel search coming soon</button>
+  </form>
+ </section>
+ <section class="travel-bookings-panel"><div><span class="eyebrow">YOUR TRAVEL</span><h3>My bookings</h3><p>Confirmed flight tickets and hotel reservations will appear here.</p></div><div class="travel-empty-state"><span>▤</span><strong>No travel bookings yet</strong><small>Your flight and hotel bookings will be listed here.</small></div></section>
+ <div class="travel-integration-note" role="status"><strong>Booking integration is the next step</strong><span>Search and booking are not enabled yet. PanBill must first be connected to approved flight and hotel providers, with secure server-side payment and confirmation handling. No sample prices or fake availability are shown.</span></div>
+</section>
+
 <section aria-label="Popular VTU providers" class="provider-hub">
 <div class="provider-hub-head"><div><div class="eyebrow">QUICK PICKS</div><h3>Choose your provider</h3><p>Choose Airtime or Data under your network. Available options load from our live provider catalogue.</p></div><span class="provider-live"><i></i> LIVE SERVICES</span></div>
 <div class="provider-grid">
@@ -1158,30 +1199,7 @@ body:has(#auth-overlay:not([hidden])) #auth-overlay>.auth-card{
 <div class="otp-actions"><button class="text-button" id="resend-email-otp" type="button">Resend code</button><button class="text-button" id="back-from-email-otp" type="button">Back to login</button></div>
 </section></div></div>
 <div class="modal-backdrop" hidden="" id="reset-overlay"><section class="modal"><div class="modal-top"><h2 id="reset-title">Reset password</h2><button class="close" id="close-reset" type="button">Close</button></div><p class="muted" id="reset-description" style="font-size:13px">Enter your account email and we’ll send a secure reset link.</p><form id="reset-form"><div id="reset-email-field"><label for="reset-email">Email address</label><input autocomplete="email" id="reset-email" placeholder="you@example.com" required="" type="email"/></div><div hidden="" id="new-password-field"><label for="new-password">New password</label><input autocomplete="new-password" id="new-password" minlength="6" placeholder="At least 6 characters" type="password"/></div><button class="gold-btn" id="reset-submit" style="width:100%;margin-top:17px" type="submit">Send reset link</button></form><div class="status" id="reset-message" role="status"></div></section></div>
-<div class="modal-backdrop" hidden id="signup-terms-overlay"><section aria-labelledby="signup-terms-title" aria-modal="true" class="modal signup-terms-modal" role="dialog"><div class="modal-top"><h2 id="signup-terms-title">PanBill Terms &amp; Conditions</h2><button class="close" id="close-signup-terms" type="button">Close</button></div><iframe id="signup-terms-frame" title="PanBill Terms and Conditions" src="terms-and-conditions.html" loading="lazy"></iframe>
-<script id="signup-terms-hide-back-link">
-(function(){
-  const frame=document.getElementById('signup-terms-frame');
-  if(!frame)return;
-  function hideSignupBackLink(){
-    try{
-      const doc=frame.contentDocument;
-      if(!doc)return;
-      doc.querySelectorAll('a,button,[role="button"]').forEach(el=>{
-        const label=(el.innerText||el.textContent||'').replace(/\\s+/g,' ').trim();
-        if(/back to panbill/i.test(label)){
-          el.style.setProperty('display','none','important');
-          el.setAttribute('aria-hidden','true');
-          el.setAttribute('tabindex','-1');
-        }
-      });
-    }catch(error){
-      console.warn('Could not adjust the signup-only Terms & Conditions view:',error);
-    }
-  }
-  frame.addEventListener('load',hideSignupBackLink);
-})();
-</script></section></div>
+<div class="modal-backdrop" hidden id="signup-terms-overlay"><section aria-labelledby="signup-terms-title" aria-modal="true" class="modal signup-terms-modal" role="dialog"><div class="modal-top"><h2 id="signup-terms-title">PanBill Terms &amp; Conditions</h2><button class="close" id="close-signup-terms" type="button">Close</button></div><iframe id="signup-terms-frame" title="PanBill Terms and Conditions" src="terms-and-conditions.html" loading="lazy"></iframe></section></div>
 <div class="modal-backdrop transaction-pin-overlay" hidden="" id="transaction-pin-overlay">
 <section aria-labelledby="transaction-pin-title" aria-modal="true" class="modal transaction-pin-modal" role="dialog">
 <h2 id="transaction-pin-title">Create your transaction PIN</h2>
@@ -3657,4 +3675,32 @@ main.wrap[data-view="services"] .services #home-more-vtu-shortcut{display:none!i
 /* Compact, accessible header menu icon. */
 #settings-top-button{min-width:42px;min-height:40px;padding:7px 11px!important;font-size:22px!important;line-height:1!important}
 </style>
+
+<style id="panbill-travel-module-v1">
+#panbill-travel-page{width:100%;max-width:980px;margin:12px auto 30px;padding:8px 0 90px;color:var(--ink)}
+main.wrap[data-view="travel"]{max-width:980px;min-height:calc(100vh - 70px);padding-top:18px}
+main.wrap[data-view="travel"]> :not(#panbill-travel-page):not(.bottom-nav){display:none!important}
+main.wrap[data-view="travel"] #panbill-travel-page{display:block!important}
+.travel-page-head{padding:8px 0 20px}.travel-page-head .eyebrow{margin-top:18px}.travel-page-head h2{font-size:clamp(25px,5vw,36px);margin:7px 0;color:#fff}.travel-page-head p,.travel-panel-title p,.travel-bookings-panel p{margin:4px 0;color:var(--muted);font-size:13px}
+.travel-tabs{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:0 0 14px;padding:5px;border:1px solid var(--line);border-radius:15px;background:#ffffff08}.travel-tab{border:0;border-radius:11px;padding:13px 10px;background:transparent;color:var(--muted);font-weight:800}.travel-tab.active{background:linear-gradient(135deg,var(--gold2),#e4ac3f);color:#101b30}
+.travel-search-panel,.travel-bookings-panel{padding:20px;border:1px solid var(--line);border-radius:19px;background:linear-gradient(145deg,#10264a,#0a1b38);box-shadow:0 14px 35px #0002;margin-bottom:15px}.travel-panel-title{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:12px}.travel-panel-title h3,.travel-bookings-panel h3{font-size:20px;margin:4px 0;color:#fff}.travel-illustration{width:55px;height:55px;flex:0 0 55px;display:grid;place-items:center;border-radius:17px;background:#f2c15d18;border:1px solid #f2c15d50;color:var(--gold2);font-size:29px}.travel-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 14px}.travel-form label{margin-top:12px}.travel-form input,.travel-form select{min-width:0}.travel-form input[type=date]{color-scheme:dark}.travel-field-wide{grid-column:1/-1}.travel-search-button{grid-column:1/-1;width:100%;margin-top:16px;min-height:49px}.travel-search-button:disabled{opacity:.72;cursor:not-allowed}.travel-empty-state{display:flex;flex-direction:column;align-items:center;text-align:center;gap:5px;padding:24px 12px;margin-top:14px;border:1px dashed #ffffff30;border-radius:14px;color:var(--muted)}.travel-empty-state>span{font-size:26px;color:var(--gold2)}.travel-empty-state strong{color:#fff;font-size:14px}.travel-empty-state small{font-size:12px}.travel-integration-note{display:flex;flex-direction:column;gap:5px;padding:14px 16px;border:1px solid #f2c15d55;border-radius:13px;background:#f2c15d0c;color:#dce6f4;font-size:12px;line-height:1.55}.travel-integration-note strong{color:var(--gold2);font-size:13px}#home-travel-shortcut{order:7!important;display:flex!important}
+@media(max-width:600px){#panbill-travel-page{padding:4px 0 100px}.travel-search-panel,.travel-bookings-panel{padding:15px;border-radius:15px}.travel-form{grid-template-columns:1fr;gap:0}.travel-field-wide,.travel-search-button{grid-column:auto}.travel-panel-title h3{font-size:18px}.travel-illustration{width:46px;height:46px;flex-basis:46px}}
+</style>
+<script id="panbill-travel-controller-v1">
+(()=>{
+ const main=document.querySelector('main.wrap');if(!main)return;
+ const page=document.getElementById('panbill-travel-page');
+ const flightsTab=document.getElementById('travel-flights-tab');const hotelsTab=document.getElementById('travel-hotels-tab');
+ const flightsPanel=document.getElementById('travel-flights-panel');const hotelsPanel=document.getElementById('travel-hotels-panel');
+ function setTravelTab(which){const flights=which==='flights';flightsPanel.hidden=!flights;hotelsPanel.hidden=flights;flightsTab.classList.toggle('active',flights);hotelsTab.classList.toggle('active',!flights);flightsTab.setAttribute('aria-selected',String(flights));hotelsTab.setAttribute('aria-selected',String(!flights));}
+ function openTravel(){main.dataset.view='travel';page.hidden=false;setTravelTab('flights');document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.remove('nav-active'));window.scrollTo({top:0,behavior:'smooth'});}
+ function closeTravel(){main.dataset.view='home';page.hidden=true;document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.toggle('nav-active',b.id==='nav-home'));window.scrollTo({top:0,behavior:'smooth'});}
+ document.getElementById('home-travel-shortcut')?.addEventListener('click',openTravel);document.getElementById('travel-back-home')?.addEventListener('click',closeTravel);flightsTab?.addEventListener('click',()=>setTravelTab('flights'));hotelsTab?.addEventListener('click',()=>setTravelTab('hotels'));
+ const today=new Date();const minDate=new Date(today.getTime()-today.getTimezoneOffset()*60000).toISOString().slice(0,10);['flight-departure','flight-return','hotel-checkin','hotel-checkout'].forEach(id=>{const el=document.getElementById(id);if(el)el.min=minDate;});
+ document.getElementById('flight-departure')?.addEventListener('change',e=>{const ret=document.getElementById('flight-return');ret.min=e.target.value;if(ret.value&&ret.value<e.target.value)ret.value='';});
+ document.getElementById('hotel-checkin')?.addEventListener('change',e=>{const out=document.getElementById('hotel-checkout');out.min=e.target.value;if(out.value&&out.value<=e.target.value)out.value='';});
+ document.getElementById('panbill-flight-search')?.addEventListener('submit',e=>{e.preventDefault();});document.getElementById('panbill-hotel-search')?.addEventListener('submit',e=>{e.preventDefault();});
+})();
+</script>
+
 </body></html>
