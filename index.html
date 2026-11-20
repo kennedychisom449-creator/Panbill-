@@ -4278,5 +4278,36 @@ main.wrap[data-view="services"] .services .service-card small{display:block!impo
  const syncSettings=()=>{const main=document.querySelector('main.wrap');const isDashboard=!main||(!main.classList.contains('panbill-subpage-active')&&(!main.dataset.view||main.dataset.view==='home'));if(settings)settings.hidden=!isDashboard;};
  syncSettings();if(window.MutationObserver){const main=document.querySelector('main.wrap');if(main)new MutationObserver(syncSettings).observe(main,{attributes:true,attributeFilter:['class','data-view']});}
 })();
-</script>
+</script><!-- PanBill Wallet Transfer Integration -->
+<style id="panbill-wallet-transfer-layout">
+  #wallet-panel .wallet-actions {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  #wallet-panel #panbill-wallet-transfer-button {
+    background: linear-gradient(
+      135deg,
+      #ffe4a0,
+      #f2c15d
+    );
+    border-color: #ffe4a0;
+    color: #10203d;
+    font-weight: 900;
+  }
+
+  @media (max-width: 600px) {
+    #wallet-panel .wallet-actions {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    #wallet-panel .wallet-actions button {
+      min-height: 58px;
+      padding: 10px 5px;
+      font-size: 12px;
+    }
+  }
+</style>
+
+<script src="./panbill_wallet_transfer_addon.js"></script>
 </body></html>
