@@ -2035,7 +2035,7 @@ function printPanbillTransactionStatement(){
 #panbill-budget-page #budget-limits>div>div:first-child>strong{min-width:0;overflow-wrap:anywhere;word-break:break-word}
 @media(max-width:380px){#panbill-budget-page #budget-summary{grid-template-columns:minmax(0,1fr)!important}}
 </style>
-</body></html>`;
+`;
  w.document.open();w.document.write(html);w.document.close();w.focus();w.print();
 }
 document.getElementById('print-transaction-statement')?.addEventListener('click',printPanbillTransactionStatement);
@@ -2143,7 +2143,7 @@ function printPanbillTransactionRecord(x,status){
  const confirmed=status==='successful';const title=confirmed?'PanBill Payment Receipt':'PanBill Transaction Record';
  const rows=[['Service',String(x.description||x.type||'Transaction').replace(/wisesub/gi,'PanBill')],['Amount',money(x.amount)],['Status',({successful:'Successful',pending:'Pending',failed:'Failed',unknown:'Status unavailable'})[status]],['Date and time',x.created_at?new Date(x.created_at).toLocaleString('en-NG'):'Not available'],['Transaction reference',x.reference||'Not available'],['Provider reference',x.provider_reference||'Not available'],['Provider status',x.provider_status||'Not available']];
  const w=window.open('','_blank','width=720,height=800');if(!w){alert('Allow pop-ups to print or save your PanBill record.');return;}
- const html=`<!doctype html><html><head><meta charset="utf-8"><title>${title}</title><style>body{font:15px Arial,sans-serif;color:#17243a;margin:36px}header{border-bottom:3px solid #dcae48;padding-bottom:16px;margin-bottom:24px}h1{margin:0 0 6px;font-size:26px}p{color:#586579}.status{font-weight:bold;color:${confirmed?'#087443':'#9a5b00'}}table{width:100%;border-collapse:collapse}td{padding:13px 8px;border-bottom:1px solid #e4e8ee}td:first-child{color:#647084;width:38%}.foot{margin-top:30px;font-size:12px;color:#697586}@media print{button{display:none}}</style></head><body><header><h1>PanBill</h1><p>${title}</p></header><table>${rows.map(r=>'<tr><td>'+esc(r[0])+'</td><td class="'+(r[0]==='Status'?'status':'')+'">'+esc(r[1])+'</td></tr>').join('')}</table><p class="foot">${confirmed?'This record reflects a transaction marked successful in PanBill records.':'This is a transaction record, not proof of successful payment. Check PanBill for the latest status before taking further action.'}</p></body></html>`;
+ const html=`<!doctype html><html><head><meta charset="utf-8"><title>${title}</title><style>body{font:15px Arial,sans-serif;color:#17243a;margin:36px}header{border-bottom:3px solid #dcae48;padding-bottom:16px;margin-bottom:24px}h1{margin:0 0 6px;font-size:26px}p{color:#586579}.status{font-weight:bold;color:${confirmed?'#087443':'#9a5b00'}}table{width:100%;border-collapse:collapse}td{padding:13px 8px;border-bottom:1px solid #e4e8ee}td:first-child{color:#647084;width:38%}.foot{margin-top:30px;font-size:12px;color:#697586}@media print{button{display:none}}</style></head><body><header><h1>PanBill</h1><p>${title}</p></header><table>${rows.map(r=>'<tr><td>'+esc(r[0])+'</td><td class="'+(r[0]==='Status'?'status':'')+'">'+esc(r[1])+'</td></tr>').join('')}</table><p class="foot">${confirmed?'This record reflects a transaction marked successful in PanBill records.':'This is a transaction record, not proof of successful payment. Check PanBill for the latest status before taking further action.'}</p>`;
  w.document.open();w.document.write(html);w.document.close();w.focus();w.print();
 }
 function closeTransactionDetails(){$('transaction-detail-overlay').hidden=true;activeTransactionDetail=null}$('close-transaction-detail').onclick=closeTransactionDetails;$('transaction-detail-overlay').addEventListener('click',e=>{if(e.target===$('transaction-detail-overlay'))closeTransactionDetails()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('transaction-detail-overlay').hidden)closeTransactionDetails()});
@@ -4170,7 +4170,7 @@ main.wrap[data-view="travel"] #panbill-travel-page{display:block!important}
   if(!popup){msg('batch-message','Allow pop-ups for PanBill to print this batch record.',true);return;}
   popup.opener=null;
   popup.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>PanBill Batch ${safe(batch.reference)}</title><style>body{font:14px Arial,sans-serif;color:#172033;padding:28px}h1{margin:0;color:#10274b}small{color:#64748b}.meta{margin:20px 0;padding:14px;background:#f1f5f9;border-radius:8px}.status{font-weight:bold;color:${allPaid?'#087443':'#9a5b00'}}table{width:100%;border-collapse:collapse;margin-top:18px}th,td{padding:10px 7px;border-bottom:1px solid #ddd;text-align:left;font-size:12px}th{background:#f1f5f9}.foot{margin-top:24px;color:#64748b;font-size:11px}@media print{button{display:none}}</style></head><body><h1>PanBill</h1><small>Multi-bill transaction record</small><div class="meta"><b>Batch reference:</b> ${safe(batch.reference)}<br><b>Date:</b> ${safe(batch.created_at?new Date(batch.created_at).toLocaleString('en-NG'):'Not available')}<br><b>Batch status:</b> <span class="status">${allPaid?'PAID — ALL BILLS SUCCESSFUL':pending?'PENDING — AWAITING CONFIRMATION':failed?'PARTIAL / NOT FULLY SUCCESSFUL':'NOT CONFIRMED'}</span><br><b>Successful:</b> ${successful} &nbsp; <b>Pending:</b> ${pending} &nbsp; <b>Failed/cancelled:</b> ${failed}</div><table><thead><tr><th>Service</th><th>Provider</th><th>Recipient</th><th>Amount</th><th>Status</th><th>Transaction ref</th></tr></thead><tbody>${rows||'<tr><td colspan="6">No bills in this batch.</td></tr>'}</tbody></table><p><b>Draft total / estimate:</b> ${safe(money(batch.total_amount))}</p><p class="foot">${allPaid?'This record reflects successful statuses recorded by PanBill.': 'This is a transaction record, not proof that all bills have been paid. Pending or failed items must not be treated as successful.'} Keep this reference for support enquiries.</p><button onclick="window.print()">Print / Save as PDF</button>
-</body></html>`);
+`);
   popup.document.close();
  }
  $('batch-list')?.addEventListener('click',async e=>{const receipt=e.target.closest('[data-batch-receipt]');if(receipt){receipt.disabled=true;try{const r=await api({action:'batches_list'});const batch=(r.data||[]).find(x=>x.id===receipt.dataset.batchReceipt);if(!batch)throw Error('Batch not found. Refresh and try again.');printBatchRecord(batch);}catch(err){msg('batch-message',err.message,true);}finally{receipt.disabled=false;}return;}const verify=e.target.closest('[data-verify-batch]');if(verify){verify.disabled=true;msg('batch-message','Checking pending bill transactions with the provider…');try{const result=await api({action:'batches_verify',batch_id:verify.dataset.verifyBatch});const summary=(result.outcomes||[]).map(x=>x.status.toUpperCase()+' · '+(x.reference||x.id)+' · '+(x.message||'')).join('\n');msg('batch-message',(result.message||'Verification finished.')+'\n'+summary,result.batch_status!=='successful');await loadBatches();}catch(err){msg('batch-message',err.message,true);}finally{verify.disabled=false;}return;}const execute=e.target.closest('[data-execute-batch]');if(execute){execute.disabled=true;msg('batch-message','Checking bill details before checkout…');try{await previewBatch(execute.dataset.executeBatch);msg('batch-message','Review the validated bill details before confirming payment.');}catch(err){msg('batch-message',err.message,true);}finally{execute.disabled=false;}return;}const b=e.target.closest('[data-open-batch]');if(!b)return;try{const r=await api({action:'batches_list'});const batch=(r.data||[]).find(x=>x.id===b.dataset.openBatch);if(!batch)return;activeBatch=batch.id;const lines=(batch.panbill_bill_batch_items||[]).map(x=>x.service_type+' · '+x.recipient+' · '+money(x.amount)+' · '+x.status).join('\n');alert('Batch '+batch.reference+'\nEstimated total: '+money(batch.total_amount)+'\n\n'+(lines||'No bills added.')+'\n\nFinal charges are calculated separately by the existing bill-purchase service.');}catch(err){msg('batch-message',err.message,true);}});
@@ -4327,7 +4327,7 @@ body:has(#seller-dashboard-page:not([hidden])) #settings-top-button{
  display:none!important;visibility:hidden!important;pointer-events:none!important
 }
 </style>
-</body></html>
+
 <style id="panbill-budget-amount-fit-final-v3">
 /* Keep every spending figure inside the viewport and its own card. */
 #panbill-budget-page{width:100%!important;max-width:100%!important;min-width:0!important;overflow-x:hidden!important;box-sizing:border-box!important}
@@ -4361,3 +4361,73 @@ body:has(#seller-dashboard-page:not([hidden])) #settings-top-button{
  document.addEventListener('DOMContentLoaded',schedule);schedule();
 })();
 </script>
+
+<style id="panbill-referral-navigation-and-budget-fit-hotfix-v4">
+/* Hard-separate the two full-screen tools; never let budget styling leak into rewards. */
+main.wrap.panbill-subpage-active>#panbill-budget-page,
+main.wrap.panbill-subpage-active>#panbill-rewards-panel{
+ position:fixed!important;inset:0!important;width:100vw!important;max-width:100vw!important;
+ height:100dvh!important;max-height:100dvh!important;min-height:100dvh!important;
+ margin:0!important;overflow-x:hidden!important;overflow-y:auto!important;
+ box-sizing:border-box!important;padding:calc(18px + env(safe-area-inset-top)) 14px calc(24px + env(safe-area-inset-bottom))!important;
+}
+main.wrap.panbill-subpage-active>#panbill-budget-page[hidden],
+main.wrap.panbill-subpage-active>#panbill-rewards-panel[hidden]{display:none!important}
+main.wrap.panbill-subpage-active>#panbill-rewards-panel:not([hidden]){display:block!important}
+main.wrap.panbill-subpage-active>#panbill-budget-page:not([hidden]){display:block!important}
+#panbill-budget-page,#panbill-budget-page *{box-sizing:border-box!important;min-width:0!important}
+#panbill-budget-page{width:100%!important;max-width:100%!important;overflow-x:hidden!important}
+#panbill-budget-page #budget-summary{display:grid!important;grid-template-columns:minmax(0,1fr)!important;width:100%!important;max-width:100%!important;gap:9px!important}
+#panbill-budget-page #budget-summary>.settings-group{width:100%!important;max-width:100%!important;overflow:hidden!important}
+#panbill-budget-page #budget-total{display:block!important;width:100%!important;max-width:100%!important;white-space:nowrap!important;overflow:hidden!important;overflow-wrap:normal!important;word-break:normal!important;text-overflow:clip!important;font-size:14px!important;line-height:1.25!important;letter-spacing:-.3px!important;font-variant-numeric:tabular-nums!important}
+#panbill-budget-page #budget-breakdown>div>div:first-child,
+#panbill-budget-page #budget-limits>div>div:first-child{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:4px!important;width:100%!important;max-width:100%!important;overflow:hidden!important}
+#panbill-budget-page #budget-breakdown>div>div:first-child>strong,
+#panbill-budget-page #budget-limits>div>div:first-child>strong{display:block!important;max-width:100%!important;white-space:normal!important;overflow-wrap:anywhere!important}
+#panbill-budget-page #budget-breakdown>div>div:first-child>span,
+#panbill-budget-page #budget-limits>div>div:first-child>span{display:block!important;width:100%!important;max-width:100%!important;white-space:nowrap!important;overflow:hidden!important;overflow-wrap:normal!important;word-break:normal!important;text-overflow:clip!important;text-align:left!important;font-size:12px!important;line-height:1.25!important;font-variant-numeric:tabular-nums!important}
+#panbill-budget-page #budget-limits>div{width:100%!important;max-width:100%!important;overflow:hidden!important}
+</style>
+<script id="panbill-referral-navigation-and-budget-fit-hotfix-v4">
+(()=>{
+ const $=id=>document.getElementById(id);
+ function openReferral(){
+  const wrap=document.querySelector('main.wrap'),budget=$('panbill-budget-page'),rewards=$('panbill-rewards-panel');
+  if(!wrap||!rewards)return;
+  wrap.classList.add('panbill-subpage-active');document.body.classList.add('panbill-subpage-open');
+  if(budget){budget.hidden=true;budget.style.display='none';budget.setAttribute('aria-hidden','true');}
+  rewards.hidden=false;rewards.style.display='block';rewards.setAttribute('aria-hidden','false');
+  rewards.scrollTop=0;
+  if(typeof loadPanbillRewards==='function')loadPanbillRewards();
+ }
+ // Capture before any older shortcut handlers so the referral card cannot route to budgets.
+ document.addEventListener('click',e=>{
+  const card=e.target&&e.target.closest?e.target.closest('#home-referral-shortcut'):null;
+  if(!card)return;
+  e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+  if(!window.currentSession && typeof currentSession==='undefined'){
+   const auth=$('auth-overlay');if(auth){auth.hidden=false;auth.scrollIntoView({behavior:'smooth'});}return;
+  }
+  try{if(!currentSession){const auth=$('auth-overlay');if(auth){auth.hidden=false;auth.scrollIntoView({behavior:'smooth'});}return;}}catch(_){const auth=$('auth-overlay');if(auth){auth.hidden=false;auth.scrollIntoView({behavior:'smooth'});}return;}
+  openReferral();
+ },true);
+ function fitBudgetAmounts(){
+  const page=$('panbill-budget-page');if(!page)return;
+  const nodes=[$('budget-total'),...page.querySelectorAll('#budget-breakdown>div>div:first-child>span,#budget-limits>div>div:first-child>span')].filter(Boolean);
+  nodes.forEach(el=>{
+   el.style.display='block';el.style.width='100%';el.style.maxWidth='100%';el.style.whiteSpace='nowrap';el.style.overflow='hidden';el.style.wordBreak='normal';el.style.overflowWrap='normal';
+   let size=el=== $('budget-total')?16:13;el.style.fontSize=size+'px';
+   const parent=el.parentElement;if(!parent)return;
+   const available=Math.max(1,Math.min(el.clientWidth||parent.clientWidth,parent.clientWidth||el.clientWidth));
+   let attempts=0;
+   while(el.scrollWidth>available&&size>6&&attempts++<24){size=Math.max(6,size-.5);el.style.fontSize=size+'px';}
+  });
+ }
+ const page=$('panbill-budget-page');if(page){new MutationObserver(()=>requestAnimationFrame(fitBudgetAmounts)).observe(page,{subtree:true,childList:true,characterData:true});}
+ window.addEventListener('resize',()=>requestAnimationFrame(fitBudgetAmounts),{passive:true});
+ window.addEventListener('load',()=>requestAnimationFrame(fitBudgetAmounts));
+ requestAnimationFrame(fitBudgetAmounts);
+})();
+</script>
+
+</body></html>
