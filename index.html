@@ -4327,4 +4327,40 @@ body:has(#seller-dashboard-page:not([hidden])) #settings-top-button{
  display:none!important;visibility:hidden!important;pointer-events:none!important
 }
 </style>
+
+<!-- PANBILL-REFERRAL-NAVIGATION-HOTFIX -->
+<style id="panbill-referral-navigation-hotfix">
+  main.wrap.panbill-subpage-active > #panbill-rewards-panel { display:block!important; }
+  main.wrap.panbill-subpage-active > #panbill-budget-page { display:block!important; }
+  main.wrap.panbill-subpage-active > #panbill-rewards-panel[hidden],
+  main.wrap.panbill-subpage-active > #panbill-budget-page[hidden] { display:none!important; }
+</style>
+<script id="panbill-referral-navigation-hotfix-script">
+(function(){
+  function openReferralPage(){
+    const wrap=document.querySelector('main.wrap');
+    const budget=document.getElementById('panbill-budget-page');
+    const rewards=document.getElementById('panbill-rewards-panel');
+    if(!wrap||!rewards)return;
+    wrap.classList.add('panbill-subpage-active');
+    document.body.classList.add('panbill-subpage-open');
+    if(budget){budget.hidden=true;budget.style.display='none';budget.setAttribute('aria-hidden','true');}
+    rewards.hidden=false;
+    rewards.style.display='block';
+    rewards.setAttribute('aria-hidden','false');
+    rewards.scrollTop=0;
+    requestAnimationFrame(()=>rewards.scrollIntoView({behavior:'auto',block:'start'}));
+    if(typeof window.loadPanbillRewards==='function')window.loadPanbillRewards();
+  }
+  document.addEventListener('click',function(event){
+    const shortcut=event.target&&event.target.closest('#home-referral-shortcut');
+    if(!shortcut)return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    const session=window.currentSession;
+    if(!session){const auth=document.getElementById('auth-overlay');if(auth){auth.hidden=false;auth.scrollIntoView({behavior:'smooth'});}return;}
+    openReferralPage();
+  },true);
+})();
+</script>
 </body></html>
