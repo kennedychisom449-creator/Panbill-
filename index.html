@@ -989,19 +989,6 @@ main.wrap[data-view="bill-tools"] #panbill-bill-tools-page{display:block!importa
 .bill-tools-panel{padding:18px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,#10264a,#0a1b38);margin-bottom:14px}.bill-tools-panel-head h3{margin:0;font-size:19px}.bill-tools-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 12px;margin-top:10px}.bill-tools-wide{grid-column:1/-1}.bill-tools-form .gold-btn{margin-top:14px}.bill-tools-check{display:flex;align-items:center;gap:9px;margin:13px 0;color:var(--muted);font-size:13px}.bill-tools-check input{width:18px;min-width:18px;min-height:18px;height:18px;padding:0}.bill-tools-message{font-size:12px;margin-top:10px;color:#9bf2ce}.bill-tools-message.error{color:#ffc2c4}.bill-tools-list{display:grid;gap:9px;margin-top:14px}.bill-tools-item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#ffffff08}.bill-tools-item strong{display:block;font-size:13px;overflow-wrap:anywhere}.bill-tools-item small{display:block;color:var(--muted);font-size:11px;margin-top:3px;overflow-wrap:anywhere}.bill-tools-item-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.bill-tools-item-actions button{border:1px solid var(--line);border-radius:9px;padding:7px 9px;background:#ffffff0b;color:var(--ink);font-size:11px}.bill-tools-empty,.bill-tools-note{font-size:12px;color:var(--muted);line-height:1.6}.bill-tools-note{padding:11px;border:1px solid #f2c15d44;border-radius:11px;background:#f2c15d0c}
 @media(max-width:600px){#panbill-bill-tools-page{padding:4px 0 100px}.bill-tools-panel{padding:14px;border-radius:15px}.bill-tools-form{grid-template-columns:1fr}.bill-tools-wide{grid-column:auto}.bill-tools-tabs{gap:3px}.bill-tools-tab{font-size:10px;padding:11px 4px}.bill-tools-item{align-items:flex-start;flex-direction:column}.bill-tools-item-actions{justify-content:flex-start}}
 </style>
-
-<style id="panbill-login-loading-stability-fix-v1">
-/* Targeted auth layout correction: keep the login card centered and stable. */
-.auth-layer{align-items:center;justify-content:center;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.auth-card{flex:0 0 auto;width:min(100%,435px);max-width:100%;margin:auto;transform:none}
-.auth-card input,.auth-card select,.auth-card textarea{font-size:16px}
-@media(max-width:760px){
- .auth-layer{align-items:center!important;padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom))}
- .auth-card{width:100%;max-width:435px;margin:auto!important;padding:20px}
-}
-@media(max-width:380px){.auth-card{padding:16px}}
-</style>
-
 </head><body>
 <div aria-label="PanBill is loading" aria-live="polite" id="panbill-loading-screen" role="status"><div aria-hidden="true" class="panbill-loader-mark">P</div><div class="panbill-loader-name">PanBill</div><div class="panbill-loader-caption">One app. All your bills.</div><div aria-hidden="true" class="panbill-loader-ring"></div></div>
 <header class="app-header"><div class="brand"><span class="brand-mark">P</span> PanBill</div><div class="header-actions"><span class="muted" hidden="" id="header-user" style="font-size:12px"></span><button class="pill" id="settings-top-button" type="button" aria-label="Open Settings menu" title="Settings">☰</button><button aria-hidden="true" class="pill" hidden="" id="logout-button" type="button">Log out</button></div></header>
@@ -1241,12 +1228,12 @@ main.wrap[data-view="bill-tools"] #panbill-bill-tools-page{display:block!importa
 
 
 
-<div class="two-col" id="history-area"><button aria-label="Back to VTU dashboard" class="history-back-home" id="history-back-home" type="button">← Back to Home</button><section class="panel" id="transaction-panel"><div class="section-head" style="margin-top:0"><h2>Transaction history</h2><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="text-button" id="export-transactions" type="button">Export CSV</button><button class="text-button" id="print-transaction-statement" type="button">Print statement</button><button class="text-button" id="refresh-transactions" type="button">Refresh</button></div></div><div aria-label="Filter transactions" class="tx-filter-bar" id="transaction-filters" role="group">
+<div class="two-col" id="history-area"><button aria-label="Back to VTU dashboard" class="history-back-home" id="history-back-home" type="button">← Back to Home</button><section class="panel" id="transaction-panel"><div class="section-head" style="margin-top:0"><h2>Transaction history</h2><button class="text-button" id="refresh-transactions" type="button">Refresh</button></div><div aria-label="Filter transactions" class="tx-filter-bar" id="transaction-filters" role="group">
 <button aria-pressed="true" class="tx-filter" data-tx-filter="all" type="button">All</button>
 <button aria-pressed="false" class="tx-filter" data-tx-filter="successful" type="button">Successful</button>
 <button aria-pressed="false" class="tx-filter" data-tx-filter="pending" type="button">Pending</button>
 <button aria-pressed="false" class="tx-filter" data-tx-filter="failed" type="button">Failed</button>
-</div><div style="margin:12px 0"><label for="transaction-search" class="muted" style="display:block;margin-bottom:6px">Search by description or reference</label><input id="transaction-search" type="search" placeholder="Enter transaction reference or service" autocomplete="off" style="width:100%;box-sizing:border-box"></div><div class="tx-reference-lookup" style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;margin:12px 0;padding:13px;border:1px solid #e9bb5840;border-radius:13px;background:#ffffff06"><div><label for="transaction-reference-lookup" style="display:block;margin:0 0 6px">Find a transaction by exact reference</label><input id="transaction-reference-lookup" type="search" placeholder="Paste transaction reference" autocomplete="off" spellcheck="false"></div><button class="outline-btn" id="lookup-transaction-reference" type="button" style="align-self:end">Find transaction</button><p id="transaction-reference-lookup-status" class="muted" role="status" aria-live="polite" style="grid-column:1/-1;margin:0;font-size:12px"></p></div><div class="tx-date-filter" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin:12px 0"><div><label for="transaction-date-from" class="muted" style="display:block;margin-bottom:6px">From date</label><input id="transaction-date-from" type="date" style="width:100%;box-sizing:border-box"></div><div><label for="transaction-date-to" class="muted" style="display:block;margin-bottom:6px">To date</label><input id="transaction-date-to" type="date" style="width:100%;box-sizing:border-box"></div><div style="display:flex;align-items:end"><button class="text-button" id="clear-transaction-dates" type="button">Clear dates</button></div></div><p class="muted" id="transaction-date-hint" style="font-size:12px;margin:0 0 10px">Date filters apply to transactions currently loaded. Load more to include older records.</p><div id="transaction-summary" aria-live="polite" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:9px;margin:12px 0 14px"><div class="panel" style="padding:12px"><small class="muted">Loaded transactions</small><strong id="tx-summary-count" style="display:block;font-size:20px">0</strong></div><div class="panel" style="padding:12px"><small class="muted">Successful volume</small><strong id="tx-summary-success-volume" style="display:block;font-size:20px">₦0.00</strong></div><div class="panel" style="padding:12px"><small class="muted">Pending</small><strong id="tx-summary-pending" style="display:block;font-size:20px">0</strong></div><div class="panel" style="padding:12px"><small class="muted">Failed</small><strong id="tx-summary-failed" style="display:block;font-size:20px">0</strong></div></div><p class="muted" style="font-size:11px;margin:0 0 8px">Summary covers records currently loaded, not necessarily your full account history.</p><div class="muted" id="transaction-history">Sign in to view your transactions.</div><div style="display:flex;justify-content:center;margin-top:14px"><button class="outline-btn" id="load-more-transactions" type="button" hidden>Load more transactions</button></div></section><section class="panel"><h3>Security matters</h3><p style="font-size:13px">Keep your password private. Always check your transaction status before trying a payment again.</p><div class="status" id="panbill-backend-status" role="status"></div></section></div>
+</div><div class="muted" id="transaction-history">Sign in to view your transactions.</div></section><section class="panel"><h3>Security matters</h3><p style="font-size:13px">Keep your password private. Always check your transaction status before trying a payment again.</p><div class="status" id="panbill-backend-status" role="status"></div></section></div>
 <section class="panel" hidden="" id="service-panel"><div class="section-head" style="margin-top:0"><div><div class="eyebrow">Secure checkout</div><h2 id="service-title" style="margin:4px 0">Service</h2></div><button class="close" id="close-service" type="button">Close</button></div><p class="muted" id="service-help" style="font-size:13px">Select the product and check your details.</p><form id="service-form" novalidate><div class="form-grid" id="service-fields"></div><input id="transaction-pin" type="hidden" value=""/><button class="gold-btn" id="service-submit" style="width:100%;margin-top:18px" type="button">Continue securely</button></form><div class="status" id="service-message" role="status"></div><button class="outline-btn" hidden="" id="check-status-button" style="margin-top:12px;width:100%" type="button">Check purchase status</button></section>
 <a aria-label="Contact PanBill support on WhatsApp" class="whatsapp-support" href="https://wa.me/2349127449861?text=Hello%20PanBill%20Support%2C%20I%20need%20help%20with%20my%20account%20or%20a%20transaction." rel="noopener noreferrer" target="_blank"><span aria-hidden="true" class="wa-icon"><svg viewBox="0 0 32 32" width="27" height="27" focusable="false"><path fill="currentColor" d="M16 3.2A12.5 12.5 0 0 0 5.2 22l-1.5 5.5 5.7-1.5A12.5 12.5 0 1 0 16 3.2Zm0 22.7a10.1 10.1 0 0 1-5.1-1.4l-.4-.2-3.4.9.9-3.3-.2-.4A10.1 10.1 0 1 1 16 25.9Zm5.6-7.6c-.3-.2-1.8-.9-2.1-1s-.5-.2-.7.2-.8 1-.9 1.1-.3.2-.6.1a8.2 8.2 0 0 1-2.4-1.5 9 9 0 0 1-1.7-2.1c-.2-.3 0-.5.1-.6l.5-.6c.2-.2.2-.4.3-.5s0-.4 0-.5-.7-1.7-1-2.3c-.2-.5-.5-.4-.7-.4h-.6c-.2 0-.5.1-.8.4s-1.1 1.1-1.1 2.6 1.1 3 1.2 3.2a11.4 11.4 0 0 0 4.4 4c.6.3 1.1.5 1.5.6.6.2 1.2.2 1.7.1.5-.1 1.8-.7 2.1-1.4.3-.7.3-1.3.2-1.4s-.2-.2-.5-.4Z"/></svg></span><span class="wa-label">WhatsApp Support</span></a>
 
@@ -1267,7 +1254,7 @@ main.wrap[data-view="bill-tools"] #panbill-bill-tools-page{display:block!importa
 </section></div>
 <div class="modal-backdrop" hidden="" id="transaction-detail-overlay">
 <section aria-labelledby="transaction-detail-title" aria-modal="true" class="modal" role="dialog">
-<div class="modal-top"><h2 id="transaction-detail-title">Transaction details</h2><div style="display:flex;gap:8px;align-items:center"><button class="outline-btn" id="refresh-detail-transaction" type="button" hidden>Refresh status</button><button class="close" id="close-transaction-detail" type="button">Close</button></div></div>
+<div class="modal-top"><h2 id="transaction-detail-title">Transaction details</h2><button class="close" id="close-transaction-detail" type="button">Close</button></div>
 <div id="transaction-detail-content"></div>
 </section>
 </div>
@@ -1348,14 +1335,14 @@ main.wrap[data-view="bill-tools"] #panbill-bill-tools-page{display:block!importa
   window.setTimeout(()=>splash.remove(),500);
   const msg=document.getElementById('auth-message');
   if(msg){msg.textContent='PanBill is taking too long to connect. Check your internet connection and refresh the page.';msg.classList.add('visible','error');}
- },12000);
+ },15000);
 })();
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1"></script><script>
 'use strict';
 const SUPABASE_URL='https://rbvmtrsftnmnlxjmewpp.supabase.co';const SUPABASE_PUBLISHABLE_KEY='sb_publishable_Fn6FE75bdj11K39ZMxMRpA_EtFUrKTE';
-const $=id=>document.getElementById(id);const panbillSplashStarted=Date.now();function hidePanbillSplash(){const splash=$('panbill-loading-screen');if(!splash)return;const wait=Math.max(0,250-(Date.now()-panbillSplashStarted));setTimeout(()=>{splash.classList.add('is-hidden');setTimeout(()=>splash.remove(),500)},wait)}let authClient=null,authMode='login',currentSession=null,currentService=null,catalogProducts=[],catalogPricingSettings=null,lastPurchaseReference=null,balanceVisible=true,realBalance='',verifiedCustomerToken='',transactionRecords=[],transactionFilter='all';let paystackReturnPromise=null;let transactionPinCheckedUser=null,transactionPinHasPin=null,transactionPinSetupPromise=null,pendingVtuService=null;const serviceNames={airtime:'AIRTIME',data:'DATA',tv:'CABLE_TV',electricity:'ELECTRICITY',exam:'EXAM_PIN'};$('year').textContent=new Date().getFullYear();
-function withPanbillTimeout(promise,ms,messageText){let timer;return Promise.race([Promise.resolve(promise),new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error(messageText)),ms)})]).finally(()=>clearTimeout(timer))}function message(el,text,error=false){el.textContent=String(text||'').replace(/wisesub/gi,'PanBill');el.classList.toggle('visible',!!text);el.classList.toggle('error',!!text&&error)}function money(n){let v=Number(n);return Number.isFinite(v)?v.toLocaleString('en-NG',{style:'currency',currency:'NGN'}):'—'}function authMessage(text,good=false){$('auth-message').textContent=text||'';$('auth-message').classList.toggle('good',!!good)}const PANBILL_EMAIL_KEY='panbill_last_login_email_v1',PANBILL_ACCOUNT_FLAG='panbill_account_created_v1';
+const $=id=>document.getElementById(id);const panbillSplashStarted=Date.now();function hidePanbillSplash(){const splash=$('panbill-loading-screen');if(!splash)return;const wait=Math.max(0,850-(Date.now()-panbillSplashStarted));setTimeout(()=>{splash.classList.add('is-hidden');setTimeout(()=>splash.remove(),500)},wait)}let authClient=null,authMode='login',currentSession=null,currentService=null,catalogProducts=[],catalogPricingSettings=null,lastPurchaseReference=null,balanceVisible=true,realBalance='',verifiedCustomerToken='',transactionRecords=[],transactionFilter='all';let paystackReturnPromise=null;let transactionPinCheckedUser=null,transactionPinHasPin=null,transactionPinSetupPromise=null,pendingVtuService=null;const serviceNames={airtime:'AIRTIME',data:'DATA',tv:'CABLE_TV',electricity:'ELECTRICITY',exam:'EXAM_PIN'};$('year').textContent=new Date().getFullYear();
+function message(el,text,error=false){el.textContent=String(text||'').replace(/wisesub/gi,'PanBill');el.classList.toggle('visible',!!text);el.classList.toggle('error',!!text&&error)}function money(n){let v=Number(n);return Number.isFinite(v)?v.toLocaleString('en-NG',{style:'currency',currency:'NGN'}):'—'}function authMessage(text,good=false){$('auth-message').textContent=text||'';$('auth-message').classList.toggle('good',!!good)}const PANBILL_EMAIL_KEY='panbill_last_login_email_v1',PANBILL_ACCOUNT_FLAG='panbill_account_created_v1';
 function savePanbillEmail(value){try{const email=String(value||'').trim();if(email)localStorage.setItem(PANBILL_EMAIL_KEY,email)}catch(e){}}
 function setPanbillAccountCreated(){try{localStorage.setItem(PANBILL_ACCOUNT_FLAG,'1')}catch(e){}}
 let pendingSignupEmail='';let loginMethod='passkey';
@@ -1398,7 +1385,7 @@ $('show-password-login').onclick=()=>setLoginMethod('password');$('show-passkey-
 try{$('email').value=localStorage.getItem(PANBILL_EMAIL_KEY)||''}catch(e){}
 $('email').addEventListener('input',()=>savePanbillEmail($('email').value));
 $('show-password').onclick=()=>{let p=$('password');p.type=p.type==='password'?'text':'password';$('show-password').textContent=p.type==='password'?'Show':'Hide'};
-$('auth-form').addEventListener('submit',async e=>{e.preventDefault();if(!authClient)return authMessage('Authentication is unavailable. Check your internet connection.');let b=$('auth-submit');b.disabled=true;authMessage('Please wait…');try{const email=$('email').value.trim(),password=$('password').value;savePanbillEmail(email);if(authMode==='signup'){const firstName=$('first-name').value.trim(),secondName=$('second-name').value.trim(),middleName=$('middle-name').value.trim(),confirmPassword=$('confirm-password').value;if([firstName,secondName,middleName].some(x=>x.length<2))throw new Error('Enter your first name, second name and middle name.');if(!$('signup-terms-checkbox').checked)throw new Error('Please read and agree to the Terms & Conditions before creating your account.');if(password!==confirmPassword)throw new Error('Your password and confirmation password do not match.');const fullName=[firstName,secondName,middleName].join(' ');const r=await authClient.auth.signUp({email,password,options:{emailRedirectTo:location.origin+location.pathname,data:{first_name:firstName,second_name:secondName,middle_name:middleName,full_name:fullName}}});if(r.error)throw r.error;if(!r.data?.user)throw new Error('PanBill could not create your account. Please try again.');if(r.data.session&&!(r.data.user.email_confirmed_at||r.data.user.confirmed_at)){await authClient.auth.signOut()}if(r.data.user.email_confirmed_at||r.data.user.confirmed_at){setPanbillAccountCreated();if(r.data.session)showSignedIn(r.data.session);else authMessage('Your email is already verified. Please log in.',true);$('auth-form').reset();setAuthMode('login');return}$('auth-form').reset();showEmailOtpPanel(email);return}else{const r=await withPanbillTimeout(authClient.auth.signInWithPassword({email,password}),20000,'PanBill sign-in is taking too long. Check your internet connection and try again.');if(r.error)throw r.error;if(!r.data?.session)throw new Error('Login did not return a valid session.');if(!(r.data.user?.email_confirmed_at||r.data.user?.confirmed_at)){await authClient.auth.signOut();throw new Error('Please verify your email address before signing in.');}authMessage('');setPanbillAccountCreated();savePanbillEmail(email);$('auth-form').reset();setAuthMode('login');showSignedIn(r.data.session)}}catch(err){authMessage(err.message||'Authentication failed.')}finally{b.disabled=false}});
+$('auth-form').addEventListener('submit',async e=>{e.preventDefault();if(!authClient)return authMessage('Authentication is unavailable. Check your internet connection.');let b=$('auth-submit');b.disabled=true;authMessage('Please wait…');try{const email=$('email').value.trim(),password=$('password').value;savePanbillEmail(email);if(authMode==='signup'){const firstName=$('first-name').value.trim(),secondName=$('second-name').value.trim(),middleName=$('middle-name').value.trim(),confirmPassword=$('confirm-password').value;if([firstName,secondName,middleName].some(x=>x.length<2))throw new Error('Enter your first name, second name and middle name.');if(!$('signup-terms-checkbox').checked)throw new Error('Please read and agree to the Terms & Conditions before creating your account.');if(password!==confirmPassword)throw new Error('Your password and confirmation password do not match.');const fullName=[firstName,secondName,middleName].join(' ');const r=await authClient.auth.signUp({email,password,options:{emailRedirectTo:location.origin+location.pathname,data:{first_name:firstName,second_name:secondName,middle_name:middleName,full_name:fullName}}});if(r.error)throw r.error;if(!r.data?.user)throw new Error('PanBill could not create your account. Please try again.');if(r.data.session&&!(r.data.user.email_confirmed_at||r.data.user.confirmed_at)){await authClient.auth.signOut()}if(r.data.user.email_confirmed_at||r.data.user.confirmed_at){setPanbillAccountCreated();if(r.data.session)showSignedIn(r.data.session);else authMessage('Your email is already verified. Please log in.',true);$('auth-form').reset();setAuthMode('login');return}$('auth-form').reset();showEmailOtpPanel(email);return}else{const r=await authClient.auth.signInWithPassword({email,password});if(r.error)throw r.error;if(!r.data?.session)throw new Error('Login did not return a valid session.');if(!(r.data.user?.email_confirmed_at||r.data.user?.confirmed_at)){await authClient.auth.signOut();throw new Error('Please verify your email address before signing in.');}authMessage('');setPanbillAccountCreated();savePanbillEmail(email);$('auth-form').reset();setAuthMode('login');showSignedIn(r.data.session)}}catch(err){authMessage(err.message||'Authentication failed.')}finally{b.disabled=false}});
 $('email-otp-form').addEventListener('submit',async e=>{e.preventDefault();const button=$('verify-email-otp-button'),token=$('email-otp-code').value.trim();if(!pendingSignupEmail)return message($('email-otp-message'),'Return to registration and create your account again.',true);if(!/^[0-9]{6}$/.test(token))return message($('email-otp-message'),'Enter the six-digit code from your email.',true);button.disabled=true;message($('email-otp-message'),'Verifying your email code…');try{const {data,error}=await authClient.auth.verifyOtp({email:pendingSignupEmail,token,type:'email'});if(error)throw error;if(!data?.session||!(data.user?.email_confirmed_at||data.user?.confirmed_at))throw new Error('Email verification did not return a confirmed login session. Please try the code again.');const session=data.session;setPanbillAccountCreated();savePanbillEmail(pendingSignupEmail);pendingSignupEmail='';$('email-otp-panel').hidden=true;$('auth-form').hidden=false;$('auth-tabs').hidden=false;$('biometric-note').hidden=false;$('auth-note').hidden=false;showSignedIn(session);message($('email-otp-message'),'')}catch(err){message($('email-otp-message'),err.message||'Email verification failed. Request a new code and try again.',true)}finally{button.disabled=false}});
 $('resend-email-otp').addEventListener('click',async()=>{if(!pendingSignupEmail)return message($('email-otp-message'),'Return to registration and create your account again.',true);const b=$('resend-email-otp');b.disabled=true;message($('email-otp-message'),'Requesting a new verification code…');try{const {error}=await authClient.auth.resend({type:'signup',email:pendingSignupEmail});if(error)throw error;message($('email-otp-message'),'Supabase accepted the resend request. Check your inbox and spam folder for the newest code. If it does not arrive, contact PanBill support.')}catch(err){message($('email-otp-message'),err.message||'Could not resend the code. Please wait and try again.',true)}finally{b.disabled=false}});
 $('back-from-email-otp').addEventListener('click',()=>{pendingSignupEmail='';$('email-otp-code').value='';$('email-otp-panel').hidden=true;$('auth-tabs').hidden=false;$('auth-form').hidden=false;$('biometric-note').hidden=false;$('auth-note').hidden=false;setAuthMode('login');authMessage('You can log in after verifying the email address.',true)});
@@ -1794,25 +1781,9 @@ function normalizedTransactionStatus(value){
  if(['failed','failure','declined','rejected','cancelled','canceled','error','reversed'].includes(s))return 'failed';
  return 'unknown';
 }
-function transactionMatchesCurrentFilters(x){
- const term=String(document.getElementById('transaction-search')?.value||'').trim().toLowerCase();
- const from=document.getElementById('transaction-date-from')?.value||'';
- const to=document.getElementById('transaction-date-to')?.value||'';
- if(transactionFilter!=='all'&&normalizedTransactionStatus(x.status||x.provider_status)!==transactionFilter)return false;
- if(term&&![x.reference,x.description,x.type,x.provider_reference].some(v=>String(v||'').toLowerCase().includes(term)))return false;
- if(from||to){if(!x.created_at)return false;const d=new Date(x.created_at);if(Number.isNaN(d.getTime()))return false;const localDate=[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');if(from&&localDate<from)return false;if(to&&localDate>to)return false;}
- return true;
-}
 function renderTransactionHistory(){
  const box=$('transaction-history');if(!box)return;box.replaceChildren();
- const from=document.getElementById('transaction-date-from')?.value||'';
- const to=document.getElementById('transaction-date-to')?.value||'';
- const hint=$('transaction-date-hint');if(hint){if(from&&to&&from>to){hint.textContent='The start date must be on or before the end date.';hint.style.color='#b42318'}else{hint.textContent='Date filters apply to transactions currently loaded. Load more to include older records.';hint.style.color=''}}
- const visible=from&&to&&from>to?[]:transactionRecords.filter(transactionMatchesCurrentFilters);
- const statuses=transactionRecords.map(x=>normalizedTransactionStatus(x.status||x.provider_status));
- const successVolume=transactionRecords.reduce((sum,x)=>normalizedTransactionStatus(x.status||x.provider_status)==='successful'?sum+Math.max(0,Number(x.amount)||0):sum,0);
- const summaryValues={'tx-summary-count':String(transactionRecords.length),'tx-summary-success-volume':money(successVolume),'tx-summary-pending':String(statuses.filter(x=>x==='pending').length),'tx-summary-failed':String(statuses.filter(x=>x==='failed').length)};
- Object.entries(summaryValues).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.textContent=value});
+ const visible=transactionRecords.filter(x=>transactionFilter==='all'||normalizedTransactionStatus(x.status||x.provider_status)===transactionFilter);
  document.querySelectorAll('[data-tx-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.txFilter===transactionFilter)));
  if(!transactionRecords.length){const empty=document.createElement('div');empty.className='tx-empty';empty.textContent=currentSession?'No transactions yet.':'Sign in to view your transactions.';box.append(empty);return}
  if(!visible.length){const empty=document.createElement('div');empty.className='tx-empty';empty.textContent='No '+transactionFilter+' transactions found.';box.append(empty);return}
@@ -1831,84 +1802,6 @@ function renderTransactionHistory(){
  });
 }
 document.querySelectorAll('[data-tx-filter]').forEach(b=>b.addEventListener('click',()=>{transactionFilter=b.dataset.txFilter||'all';renderTransactionHistory()}));
-document.getElementById('transaction-search')?.addEventListener('input',renderTransactionHistory);
-document.getElementById('transaction-date-from')?.addEventListener('change',renderTransactionHistory);
-document.getElementById('transaction-date-to')?.addEventListener('change',renderTransactionHistory);
-document.getElementById('clear-transaction-dates')?.addEventListener('click',()=>{const from=$('transaction-date-from'),to=$('transaction-date-to');if(from)from.value='';if(to)to.value='';renderTransactionHistory()});
-function exportPanbillTransactionsCsv(){
- const from=document.getElementById('transaction-date-from')?.value||'';
- const to=document.getElementById('transaction-date-to')?.value||'';
- if(from&&to&&from>to){alert('The start date must be on or before the end date.');return;}
- const rows=transactionRecords.filter(transactionMatchesCurrentFilters);
- if(!rows.length){alert('There are no transactions in the current view to export.');return;}
- const headers=['Date and time','Description','Type','Amount (NGN)','Status','Transaction reference','Provider','Provider reference'];
- const safeCell=value=>{let v=String(value??'');if(/^[\s]*[=+@\-]/.test(v))v="'"+v;return '"'+v.replace(/"/g,'""')+'"';};
- const lines=[headers,...rows.map(x=>[x.created_at?new Date(x.created_at).toLocaleString('en-NG'):'',String(x.description||'').replace(/wisesub/gi,'PanBill'),x.type||'',x.amount??'',normalizedTransactionStatus(x.status||x.provider_status),x.reference||'',x.provider||'PanBill',x.provider_reference||''])].map(row=>row.map(safeCell).join(','));
- const blob=new Blob(['\\ufeff'+lines.join('\\r\\n')],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='panbill-transactions-'+new Date().toISOString().slice(0,10)+'.csv';document.body.append(a);a.click();a.remove();URL.revokeObjectURL(url);
-}
-document.getElementById('export-transactions')?.addEventListener('click',exportPanbillTransactionsCsv);
-function printPanbillTransactionStatement(){
- const from=document.getElementById('transaction-date-from')?.value||'';
- const to=document.getElementById('transaction-date-to')?.value||'';
- if(from&&to&&from>to){alert('The start date must be on or before the end date.');return;}
- const rows=transactionRecords.filter(transactionMatchesCurrentFilters);
- if(!rows.length){alert('There are no transactions in the current view to print.');return;}
- const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const total=rows.reduce((sum,x)=>sum+(Number(x.amount)||0),0);
- const successful=rows.filter(x=>normalizedTransactionStatus(x.status||x.provider_status)==='successful');
- const successfulTotal=successful.reduce((sum,x)=>sum+(Number(x.amount)||0),0);
- const period=[from?'From '+from:'',to?'To '+to:''].filter(Boolean).join(' · ')||'All dates in loaded records';
- const w=window.open('','_blank','width=1000,height=800');
- if(!w){alert('Allow pop-ups to print your PanBill statement.');return;}
- const body=rows.map(x=>'<tr><td>'+esc(x.created_at?new Date(x.created_at).toLocaleString('en-NG'):'')+'</td><td>'+esc(String(x.description||x.type||'Transaction').replace(/wisesub/gi,'PanBill'))+'</td><td>'+esc(x.reference||'')+'</td><td>'+esc(normalizedTransactionStatus(x.status||x.provider_status))+'</td><td class="amount">'+esc(money(x.amount))+'</td></tr>').join('');
- w.document.write('<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PanBill Transaction Statement</title><style>body{font:13px Arial,sans-serif;color:#18243a;margin:28px}header{border-bottom:3px solid #d7a842;padding-bottom:12px}h1{margin:0 0 5px}p{color:#5b6678}.summary{display:flex;gap:24px;flex-wrap:wrap;margin:18px 0}.summary strong{display:block;font-size:18px;margin-top:4px}table{width:100%;border-collapse:collapse}th,td{padding:9px 7px;border-bottom:1px solid #e4e8ee;text-align:left;vertical-align:top}th{background:#f3f5f8}.amount{text-align:right;white-space:nowrap}.note{margin-top:18px;font-size:11px}@media print{body{margin:12mm}button{display:none}}</style></head><body><header><h1>PanBill</h1><strong>Transaction Statement</strong><p>'+esc(period)+' · '+rows.length+' transaction(s)</p></header><div class="summary"><div>Successful transaction volume<strong>'+esc(money(successfulTotal))+'</strong></div><div>All displayed transaction amounts<strong>'+esc(money(total))+'</strong></div></div><table><thead><tr><th>Date</th><th>Description</th><th>Reference</th><th>Status</th><th class="amount">Amount</th></tr></thead><tbody>'+body+'</tbody></table><p class="note">This statement contains only transactions currently loaded in PanBill and matching the active filters. It is an informational record, not a bank-issued statement or proof of settlement.</p><script>window.onload=()=>window.print()<\/script>
-<style id="panbill-transaction-history-responsive-fix-v1">
-/* Keep transaction history controls and summary cards inside their own panel. */
-#transaction-panel{min-width:0;max-width:100%;overflow:hidden}
-#transaction-panel *{min-width:0}
-#transaction-panel .section-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
-#transaction-panel .section-head h2{flex:1 1 150px;min-width:0}
-#transaction-panel .section-head>div{display:flex;flex:1 1 100%;width:100%;max-width:100%;flex-wrap:wrap;gap:8px!important}
-#transaction-panel .section-head>div button{flex:1 1 105px;min-width:0;white-space:normal;overflow-wrap:anywhere;padding:9px 8px;font-size:13px}
-#transaction-panel .tx-filter-bar{max-width:100%;min-width:0;flex-wrap:wrap}
-#transaction-panel .tx-reference-lookup{grid-template-columns:minmax(0,1fr)!important}
-#transaction-panel .tx-reference-lookup>button{width:100%;align-self:stretch!important}
-#transaction-panel .tx-reference-lookup input,
-#transaction-panel #transaction-search,
-#transaction-panel .tx-date-filter input{max-width:100%;min-width:0}
-#transaction-panel #transaction-summary{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;width:100%;max-width:100%;gap:9px!important}
-#transaction-panel #transaction-summary>.panel{width:100%;max-width:100%;min-width:0;overflow:hidden;padding:12px!important}
-#transaction-panel #transaction-summary small{display:block;line-height:1.35;overflow-wrap:anywhere}
-#transaction-panel #transaction-summary strong{display:block;max-width:100%;min-width:0;font-size:clamp(16px,4.4vw,21px)!important;line-height:1.25;overflow-wrap:anywhere;word-break:break-word;font-variant-numeric:tabular-nums}
-#transaction-panel #tx-summary-success-volume{letter-spacing:-.45px}
-#transaction-panel .tx-date-filter{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-#transaction-panel .tx-date-filter>div{min-width:0}
-#transaction-panel .tx-date-filter>div:last-child{grid-column:1/-1;justify-content:flex-start}
-#transaction-panel .tx-date-filter button{max-width:100%;white-space:normal}
-@media(max-width:420px){
- #transaction-panel{padding:14px!important;border-radius:17px}
- #transaction-panel .section-head{align-items:flex-start}
- #transaction-panel .section-head h2{flex-basis:100%;font-size:19px!important}
- #transaction-panel .section-head>div button{flex:1 1 30%;font-size:12px;padding:9px 5px}
- #transaction-panel #transaction-summary{gap:8px!important}
- #transaction-panel #transaction-summary>.panel{padding:11px!important;border-radius:15px}
- #transaction-panel #transaction-summary small{font-size:12px}
- #transaction-panel #transaction-summary strong{font-size:clamp(15px,4vw,19px)!important}
- #transaction-panel .tx-date-filter{gap:8px!important}
-}
-@media(max-width:340px){
- #transaction-panel #transaction-summary{grid-template-columns:minmax(0,1fr)!important}
- #transaction-panel .section-head>div button{flex-basis:100%}
- #transaction-panel .tx-date-filter{grid-template-columns:minmax(0,1fr)!important}
- #transaction-panel .tx-date-filter>div:last-child{grid-column:auto}
-}
-</style>
-
-</body></html>');
- w.document.close();
-}
-document.getElementById('print-transaction-statement')?.addEventListener('click',printPanbillTransactionStatement);
-
 async function loadWallet(){
  if(!currentSession)return;
  $('wallet-message').textContent='Loading wallet…';$('refresh-wallet').disabled=true;$('refresh-transactions').disabled=true;
@@ -1919,162 +1812,16 @@ async function loadWallet(){
   realBalance=w.data?money(w.data.balance):'Unavailable';
   $('wallet-balance').textContent=balanceVisible?realBalance:'₦••••••';
   $('wallet-message').textContent=w.data?'Your wallet balance is up to date.':'No wallet record found.';
-  const t=await authClient.from('transactions').select('type,amount,status,reference,description,created_at,provider,provider_status,provider_reference,provider_response').eq('user_id',uid).order('created_at',{ascending:false}).limit(50);
+  const t=await authClient.from('transactions').select('type,amount,status,reference,description,created_at,provider,provider_status,provider_reference,provider_response').eq('user_id',uid).order('created_at',{ascending:false}).limit(10);
   if(t.error)throw t.error;
   transactionRecords=Array.isArray(t.data)?t.data:[];
-  $('load-more-transactions').hidden=transactionRecords.length<50;
   renderTransactionHistory();
  }catch(e){
   $('wallet-message').textContent='Could not load wallet or transaction history. Refresh and try again.';
   const box=$('transaction-history');if(box){box.replaceChildren();const error=document.createElement('div');error.className='tx-empty';error.textContent='Transaction history could not be loaded. Please refresh and try again.';box.append(error)}
  }finally{$('refresh-wallet').disabled=false;$('refresh-transactions').disabled=false}
 }
-let activeTransactionDetail=null;
-function showTransactionDetails(x){
- activeTransactionDetail=x;
- const overlay=$('transaction-detail-overlay'),content=$('transaction-detail-content');content.replaceChildren();
- const providerData=x.provider_response&&typeof x.provider_response==='object'?x.provider_response:{};
- const responseData=providerData.response&&typeof providerData.response==='object'?providerData.response:providerData;
- const inner=responseData.data&&typeof responseData.data==='object'?responseData.data:{};
- const status=normalizedTransactionStatus(x.status||x.provider_status);
- const statusText=({successful:'Successful',pending:'Pending',failed:'Failed',unknown:'Status unavailable'})[status];
- const badge=document.createElement('div');badge.className='tx-detail-status tx-status '+status;badge.textContent=statusText;content.append(badge);
- const grid=document.createElement('div');grid.className='tx-detail-grid';
- const add=(label,value)=>{if(value===null||value===undefined||String(value).trim()==='')return;const item=document.createElement('div');item.className='tx-detail-item';const small=document.createElement('small');small.textContent=label;const strong=document.createElement('strong');strong.textContent=String(value);item.append(small,strong);grid.append(item)};
- add('Service',String(x.description||x.type||'Transaction').replace(/wisesub/gi,'PanBill'));
- add('Amount',money(x.amount));add('Date and time',x.created_at?new Date(x.created_at).toLocaleString('en-NG'):'Not available');
- add('Transaction reference',x.reference||'Not available');add('Provider','PanBill');
- add('Provider status',x.provider_status||'Not available');add('Provider reference',x.provider_reference||'Not available');
- add('Package',inner.package||inner.product||'');add('Units',inner.units||'');
- content.append(grid);
- const timeline=document.createElement('div');timeline.className='tx-detail-item';timeline.style.marginTop='10px';
- const timelineTitle=document.createElement('strong');timelineTitle.textContent='Transaction timeline';
- const timelineText=document.createElement('p');timelineText.className='muted';timelineText.style.margin='7px 0 0';timelineText.style.fontSize='12px';
- timelineText.textContent=(x.created_at?'Created: '+new Date(x.created_at).toLocaleString('en-NG')+'. ':'')+'Latest recorded status: '+statusText+'. PanBill displays the latest status available; earlier status changes are not stored in this view.';
- timeline.append(timelineTitle,timelineText);content.append(timeline);
- const note=document.createElement('p');note.className='muted';note.style.fontSize='13px';
- const providerMessage=responseData.message||providerData.message;
- note.textContent=providerMessage?String(providerMessage).replace(/wisesub/gi,'PanBill'):status==='pending'?'This transaction is still being processed. Refresh its status before trying the payment again.':status==='failed'?'This transaction was not completed. If your wallet was debited, contact support and provide the transaction reference.':'Transaction details are shown from the records available for this payment.';
- content.append(note);
- const receiptButton=document.createElement('button');receiptButton.type='button';receiptButton.className='gold-btn';receiptButton.style.cssText='width:100%;margin-top:14px';receiptButton.textContent=status==='successful'?'Download payment receipt':'Download transaction record';
- receiptButton.addEventListener('click',()=>printPanbillTransactionRecord(x,status));content.append(receiptButton);
- const refresh=$('refresh-detail-transaction');if(refresh){refresh.hidden=status!=='pending';refresh.disabled=false;refresh.textContent='Refresh status'}
- overlay.hidden=false;
-}
-async function refreshActiveTransactionDetail(){
- const x=activeTransactionDetail;if(!x?.reference||!currentSession)return;
- const button=$('refresh-detail-transaction');if(!button)return;
- button.disabled=true;button.textContent='Checking…';
- try{
-  const result=await invoke({action:'status',reference:x.reference});
-  const query=await authClient.from('transactions')
-   .select('type,amount,status,reference,description,created_at,provider,provider_status,provider_reference,provider_response')
-   .eq('user_id',currentSession.user.id).eq('reference',x.reference).maybeSingle();
-  if(query.error)throw query.error;
-  if(!query.data)throw Error('The transaction record could not be refreshed. Please try again.');
-  const fresh=query.data;
-  const index=transactionRecords.findIndex(row=>row.reference===fresh.reference);
-  if(index>=0)transactionRecords[index]=fresh;
-  renderTransactionHistory();showTransactionDetails(fresh);
-  const status=normalizedTransactionStatus(fresh.status||fresh.provider_status);
-  if(status==='pending'){$('refresh-detail-transaction').textContent='Still pending';}
-  else if(status==='successful'){$('refresh-detail-transaction').hidden=true;}
-  else {$('refresh-detail-transaction').hidden=true;}
-  if(result?.message){const note=document.createElement('p');note.className='muted';note.style.fontSize='12px';note.textContent=String(result.message);$('transaction-detail-content').append(note);}
- }catch(error){
-  button.disabled=false;button.textContent='Retry status check';
-  const note=document.createElement('p');note.className='muted';note.style.fontSize='12px';note.textContent=error?.message||'Could not confirm the latest status. Try again shortly.';$('transaction-detail-content').append(note);
- }finally{if(!$('refresh-detail-transaction').hidden&&$('refresh-detail-transaction').textContent==='Checking…'){$('refresh-detail-transaction').disabled=false;$('refresh-detail-transaction').textContent='Refresh status'}}
-}
-$('refresh-detail-transaction')?.addEventListener('click',refreshActiveTransactionDetail);
-document.getElementById('lookup-transaction-reference')?.addEventListener('click',async()=>{
- const input=$('transaction-reference-lookup'),status=$('transaction-reference-lookup-status');
- const reference=String(input?.value||'').trim();
- if(!reference){status.textContent='Enter the complete transaction reference.';return;}
- if(!currentSession){status.textContent='Please sign in to look up a transaction.';return;}
- const button=$('lookup-transaction-reference');button.disabled=true;status.textContent='Looking up your transaction…';
- try{
-  const result=await authClient.from('transactions')
-   .select('type,amount,status,reference,description,created_at,provider,provider_status,provider_reference,provider_response')
-   .eq('user_id',currentSession.user.id).eq('reference',reference).maybeSingle();
-  if(result.error)throw result.error;
-  if(!result.data){status.textContent='No transaction with that exact reference was found in your account.';return;}
-  status.textContent='Transaction found. Showing its latest recorded details.';
-  const index=transactionRecords.findIndex(row=>row.reference===result.data.reference);
-  if(index>=0)transactionRecords[index]=result.data;else transactionRecords.unshift(result.data);
-  renderTransactionHistory();showTransactionDetails(result.data);
- }catch(error){status.textContent=error?.message||'Could not look up this transaction. Please try again.';}
- finally{button.disabled=false;}
-});
-
-function printPanbillTransactionRecord(x,status){
- const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const confirmed=status==='successful';const title=confirmed?'PanBill Payment Receipt':'PanBill Transaction Record';
- const rows=[['Service',String(x.description||x.type||'Transaction').replace(/wisesub/gi,'PanBill')],['Amount',money(x.amount)],['Status',({successful:'Successful',pending:'Pending',failed:'Failed',unknown:'Status unavailable'})[status]],['Date and time',x.created_at?new Date(x.created_at).toLocaleString('en-NG'):'Not available'],['Transaction reference',x.reference||'Not available'],['Provider reference',x.provider_reference||'Not available'],['Provider status',x.provider_status||'Not available']];
- const w=window.open('','_blank','width=720,height=800');if(!w){alert('Allow pop-ups to print or save your PanBill record.');return;}
- w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title><style>body{font:15px Arial,sans-serif;color:#17243a;margin:36px}header{border-bottom:3px solid #dcae48;padding-bottom:16px;margin-bottom:24px}h1{margin:0 0 6px;font-size:26px}p{color:#586579}.status{font-weight:bold;color:'+(confirmed?'#087443':'#9a5b00')+'}table{width:100%;border-collapse:collapse}td{padding:13px 8px;border-bottom:1px solid #e4e8ee}td:first-child{color:#647084;width:38%}.foot{margin-top:30px;font-size:12px;color:#697586}@media print{button{display:none}}</style></head><body><header><h1>PanBill</h1><p>'+title+'</p></header><table>'+rows.map(r=>'<tr><td>'+esc(r[0])+'</td><td class="'+(r[0]==='Status'?'status':'')+'">'+esc(r[1])+'</td></tr>').join('')+'</table><p class="foot">'+(confirmed?'This record reflects a transaction marked successful in PanBill records.':'This is a transaction record, not proof of successful payment. Check PanBill for the latest status before taking further action.')+'</p><script>window.onload=()=>window.print()<\/script>
-<style id="panbill-transaction-history-responsive-fix-v1">
-/* Keep transaction history controls and summary cards inside their own panel. */
-#transaction-panel{min-width:0;max-width:100%;overflow:hidden}
-#transaction-panel *{min-width:0}
-#transaction-panel .section-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
-#transaction-panel .section-head h2{flex:1 1 150px;min-width:0}
-#transaction-panel .section-head>div{display:flex;flex:1 1 100%;width:100%;max-width:100%;flex-wrap:wrap;gap:8px!important}
-#transaction-panel .section-head>div button{flex:1 1 105px;min-width:0;white-space:normal;overflow-wrap:anywhere;padding:9px 8px;font-size:13px}
-#transaction-panel .tx-filter-bar{max-width:100%;min-width:0;flex-wrap:wrap}
-#transaction-panel .tx-reference-lookup{grid-template-columns:minmax(0,1fr)!important}
-#transaction-panel .tx-reference-lookup>button{width:100%;align-self:stretch!important}
-#transaction-panel .tx-reference-lookup input,
-#transaction-panel #transaction-search,
-#transaction-panel .tx-date-filter input{max-width:100%;min-width:0}
-#transaction-panel #transaction-summary{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;width:100%;max-width:100%;gap:9px!important}
-#transaction-panel #transaction-summary>.panel{width:100%;max-width:100%;min-width:0;overflow:hidden;padding:12px!important}
-#transaction-panel #transaction-summary small{display:block;line-height:1.35;overflow-wrap:anywhere}
-#transaction-panel #transaction-summary strong{display:block;max-width:100%;min-width:0;font-size:clamp(16px,4.4vw,21px)!important;line-height:1.25;overflow-wrap:anywhere;word-break:break-word;font-variant-numeric:tabular-nums}
-#transaction-panel #tx-summary-success-volume{letter-spacing:-.45px}
-#transaction-panel .tx-date-filter{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-#transaction-panel .tx-date-filter>div{min-width:0}
-#transaction-panel .tx-date-filter>div:last-child{grid-column:1/-1;justify-content:flex-start}
-#transaction-panel .tx-date-filter button{max-width:100%;white-space:normal}
-@media(max-width:420px){
- #transaction-panel{padding:14px!important;border-radius:17px}
- #transaction-panel .section-head{align-items:flex-start}
- #transaction-panel .section-head h2{flex-basis:100%;font-size:19px!important}
- #transaction-panel .section-head>div button{flex:1 1 30%;font-size:12px;padding:9px 5px}
- #transaction-panel #transaction-summary{gap:8px!important}
- #transaction-panel #transaction-summary>.panel{padding:11px!important;border-radius:15px}
- #transaction-panel #transaction-summary small{font-size:12px}
- #transaction-panel #transaction-summary strong{font-size:clamp(15px,4vw,19px)!important}
- #transaction-panel .tx-date-filter{gap:8px!important}
-}
-@media(max-width:340px){
- #transaction-panel #transaction-summary{grid-template-columns:minmax(0,1fr)!important}
- #transaction-panel .section-head>div button{flex-basis:100%}
- #transaction-panel .tx-date-filter{grid-template-columns:minmax(0,1fr)!important}
- #transaction-panel .tx-date-filter>div:last-child{grid-column:auto}
-}
-</style>
-
-</body></html>');w.document.close();
-}
-function closeTransactionDetails(){$('transaction-detail-overlay').hidden=true;activeTransactionDetail=null}$('close-transaction-detail').onclick=closeTransactionDetails;$('transaction-detail-overlay').addEventListener('click',e=>{if(e.target===$('transaction-detail-overlay'))closeTransactionDetails()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('transaction-detail-overlay').hidden)closeTransactionDetails()});
-let transactionLoadMoreBusy=false;
-$('load-more-transactions')?.addEventListener('click',async()=>{
- if(!currentSession||transactionLoadMoreBusy)return;
- const button=$('load-more-transactions');transactionLoadMoreBusy=true;button.disabled=true;button.textContent='Loading…';
- try{
-  const start=transactionRecords.length,end=start+49;
-  const result=await authClient.from('transactions').select('type,amount,status,reference,description,created_at,provider,provider_status,provider_reference,provider_response').eq('user_id',currentSession.user.id).order('created_at',{ascending:false}).range(start,end);
-  if(result.error)throw result.error;
-  const older=Array.isArray(result.data)?result.data:[];
-  transactionRecords=transactionRecords.concat(older);
-  renderTransactionHistory();
-  button.hidden=older.length<50;
-  button.textContent=older.length?'Load more transactions':'No more transactions';
-  if(!older.length)button.hidden=true;
- }catch(error){alert('Could not load older transactions. Please try again.');button.textContent='Try loading more';}
- finally{transactionLoadMoreBusy=false;button.disabled=false;}
-});
+function showTransactionDetails(x){const overlay=$('transaction-detail-overlay'),content=$('transaction-detail-content');content.replaceChildren();const providerData=x.provider_response&&typeof x.provider_response==='object'?x.provider_response:{};const responseData=providerData.response&&typeof providerData.response==='object'?providerData.response:providerData;const inner=responseData.data&&typeof responseData.data==='object'?responseData.data:{};const status=normalizedTransactionStatus(x.status||x.provider_status);const statusText=({successful:'Successful',pending:'Pending',failed:'Failed',unknown:'Status unavailable'})[status];const badge=document.createElement('div');badge.className='tx-detail-status tx-status '+status;badge.textContent=statusText;content.append(badge);const grid=document.createElement('div');grid.className='tx-detail-grid';const add=(label,value)=>{if(value===null||value===undefined||String(value).trim()==='')return;const item=document.createElement('div');item.className='tx-detail-item';const small=document.createElement('small');small.textContent=label;const strong=document.createElement('strong');strong.textContent=String(value);item.append(small,strong);grid.append(item)};add('Service',String(x.description||x.type||'Transaction').replace(/wisesub/gi,'PanBill'));add('Amount',money(x.amount));add('Date and time',x.created_at?new Date(x.created_at).toLocaleString('en-NG'):'Not available');add('Transaction reference',x.reference||'Not available');add('Provider','PanBill');add('Provider status',x.provider_status||'Not available');add('Provider reference',x.provider_reference||'Not available');add('Package',inner.package||inner.product||'');add('Units',inner.units||'');content.append(grid);const note=document.createElement('p');note.className='muted';note.style.fontSize='13px';const providerMessage=responseData.message||providerData.message;note.textContent=providerMessage?String(providerMessage).replace(/wisesub/gi,'PanBill'):status==='pending'?'This transaction is still being processed. Refresh your transaction history later for the latest status.':status==='failed'?'This transaction was not completed. If your wallet was debited, contact support and provide the transaction reference.':'Transaction details are shown from the records available for this payment.';content.append(note);overlay.hidden=false}function closeTransactionDetails(){$('transaction-detail-overlay').hidden=true}$('close-transaction-detail').onclick=closeTransactionDetails;$('transaction-detail-overlay').addEventListener('click',e=>{if(e.target===$('transaction-detail-overlay'))closeTransactionDetails()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('transaction-detail-overlay').hidden)closeTransactionDetails()});
 $('refresh-wallet').onclick=loadWallet;$('refresh-transactions').onclick=loadWallet;$('wallet-history-button').onclick=()=>$('transaction-panel').scrollIntoView({behavior:'smooth'});$('toggle-balance').onclick=()=>{balanceVisible=!balanceVisible;$('wallet-balance').textContent=balanceVisible?realBalance:'₦••••••';$('toggle-balance').setAttribute('aria-label',balanceVisible?'Hide balance':'Show balance');$('toggle-balance').textContent=balanceVisible?'◉':'◎'};
 $('fund-wallet-button').onclick=async()=>{let text=prompt('How much do you want to add? Enter amount in naira:');if(text===null)return;let amount=Number(text);if(!Number.isFinite(amount)||amount<100||amount>1000000)return alert('Enter an amount from ₦100 to ₦1,000,000.');$('fund-wallet-button').disabled=true;try{let r=await invoke({action:'initialize',amount});if(!r.authorization_url)throw Error('Paystack did not return a payment link.');location.href=r.authorization_url}catch(e){alert(e.message||'Payment could not start.');$('fund-wallet-button').disabled=false}};
 async function handlePaystackReturn(){const p=new URLSearchParams(location.search),ref=p.get('reference')||p.get('trxref');if(!ref)return;if(paystackReturnPromise)return paystackReturnPromise;if(p.get('marketplace_payment')==='1'&&!currentSession)return;paystackReturnPromise=(async()=>{if(p.get('marketplace_payment')==='1'){try{const result=await marketplaceCheckoutRequest({action:'verify_payment',reference:ref});history.replaceState({},document.title,location.pathname);if(result.success&&result.payment_status==='paid'){alert('Marketplace payment confirmed. Order '+(result.order_number||'')+' is now paid. You can view its status in your PanBill marketplace orders.');panbillCart=[];pendingMarketplacePayment=null;try{sessionStorage.removeItem(MARKETPLACE_PENDING_KEY)}catch(_){}renderMarketplaceCart()}else if(result.payment_review_required){pendingMarketplacePayment=null;try{sessionStorage.removeItem(MARKETPLACE_PENDING_KEY)}catch(_){}alert('Paystack received your payment, but the stock reservation needs review. Please contact PanBill support and quote order '+(result.order_number||'')+'. Do not pay again.')}else{if(result.payment_status==='failed'){pendingMarketplacePayment=null;try{sessionStorage.removeItem(MARKETPLACE_PENDING_KEY)}catch(_){}}alert(result.message||'Payment has not been confirmed yet. Please check your marketplace order status shortly.')}}catch(error){alert(error.message||'We could not verify this marketplace payment yet. Do not pay again until you check your order status or contact PanBill support.')}return}history.replaceState({},document.title,location.pathname);try{let r=await invoke({action:'verify',reference:ref});if(r.success||r.credited||r.already_credited||['credited','already_credited','successful'].includes(r.status)){alert('Payment confirmed. Refreshing wallet.');await loadWallet()}else alert(r.message||'Payment not confirmed yet. Check your wallet shortly.')}catch(e){alert('We could not confirm payment yet. Check your wallet and transaction history before paying again.')}})();return paystackReturnPromise}
@@ -2100,7 +1847,7 @@ function panbillSeasonForDate(date){const y=date.getFullYear(),m=date.getMonth()
 function updatePanbillSeasonalGreetings(){const season=panbillSeasonForDate(new Date());const card=$('dashboard-seasonal-greeting');if(!card)return;card.dataset.theme=season.theme;const kicker=card.querySelector('[data-season-kicker]'),title=card.querySelector('[data-season-title]'),messageEl=card.querySelector('[data-season-message]'),art=card.querySelector('[data-season-art]');if(kicker)kicker.textContent=season.kicker;if(title)title.textContent=season.title;if(messageEl)messageEl.textContent=season.message;if(art)art.textContent=season.art}
 updatePanbillSeasonalGreetings();setInterval(updatePanbillSeasonalGreetings,60*60*1000);
 
-async function init(){try{if(!window.supabase){authMessage('Supabase library failed to load. Check your connection.');return}authClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{experimental:{passkey:true}}});updatePasskeyAvailability();loadCustomerMarketplace();loadMarketplacePickupPoints();authClient.auth.onAuthStateChange((_event,session)=>{showSignedIn(session);if(session&&(new URLSearchParams(location.search).has('reference')||new URLSearchParams(location.search).has('trxref')))void handlePaystackReturn()});let r=await withPanbillTimeout(authClient.auth.getSession(),8000,'PanBill could not restore your session within 8 seconds. You can still try signing in.');if(r.error)throw r.error;showSignedIn(r.data.session);if(r.data.session)await handlePaystackReturn();else if(location.search.includes('reference=')||location.search.includes('trxref=')){authMessage(new URLSearchParams(location.search).get('marketplace_payment')==='1'?'Log in to verify your marketplace payment.':'Log in to verify your payment and refresh your wallet.');}const {data:{subscription}}=authClient.auth.onAuthStateChange((event)=>{if(event==='PASSWORD_RECOVERY'){$('reset-overlay').hidden=false;$('reset-title').textContent='Choose a new password';$('reset-description').textContent='Enter a new password for your account.';$('reset-email-field').hidden=true;$('reset-email').required=false;$('new-password-field').hidden=false;$('new-password').required=true;$('reset-submit').textContent='Update password';message($('reset-message'),'')}})}catch(error){authMessage(error?.message||'PanBill could not finish loading. Refresh the page and try again.')}finally{hidePanbillSplash()}}setAuthMode('login');init();
+async function init(){try{if(!window.supabase){authMessage('Supabase library failed to load. Check your connection.');return}authClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{experimental:{passkey:true}}});updatePasskeyAvailability();loadCustomerMarketplace();loadMarketplacePickupPoints();authClient.auth.onAuthStateChange((_event,session)=>{showSignedIn(session);if(session&&(new URLSearchParams(location.search).has('reference')||new URLSearchParams(location.search).has('trxref')))void handlePaystackReturn()});let r=await authClient.auth.getSession();if(r.error)throw r.error;showSignedIn(r.data.session);if(r.data.session)await handlePaystackReturn();else if(location.search.includes('reference=')||location.search.includes('trxref=')){authMessage(new URLSearchParams(location.search).get('marketplace_payment')==='1'?'Log in to verify your marketplace payment.':'Log in to verify your payment and refresh your wallet.');}const {data:{subscription}}=authClient.auth.onAuthStateChange((event)=>{if(event==='PASSWORD_RECOVERY'){$('reset-overlay').hidden=false;$('reset-title').textContent='Choose a new password';$('reset-description').textContent='Enter a new password for your account.';$('reset-email-field').hidden=true;$('reset-email').required=false;$('new-password-field').hidden=false;$('new-password').required=true;$('reset-submit').textContent='Update password';message($('reset-message'),'')}})}catch(error){authMessage(error?.message||'PanBill could not finish loading. Refresh the page and try again.')}finally{hidePanbillSplash()}}setAuthMode('login');init();
 </script><script>
 /* Keep provider tiles readable if a remote brand asset is temporarily unavailable. */
 document.querySelectorAll('.provider-mark.logo-mark img').forEach(function(img){img.addEventListener('error',function(){var mark=img.closest('.provider-mark');if(mark){mark.classList.remove('logo-mark');mark.textContent=img.alt.replace(/ original logo| logo/i,'');}} ,{once:true});});
@@ -4048,7 +3795,7 @@ main.wrap[data-view="travel"] #panbill-travel-page{display:block!important}
   items.forEach(item=>{const card=document.createElement('div');card.className='bill-tools-item';const info=document.createElement('div');const title=document.createElement('strong');const small=document.createElement('small');const actions=document.createElement('div');actions.className='bill-tools-item-actions';
    if(kind==='beneficiary'){title.textContent=item.label+' · '+item.service_type;small.textContent=[item.provider,item.recipient,item.customer_name,item.is_verified?'Verified':'Not verified'].filter(Boolean).join(' · ');actions.innerHTML='<button type="button" data-delete-beneficiary="'+escapeHtml(item.id)+'">Remove</button>';}
    if(kind==='schedule'){title.textContent=item.service_type+' · '+money(item.amount);small.textContent=[item.provider,item.recipient,new Date(item.scheduled_for).toLocaleString('en-NG'),item.schedule_type==='recurring'?'Repeats '+item.frequency:'One-time',item.status].filter(Boolean).join(' · ');if(['pending','active','paused'].includes(item.status)){actions.innerHTML=(item.status==='paused'?'<button type="button" data-schedule-status="active" data-id="'+escapeHtml(item.id)+'">Resume</button>':'<button type="button" data-schedule-status="paused" data-id="'+escapeHtml(item.id)+'">Pause</button>')+'<button type="button" data-schedule-status="cancelled" data-id="'+escapeHtml(item.id)+'">Cancel</button>';}}
-   if(kind==='batch'){title.textContent='Checkout · '+item.reference;small.textContent=money(item.total_amount)+' estimated · '+(item.panbill_bill_batch_items?.length||0)+' bill(s) · '+item.status;const hasPending=(item.panbill_bill_batch_items||[]).some(x=>['pending','processing'].includes(x.status));actions.innerHTML='<button type="button" data-open-batch="'+escapeHtml(item.id)+'">Review</button>'+(item.status==='draft'&&item.panbill_bill_batch_items?.length?'<button type="button" data-execute-batch="'+escapeHtml(item.id)+'">Checkout</button>':'')+(hasPending?'<button type="button" data-verify-batch="'+escapeHtml(item.id)+'">Verify pending</button>':'')+'<button type="button" data-batch-receipt="'+escapeHtml(item.id)+'">Receipt</button>';}
+   if(kind==='batch'){title.textContent='Checkout · '+item.reference;small.textContent=money(item.total_amount)+' estimated · '+(item.panbill_bill_batch_items?.length||0)+' bill(s) · '+item.status;actions.innerHTML='<button type="button" data-open-batch="'+escapeHtml(item.id)+'">Review</button>'+(item.status==='draft'&&item.panbill_bill_batch_items?.length?'<button type="button" data-execute-batch="'+escapeHtml(item.id)+'">Checkout</button>':'');}
    info.append(title,small);card.append(info,actions);box.append(card);
   });
  }
@@ -4069,64 +3816,7 @@ main.wrap[data-view="travel"] #panbill-travel-page{display:block!important}
  $('bill-batch-form')?.addEventListener('submit',async e=>{e.preventDefault();const b=e.currentTarget.querySelector('button[type=submit]');b.disabled=true;msg('batch-message','Adding bill to checkout draft…');try{if(!activeBatch){const r=await api({action:'batches_create'});activeBatch=r.data.id;}const service=$('batch-service').value;const details={package_code:$('batch-package-code').value,phone_number:$('batch-phone-number').value,meter_type:$('batch-meter-type').value,quantity:$('batch-quantity').value};const r=await api({action:'batches_add_item',batch_id:activeBatch,service_type:service,provider:$('batch-provider').value,recipient:$('batch-recipient').value,amount:$('batch-amount').value,checkout_details:details});e.currentTarget.reset();updateBatchFields();msg('batch-message','Bill added to draft. Draft total: '+money(r.total_amount)+'. No payment has been made.');await loadBatches();}catch(err){msg('batch-message',err.message,true);}finally{b.disabled=false;}});
  let pendingBatchPreview=null;
  async function previewBatch(batchId){const r=await api({action:'batches_preview',batch_id:batchId});const rows=r.items||[];const lines=rows.map(x=>x.service_type+' · '+x.recipient+' · estimate '+money(x.amount)+(x.customer_name?' · '+x.customer_name:'')+(x.validated?' · checked':'')).join('\n');const confirmed=confirm('Review batch '+r.batch.reference+'\nEstimated total: '+money(r.batch.estimated_total)+'\n\n'+lines+'\n\nEach bill is charged separately at the server-calculated price. A failure or pending result stops the remaining bills. Continue to transaction PIN?');if(!confirmed)return;pendingBatchPreview={batchId,confirmed_item_ids:rows.map(x=>x.id),confirmed_customer_names:Object.fromEntries(rows.filter(x=>['CABLE_TV','ELECTRICITY'].includes(x.service_type)).map(x=>[x.id,x.customer_name||'']))};$('bill-batch-pin-summary').textContent='Batch '+r.batch.reference+' · estimated '+money(r.batch.estimated_total)+'. Enter your four-digit transaction PIN. Each bill will be processed separately.';$('bill-batch-pin').value='';$('bill-batch-pin-message').textContent='';$('bill-batch-pin-overlay').hidden=false;$('bill-batch-pin').focus();}
- function printBatchRecord(batch){
-  const items=Array.isArray(batch.panbill_bill_batch_items)?batch.panbill_bill_batch_items:[];
-  const successful=items.filter(x=>String(x.status||'').toLowerCase()==='successful').length;
-  const pending=items.filter(x=>['pending','processing'].includes(String(x.status||'').toLowerCase())).length;
-  const failed=items.filter(x=>['failed','cancelled'].includes(String(x.status||'').toLowerCase())).length;
-  const allPaid=items.length>0&&successful===items.length;
-  const safe=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const rows=items.map(x=>`<tr><td>${safe(x.service_type)}</td><td>${safe(x.provider||'—')}</td><td>${safe(x.recipient)}</td><td>${safe(money(x.amount))}</td><td>${safe(x.status||'unknown')}</td><td>${safe(x.result?.reference||x.result?.transaction_reference||'—')}</td></tr>`).join('');
-  const popup=window.open('','_blank','width=900,height=700');
-  if(!popup){msg('batch-message','Allow pop-ups for PanBill to print this batch record.',true);return;}
-  popup.opener=null;
-  popup.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>PanBill Batch ${safe(batch.reference)}</title><style>body{font:14px Arial,sans-serif;color:#172033;padding:28px}h1{margin:0;color:#10274b}small{color:#64748b}.meta{margin:20px 0;padding:14px;background:#f1f5f9;border-radius:8px}.status{font-weight:bold;color:${allPaid?'#087443':'#9a5b00'}}table{width:100%;border-collapse:collapse;margin-top:18px}th,td{padding:10px 7px;border-bottom:1px solid #ddd;text-align:left;font-size:12px}th{background:#f1f5f9}.foot{margin-top:24px;color:#64748b;font-size:11px}@media print{button{display:none}}</style></head><body><h1>PanBill</h1><small>Multi-bill transaction record</small><div class="meta"><b>Batch reference:</b> ${safe(batch.reference)}<br><b>Date:</b> ${safe(batch.created_at?new Date(batch.created_at).toLocaleString('en-NG'):'Not available')}<br><b>Batch status:</b> <span class="status">${allPaid?'PAID — ALL BILLS SUCCESSFUL':pending?'PENDING — AWAITING CONFIRMATION':failed?'PARTIAL / NOT FULLY SUCCESSFUL':'NOT CONFIRMED'}</span><br><b>Successful:</b> ${successful} &nbsp; <b>Pending:</b> ${pending} &nbsp; <b>Failed/cancelled:</b> ${failed}</div><table><thead><tr><th>Service</th><th>Provider</th><th>Recipient</th><th>Amount</th><th>Status</th><th>Transaction ref</th></tr></thead><tbody>${rows||'<tr><td colspan="6">No bills in this batch.</td></tr>'}</tbody></table><p><b>Draft total / estimate:</b> ${safe(money(batch.total_amount))}</p><p class="foot">${allPaid?'This record reflects successful statuses recorded by PanBill.': 'This is a transaction record, not proof that all bills have been paid. Pending or failed items must not be treated as successful.'} Keep this reference for support enquiries.</p><button onclick="window.print()">Print / Save as PDF</button>
-<style id="panbill-transaction-history-responsive-fix-v1">
-/* Keep transaction history controls and summary cards inside their own panel. */
-#transaction-panel{min-width:0;max-width:100%;overflow:hidden}
-#transaction-panel *{min-width:0}
-#transaction-panel .section-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
-#transaction-panel .section-head h2{flex:1 1 150px;min-width:0}
-#transaction-panel .section-head>div{display:flex;flex:1 1 100%;width:100%;max-width:100%;flex-wrap:wrap;gap:8px!important}
-#transaction-panel .section-head>div button{flex:1 1 105px;min-width:0;white-space:normal;overflow-wrap:anywhere;padding:9px 8px;font-size:13px}
-#transaction-panel .tx-filter-bar{max-width:100%;min-width:0;flex-wrap:wrap}
-#transaction-panel .tx-reference-lookup{grid-template-columns:minmax(0,1fr)!important}
-#transaction-panel .tx-reference-lookup>button{width:100%;align-self:stretch!important}
-#transaction-panel .tx-reference-lookup input,
-#transaction-panel #transaction-search,
-#transaction-panel .tx-date-filter input{max-width:100%;min-width:0}
-#transaction-panel #transaction-summary{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;width:100%;max-width:100%;gap:9px!important}
-#transaction-panel #transaction-summary>.panel{width:100%;max-width:100%;min-width:0;overflow:hidden;padding:12px!important}
-#transaction-panel #transaction-summary small{display:block;line-height:1.35;overflow-wrap:anywhere}
-#transaction-panel #transaction-summary strong{display:block;max-width:100%;min-width:0;font-size:clamp(16px,4.4vw,21px)!important;line-height:1.25;overflow-wrap:anywhere;word-break:break-word;font-variant-numeric:tabular-nums}
-#transaction-panel #tx-summary-success-volume{letter-spacing:-.45px}
-#transaction-panel .tx-date-filter{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-#transaction-panel .tx-date-filter>div{min-width:0}
-#transaction-panel .tx-date-filter>div:last-child{grid-column:1/-1;justify-content:flex-start}
-#transaction-panel .tx-date-filter button{max-width:100%;white-space:normal}
-@media(max-width:420px){
- #transaction-panel{padding:14px!important;border-radius:17px}
- #transaction-panel .section-head{align-items:flex-start}
- #transaction-panel .section-head h2{flex-basis:100%;font-size:19px!important}
- #transaction-panel .section-head>div button{flex:1 1 30%;font-size:12px;padding:9px 5px}
- #transaction-panel #transaction-summary{gap:8px!important}
- #transaction-panel #transaction-summary>.panel{padding:11px!important;border-radius:15px}
- #transaction-panel #transaction-summary small{font-size:12px}
- #transaction-panel #transaction-summary strong{font-size:clamp(15px,4vw,19px)!important}
- #transaction-panel .tx-date-filter{gap:8px!important}
-}
-@media(max-width:340px){
- #transaction-panel #transaction-summary{grid-template-columns:minmax(0,1fr)!important}
- #transaction-panel .section-head>div button{flex-basis:100%}
- #transaction-panel .tx-date-filter{grid-template-columns:minmax(0,1fr)!important}
- #transaction-panel .tx-date-filter>div:last-child{grid-column:auto}
-}
-</style>
-
-</body></html>`);
-  popup.document.close();
- }
- $('batch-list')?.addEventListener('click',async e=>{const receipt=e.target.closest('[data-batch-receipt]');if(receipt){receipt.disabled=true;try{const r=await api({action:'batches_list'});const batch=(r.data||[]).find(x=>x.id===receipt.dataset.batchReceipt);if(!batch)throw Error('Batch not found. Refresh and try again.');printBatchRecord(batch);}catch(err){msg('batch-message',err.message,true);}finally{receipt.disabled=false;}return;}const verify=e.target.closest('[data-verify-batch]');if(verify){verify.disabled=true;msg('batch-message','Checking pending bill transactions with the provider…');try{const result=await api({action:'batches_verify',batch_id:verify.dataset.verifyBatch});const summary=(result.outcomes||[]).map(x=>x.status.toUpperCase()+' · '+(x.reference||x.id)+' · '+(x.message||'')).join('\n');msg('batch-message',(result.message||'Verification finished.')+'\n'+summary,result.batch_status!=='successful');await loadBatches();}catch(err){msg('batch-message',err.message,true);}finally{verify.disabled=false;}return;}const execute=e.target.closest('[data-execute-batch]');if(execute){execute.disabled=true;msg('batch-message','Checking bill details before checkout…');try{await previewBatch(execute.dataset.executeBatch);msg('batch-message','Review the validated bill details before confirming payment.');}catch(err){msg('batch-message',err.message,true);}finally{execute.disabled=false;}return;}const b=e.target.closest('[data-open-batch]');if(!b)return;try{const r=await api({action:'batches_list'});const batch=(r.data||[]).find(x=>x.id===b.dataset.openBatch);if(!batch)return;activeBatch=batch.id;const lines=(batch.panbill_bill_batch_items||[]).map(x=>x.service_type+' · '+x.recipient+' · '+money(x.amount)+' · '+x.status).join('\n');alert('Batch '+batch.reference+'\nEstimated total: '+money(batch.total_amount)+'\n\n'+(lines||'No bills added.')+'\n\nFinal charges are calculated separately by the existing bill-purchase service.');}catch(err){msg('batch-message',err.message,true);}});
+ $('batch-list')?.addEventListener('click',async e=>{const execute=e.target.closest('[data-execute-batch]');if(execute){execute.disabled=true;msg('batch-message','Checking bill details before checkout…');try{await previewBatch(execute.dataset.executeBatch);msg('batch-message','Review the validated bill details before confirming payment.');}catch(err){msg('batch-message',err.message,true);}finally{execute.disabled=false;}return;}const b=e.target.closest('[data-open-batch]');if(!b)return;try{const r=await api({action:'batches_list'});const batch=(r.data||[]).find(x=>x.id===b.dataset.openBatch);if(!batch)return;activeBatch=batch.id;const lines=(batch.panbill_bill_batch_items||[]).map(x=>x.service_type+' · '+x.recipient+' · '+money(x.amount)+' · '+x.status).join('\n');alert('Batch '+batch.reference+'\nEstimated total: '+money(batch.total_amount)+'\n\n'+(lines||'No bills added.')+'\n\nFinal charges are calculated separately by the existing bill-purchase service.');}catch(err){msg('batch-message',err.message,true);}});
  $('bill-batch-pin-cancel')?.addEventListener('click',()=>{$('bill-batch-pin-overlay').hidden=true;$('bill-batch-pin').value='';pendingBatchPreview=null;});
  $('bill-batch-pin-form')?.addEventListener('submit',async e=>{e.preventDefault();if(!pendingBatchPreview)return;const pin=$('bill-batch-pin').value.trim();if(!/^[0-9]{4}$/.test(pin)){msg('bill-batch-pin-message','Enter your four-digit transaction PIN.',true);return;}const button=$('bill-batch-pin-submit');button.disabled=true;msg('bill-batch-pin-message','Processing bills securely. Do not close this page or submit again…');try{const result=await api({action:'batches_execute',batch_id:pendingBatchPreview.batchId,transaction_pin:pin,confirmed_customer_names:pendingBatchPreview.confirmed_customer_names,confirmed_item_ids:pendingBatchPreview.confirmed_item_ids});$('bill-batch-pin-overlay').hidden=true;$('bill-batch-pin').value='';pendingBatchPreview=null;const summary=(result.outcomes||[]).map(x=>x.status.toUpperCase()+' · '+(x.reference||x.id)+' · '+(x.message||'')).join('\n');msg('batch-message',(result.message||'Checkout finished.')+'\n'+summary,result.batch_status!=='successful');await loadBatches();}catch(err){msg('bill-batch-pin-message',err.message,true);}finally{button.disabled=false;$('bill-batch-pin').value='';}});
  document.addEventListener('panbill:session-ready',loadAll);
@@ -4192,47 +3882,4 @@ main.wrap[data-view="services"] .services .service-card small{display:block!impo
 }
 @media(min-width:900px){main.wrap[data-view="services"] .services{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
 </style>
-
-<style id="panbill-transaction-history-responsive-fix-v1">
-/* Keep transaction history controls and summary cards inside their own panel. */
-#transaction-panel{min-width:0;max-width:100%;overflow:hidden}
-#transaction-panel *{min-width:0}
-#transaction-panel .section-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
-#transaction-panel .section-head h2{flex:1 1 150px;min-width:0}
-#transaction-panel .section-head>div{display:flex;flex:1 1 100%;width:100%;max-width:100%;flex-wrap:wrap;gap:8px!important}
-#transaction-panel .section-head>div button{flex:1 1 105px;min-width:0;white-space:normal;overflow-wrap:anywhere;padding:9px 8px;font-size:13px}
-#transaction-panel .tx-filter-bar{max-width:100%;min-width:0;flex-wrap:wrap}
-#transaction-panel .tx-reference-lookup{grid-template-columns:minmax(0,1fr)!important}
-#transaction-panel .tx-reference-lookup>button{width:100%;align-self:stretch!important}
-#transaction-panel .tx-reference-lookup input,
-#transaction-panel #transaction-search,
-#transaction-panel .tx-date-filter input{max-width:100%;min-width:0}
-#transaction-panel #transaction-summary{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;width:100%;max-width:100%;gap:9px!important}
-#transaction-panel #transaction-summary>.panel{width:100%;max-width:100%;min-width:0;overflow:hidden;padding:12px!important}
-#transaction-panel #transaction-summary small{display:block;line-height:1.35;overflow-wrap:anywhere}
-#transaction-panel #transaction-summary strong{display:block;max-width:100%;min-width:0;font-size:clamp(16px,4.4vw,21px)!important;line-height:1.25;overflow-wrap:anywhere;word-break:break-word;font-variant-numeric:tabular-nums}
-#transaction-panel #tx-summary-success-volume{letter-spacing:-.45px}
-#transaction-panel .tx-date-filter{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-#transaction-panel .tx-date-filter>div{min-width:0}
-#transaction-panel .tx-date-filter>div:last-child{grid-column:1/-1;justify-content:flex-start}
-#transaction-panel .tx-date-filter button{max-width:100%;white-space:normal}
-@media(max-width:420px){
- #transaction-panel{padding:14px!important;border-radius:17px}
- #transaction-panel .section-head{align-items:flex-start}
- #transaction-panel .section-head h2{flex-basis:100%;font-size:19px!important}
- #transaction-panel .section-head>div button{flex:1 1 30%;font-size:12px;padding:9px 5px}
- #transaction-panel #transaction-summary{gap:8px!important}
- #transaction-panel #transaction-summary>.panel{padding:11px!important;border-radius:15px}
- #transaction-panel #transaction-summary small{font-size:12px}
- #transaction-panel #transaction-summary strong{font-size:clamp(15px,4vw,19px)!important}
- #transaction-panel .tx-date-filter{gap:8px!important}
-}
-@media(max-width:340px){
- #transaction-panel #transaction-summary{grid-template-columns:minmax(0,1fr)!important}
- #transaction-panel .section-head>div button{flex-basis:100%}
- #transaction-panel .tx-date-filter{grid-template-columns:minmax(0,1fr)!important}
- #transaction-panel .tx-date-filter>div:last-child{grid-column:auto}
-}
-</style>
-
 </body></html>
