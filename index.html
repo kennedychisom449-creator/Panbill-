@@ -990,39 +990,18 @@ main.wrap[data-view="bill-tools"] #panbill-bill-tools-page{display:block!importa
 @media(max-width:600px){#panbill-bill-tools-page{padding:4px 0 100px}.bill-tools-panel{padding:14px;border-radius:15px}.bill-tools-form{grid-template-columns:1fr}.bill-tools-wide{grid-column:auto}.bill-tools-tabs{gap:3px}.bill-tools-tab{font-size:10px;padding:11px 4px}.bill-tools-item{align-items:flex-start;flex-direction:column}.bill-tools-item-actions{justify-content:flex-start}}
 </style>
 
-<style id="panbill-login-stability-repair-v3">
-/* Stable centered login: override the earlier conflicting full-height auth rules. */
-html:has(#auth-overlay:not([hidden])),
-body:has(#auth-overlay:not([hidden])){width:100%!important;max-width:100%!important;min-width:0!important;min-height:100%!important;min-height:100dvh!important;overflow-x:hidden!important;}
-body:has(#auth-overlay:not([hidden])) #auth-overlay{
- position:fixed!important;inset:0!important;z-index:1200!important;
- display:grid!important;place-items:center!important;
- width:100%!important;max-width:100%!important;height:100vh!important;height:100dvh!important;
- min-height:0!important;max-height:none!important;
- padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom))!important;
- overflow-x:hidden!important;overflow-y:auto!important;box-sizing:border-box!important;
+<style id="panbill-login-loading-stability-fix-v1">
+/* Targeted auth layout correction: keep the login card centered and stable. */
+.auth-layer{align-items:center;justify-content:center;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.auth-card{flex:0 0 auto;width:min(100%,435px);max-width:100%;margin:auto;transform:none}
+.auth-card input,.auth-card select,.auth-card textarea{font-size:16px}
+@media(max-width:760px){
+ .auth-layer{align-items:center!important;padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom))}
+ .auth-card{width:100%;max-width:435px;margin:auto!important;padding:20px}
 }
-body:has(#auth-overlay:not([hidden])) #auth-overlay>.auth-card{
- display:block!important;flex:none!important;width:min(100%,440px)!important;
- min-width:0!important;min-height:0!important;height:auto!important;max-height:calc(100dvh - 24px)!important;
- margin:auto!important;padding:18px!important;border-radius:20px!important;
- overflow-x:hidden!important;overflow-y:auto!important;box-sizing:border-box!important;
- transform:none!important;zoom:1!important;animation:none!important;
-}
-body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-card *{max-width:100%;}
-body:has(#auth-overlay:not([hidden])) #auth-overlay input,
-body:has(#auth-overlay:not([hidden])) #auth-overlay select{font-size:16px!important;min-width:0!important;}
-body:has(#auth-overlay:not([hidden])) #auth-overlay .form-grid{grid-template-columns:minmax(0,1fr)!important;}
-body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-network-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;}
-/* Remove decorative motion only from the login panel to prevent apparent zooming. */
-body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-card,
-body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-card *{scroll-behavior:auto!important;}
-@media(max-width:520px){
- body:has(#auth-overlay:not([hidden])) #auth-overlay{padding:10px 10px max(10px,env(safe-area-inset-bottom))!important;}
- body:has(#auth-overlay:not([hidden])) #auth-overlay>.auth-card{width:100%!important;max-width:440px!important;max-height:calc(100dvh - 20px)!important;padding:14px!important;border-radius:17px!important;}
-}
-@media(prefers-reduced-motion:reduce){body:has(#auth-overlay:not([hidden])) #auth-overlay *{animation:none!important;transition:none!important;}}
+@media(max-width:380px){.auth-card{padding:16px}}
 </style>
+
 </head><body>
 <div aria-label="PanBill is loading" aria-live="polite" id="panbill-loading-screen" role="status"><div aria-hidden="true" class="panbill-loader-mark">P</div><div class="panbill-loader-name">PanBill</div><div class="panbill-loader-caption">One app. All your bills.</div><div aria-hidden="true" class="panbill-loader-ring"></div></div>
 <header class="app-header"><div class="brand"><span class="brand-mark">P</span> PanBill</div><div class="header-actions"><span class="muted" hidden="" id="header-user" style="font-size:12px"></span><button class="pill" id="settings-top-button" type="button" aria-label="Open Settings menu" title="Settings">☰</button><button aria-hidden="true" class="pill" hidden="" id="logout-button" type="button">Log out</button></div></header>
@@ -1262,7 +1241,7 @@ body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-card *{scroll-behavior
 
 
 
-<div class="two-col" id="history-area"><button aria-label="Back to VTU dashboard" class="history-back-home" id="history-back-home" type="button">← Back to Home</button><section class="panel" id="transaction-panel"><div class="section-head" style="margin-top:0"><h2>Transaction history</h2><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="text-button" id="export-transactions" type="button">Export CSV</button><button class="text-button" id="print-transaction-statement" type="button">Print statement</button><button class="text-button" id="refresh-transactions" type="button">Refresh</button></div></div><div class="panbill-notification-controls" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:8px 0 12px;padding:10px 12px;border:1px solid #e9bb5840;border-radius:12px;background:#ffffff06"><div><strong style="display:block;font-size:13px">Transaction alerts</strong><small id="panbill-notification-status" class="muted" role="status" aria-live="polite">In-app alerts connect when you sign in.</small></div><button class="outline-btn" id="panbill-enable-browser-alerts" type="button" style="white-space:normal">Enable browser alerts</button></div><div aria-label="Filter transactions" class="tx-filter-bar" id="transaction-filters" role="group">
+<div class="two-col" id="history-area"><button aria-label="Back to VTU dashboard" class="history-back-home" id="history-back-home" type="button">← Back to Home</button><section class="panel" id="transaction-panel"><div class="section-head" style="margin-top:0"><h2>Transaction history</h2><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="text-button" id="export-transactions" type="button">Export CSV</button><button class="text-button" id="print-transaction-statement" type="button">Print statement</button><button class="text-button" id="refresh-transactions" type="button">Refresh</button></div></div><div aria-label="Filter transactions" class="tx-filter-bar" id="transaction-filters" role="group">
 <button aria-pressed="true" class="tx-filter" data-tx-filter="all" type="button">All</button>
 <button aria-pressed="false" class="tx-filter" data-tx-filter="successful" type="button">Successful</button>
 <button aria-pressed="false" class="tx-filter" data-tx-filter="pending" type="button">Pending</button>
@@ -1368,15 +1347,15 @@ body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-card *{scroll-behavior
   splash.classList.add('is-hidden');
   window.setTimeout(()=>splash.remove(),500);
   const msg=document.getElementById('auth-message');
-  if(msg){msg.textContent='PanBill could not finish connecting to Supabase. Check your connection and try again. If this continues, the Supabase Auth request or project configuration needs checking.';msg.classList.add('visible','error');}
- },15000);
+  if(msg){msg.textContent='PanBill is taking too long to connect. Check your internet connection and refresh the page.';msg.classList.add('visible','error');}
+ },12000);
 })();
 </script>
-<script id="panbill-supabase-sdk" async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1"></script><script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1"></script><script>
 'use strict';
 const SUPABASE_URL='https://rbvmtrsftnmnlxjmewpp.supabase.co';const SUPABASE_PUBLISHABLE_KEY='sb_publishable_Fn6FE75bdj11K39ZMxMRpA_EtFUrKTE';
-const $=id=>document.getElementById(id);const panbillSplashStarted=Date.now();function hidePanbillSplash(){const splash=$('panbill-loading-screen');if(!splash)return;const wait=Math.max(0,850-(Date.now()-panbillSplashStarted));setTimeout(()=>{splash.classList.add('is-hidden');setTimeout(()=>splash.remove(),500)},wait)}let authClient=null,authMode='login',currentSession=null,currentService=null,catalogProducts=[],catalogPricingSettings=null,lastPurchaseReference=null,balanceVisible=true,realBalance='',verifiedCustomerToken='',transactionRecords=[],transactionFilter='all';let paystackReturnPromise=null;let transactionPinCheckedUser=null,transactionPinHasPin=null,transactionPinSetupPromise=null,pendingVtuService=null;const serviceNames={airtime:'AIRTIME',data:'DATA',tv:'CABLE_TV',electricity:'ELECTRICITY',exam:'EXAM_PIN'};$('year').textContent=new Date().getFullYear();
-function message(el,text,error=false){el.textContent=String(text||'').replace(/wisesub/gi,'PanBill');el.classList.toggle('visible',!!text);el.classList.toggle('error',!!text&&error)}function money(n){let v=Number(n);return Number.isFinite(v)?v.toLocaleString('en-NG',{style:'currency',currency:'NGN'}):'—'}function authMessage(text,good=false){$('auth-message').textContent=text||'';$('auth-message').classList.toggle('good',!!good)}const PANBILL_EMAIL_KEY='panbill_last_login_email_v1',PANBILL_ACCOUNT_FLAG='panbill_account_created_v1';
+const $=id=>document.getElementById(id);const panbillSplashStarted=Date.now();function hidePanbillSplash(){const splash=$('panbill-loading-screen');if(!splash)return;const wait=Math.max(0,250-(Date.now()-panbillSplashStarted));setTimeout(()=>{splash.classList.add('is-hidden');setTimeout(()=>splash.remove(),500)},wait)}let authClient=null,authMode='login',currentSession=null,currentService=null,catalogProducts=[],catalogPricingSettings=null,lastPurchaseReference=null,balanceVisible=true,realBalance='',verifiedCustomerToken='',transactionRecords=[],transactionFilter='all';let paystackReturnPromise=null;let transactionPinCheckedUser=null,transactionPinHasPin=null,transactionPinSetupPromise=null,pendingVtuService=null;const serviceNames={airtime:'AIRTIME',data:'DATA',tv:'CABLE_TV',electricity:'ELECTRICITY',exam:'EXAM_PIN'};$('year').textContent=new Date().getFullYear();
+function withPanbillTimeout(promise,ms,messageText){let timer;return Promise.race([Promise.resolve(promise),new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error(messageText)),ms)})]).finally(()=>clearTimeout(timer))}function message(el,text,error=false){el.textContent=String(text||'').replace(/wisesub/gi,'PanBill');el.classList.toggle('visible',!!text);el.classList.toggle('error',!!text&&error)}function money(n){let v=Number(n);return Number.isFinite(v)?v.toLocaleString('en-NG',{style:'currency',currency:'NGN'}):'—'}function authMessage(text,good=false){$('auth-message').textContent=text||'';$('auth-message').classList.toggle('good',!!good)}const PANBILL_EMAIL_KEY='panbill_last_login_email_v1',PANBILL_ACCOUNT_FLAG='panbill_account_created_v1';
 function savePanbillEmail(value){try{const email=String(value||'').trim();if(email)localStorage.setItem(PANBILL_EMAIL_KEY,email)}catch(e){}}
 function setPanbillAccountCreated(){try{localStorage.setItem(PANBILL_ACCOUNT_FLAG,'1')}catch(e){}}
 let pendingSignupEmail='';let loginMethod='passkey';
@@ -1419,7 +1398,7 @@ $('show-password-login').onclick=()=>setLoginMethod('password');$('show-passkey-
 try{$('email').value=localStorage.getItem(PANBILL_EMAIL_KEY)||''}catch(e){}
 $('email').addEventListener('input',()=>savePanbillEmail($('email').value));
 $('show-password').onclick=()=>{let p=$('password');p.type=p.type==='password'?'text':'password';$('show-password').textContent=p.type==='password'?'Show':'Hide'};
-$('auth-form').addEventListener('submit',async e=>{e.preventDefault();if(!authClient)return authMessage('Authentication is unavailable. Check your internet connection.');let b=$('auth-submit');b.disabled=true;authMessage('Please wait…');try{const email=$('email').value.trim(),password=$('password').value;savePanbillEmail(email);if(authMode==='signup'){const firstName=$('first-name').value.trim(),secondName=$('second-name').value.trim(),middleName=$('middle-name').value.trim(),confirmPassword=$('confirm-password').value;if([firstName,secondName,middleName].some(x=>x.length<2))throw new Error('Enter your first name, second name and middle name.');if(!$('signup-terms-checkbox').checked)throw new Error('Please read and agree to the Terms & Conditions before creating your account.');if(password!==confirmPassword)throw new Error('Your password and confirmation password do not match.');const fullName=[firstName,secondName,middleName].join(' ');const r=await authClient.auth.signUp({email,password,options:{emailRedirectTo:location.origin+location.pathname,data:{first_name:firstName,second_name:secondName,middle_name:middleName,full_name:fullName}}});if(r.error)throw r.error;if(!r.data?.user)throw new Error('PanBill could not create your account. Please try again.');if(r.data.session&&!(r.data.user.email_confirmed_at||r.data.user.confirmed_at)){await authClient.auth.signOut()}if(r.data.user.email_confirmed_at||r.data.user.confirmed_at){setPanbillAccountCreated();if(r.data.session)showSignedIn(r.data.session);else authMessage('Your email is already verified. Please log in.',true);$('auth-form').reset();setAuthMode('login');return}$('auth-form').reset();showEmailOtpPanel(email);return}else{const r=await Promise.race([authClient.auth.signInWithPassword({email,password}),new Promise((_,reject)=>setTimeout(()=>reject(new Error('Supabase login is not responding. Check your connection and try again.')),20000))]);if(r.error)throw r.error;if(!r.data?.session)throw new Error('Login did not return a valid session.');if(!(r.data.user?.email_confirmed_at||r.data.user?.confirmed_at)){await authClient.auth.signOut();throw new Error('Please verify your email address before signing in.');}authMessage('');setPanbillAccountCreated();savePanbillEmail(email);$('auth-form').reset();setAuthMode('login');showSignedIn(r.data.session)}}catch(err){authMessage(err.message||'Authentication failed.')}finally{b.disabled=false}});
+$('auth-form').addEventListener('submit',async e=>{e.preventDefault();if(!authClient)return authMessage('Authentication is unavailable. Check your internet connection.');let b=$('auth-submit');b.disabled=true;authMessage('Please wait…');try{const email=$('email').value.trim(),password=$('password').value;savePanbillEmail(email);if(authMode==='signup'){const firstName=$('first-name').value.trim(),secondName=$('second-name').value.trim(),middleName=$('middle-name').value.trim(),confirmPassword=$('confirm-password').value;if([firstName,secondName,middleName].some(x=>x.length<2))throw new Error('Enter your first name, second name and middle name.');if(!$('signup-terms-checkbox').checked)throw new Error('Please read and agree to the Terms & Conditions before creating your account.');if(password!==confirmPassword)throw new Error('Your password and confirmation password do not match.');const fullName=[firstName,secondName,middleName].join(' ');const r=await authClient.auth.signUp({email,password,options:{emailRedirectTo:location.origin+location.pathname,data:{first_name:firstName,second_name:secondName,middle_name:middleName,full_name:fullName}}});if(r.error)throw r.error;if(!r.data?.user)throw new Error('PanBill could not create your account. Please try again.');if(r.data.session&&!(r.data.user.email_confirmed_at||r.data.user.confirmed_at)){await authClient.auth.signOut()}if(r.data.user.email_confirmed_at||r.data.user.confirmed_at){setPanbillAccountCreated();if(r.data.session)showSignedIn(r.data.session);else authMessage('Your email is already verified. Please log in.',true);$('auth-form').reset();setAuthMode('login');return}$('auth-form').reset();showEmailOtpPanel(email);return}else{const r=await withPanbillTimeout(authClient.auth.signInWithPassword({email,password}),20000,'PanBill sign-in is taking too long. Check your internet connection and try again.');if(r.error)throw r.error;if(!r.data?.session)throw new Error('Login did not return a valid session.');if(!(r.data.user?.email_confirmed_at||r.data.user?.confirmed_at)){await authClient.auth.signOut();throw new Error('Please verify your email address before signing in.');}authMessage('');setPanbillAccountCreated();savePanbillEmail(email);$('auth-form').reset();setAuthMode('login');showSignedIn(r.data.session)}}catch(err){authMessage(err.message||'Authentication failed.')}finally{b.disabled=false}});
 $('email-otp-form').addEventListener('submit',async e=>{e.preventDefault();const button=$('verify-email-otp-button'),token=$('email-otp-code').value.trim();if(!pendingSignupEmail)return message($('email-otp-message'),'Return to registration and create your account again.',true);if(!/^[0-9]{6}$/.test(token))return message($('email-otp-message'),'Enter the six-digit code from your email.',true);button.disabled=true;message($('email-otp-message'),'Verifying your email code…');try{const {data,error}=await authClient.auth.verifyOtp({email:pendingSignupEmail,token,type:'email'});if(error)throw error;if(!data?.session||!(data.user?.email_confirmed_at||data.user?.confirmed_at))throw new Error('Email verification did not return a confirmed login session. Please try the code again.');const session=data.session;setPanbillAccountCreated();savePanbillEmail(pendingSignupEmail);pendingSignupEmail='';$('email-otp-panel').hidden=true;$('auth-form').hidden=false;$('auth-tabs').hidden=false;$('biometric-note').hidden=false;$('auth-note').hidden=false;showSignedIn(session);message($('email-otp-message'),'')}catch(err){message($('email-otp-message'),err.message||'Email verification failed. Request a new code and try again.',true)}finally{button.disabled=false}});
 $('resend-email-otp').addEventListener('click',async()=>{if(!pendingSignupEmail)return message($('email-otp-message'),'Return to registration and create your account again.',true);const b=$('resend-email-otp');b.disabled=true;message($('email-otp-message'),'Requesting a new verification code…');try{const {error}=await authClient.auth.resend({type:'signup',email:pendingSignupEmail});if(error)throw error;message($('email-otp-message'),'Supabase accepted the resend request. Check your inbox and spam folder for the newest code. If it does not arrive, contact PanBill support.')}catch(err){message($('email-otp-message'),err.message||'Could not resend the code. Please wait and try again.',true)}finally{b.disabled=false}});
 $('back-from-email-otp').addEventListener('click',()=>{pendingSignupEmail='';$('email-otp-code').value='';$('email-otp-panel').hidden=true;$('auth-tabs').hidden=false;$('auth-form').hidden=false;$('biometric-note').hidden=false;$('auth-note').hidden=false;setAuthMode('login');authMessage('You can log in after verifying the email address.',true)});
@@ -1731,7 +1710,7 @@ function renderMarketplaceCategoryNav(){
 function syncMarketplaceCategoryNav(){const selected=$('marketplace-category')?.value||'';document.querySelectorAll('#marketplace-category-nav .marketplace-category-chip').forEach(b=>b.classList.toggle('active',b.dataset.category===selected))}
  $('marketplace-category-nav')?.addEventListener('click',e=>{const b=e.target.closest('button[data-category]');if(!b||!e.currentTarget.contains(b))return;const categoryId=b.dataset.category||'';const categorySelect=$('marketplace-category');if(!categorySelect)return;categorySelect.value=categoryId;const search=$('marketplace-search');if(search)search.value='';syncMarketplaceCategoryNav();renderMarketplaceProducts();const selectedName=categoryId?(marketplaceCategories.find(c=>c.id===categoryId)?.name||'Selected category'):'All products';const visibleCount=marketplaceProducts.filter(p=>(!categoryId||p.category_id===categoryId)&&(!marketplaceSavedOnly||marketplaceWishlist.has(p.id))).length;setMarketplaceMessage(visibleCount?`Showing ${visibleCount} product${visibleCount===1?'':'s'} in ${selectedName}.`:`No products available in ${selectedName} yet.`);$('marketplace-products')?.scrollIntoView({behavior:'smooth',block:'start'});});$('marketplace-refresh')?.addEventListener('click',loadCustomerMarketplace);$('marketplace-search')?.addEventListener('input',renderMarketplaceProducts);$('marketplace-category')?.addEventListener('change',()=>{syncMarketplaceCategoryNav();renderMarketplaceProducts()});
 
-function showSignedIn(session){const incoming=session||null;if(incoming?.user&&!(incoming.user.email_confirmed_at||incoming.user.confirmed_at)){currentSession=null;$('auth-overlay').hidden=false;$('wallet-panel').hidden=true;$('transaction-pin-overlay').hidden=true;return}currentSession=incoming;try{if(typeof window.subscribePanbillTransactionNotifications==='function')window.subscribePanbillTransactionNotifications()}catch(notificationError){console.warn('PanBill transaction alerts could not connect:',notificationError)}if(!currentSession){transactionPinCheckedUser=null;transactionPinHasPin=null;$('transaction-pin-overlay').hidden=true;$('transaction-pin-form').reset();}restoreMarketplaceCartForSession(currentSession);updateMarketplaceCheckoutButton();$('wallet-panel').hidden=!currentSession;$('auth-overlay').hidden=!!currentSession;$('logout-button').hidden=!currentSession;$('header-user').hidden=!currentSession;$('header-user').textContent=currentSession?(currentSession.user.email||'Account'):'';$('account-status').textContent=currentSession?'Signed in as '+(currentSession.user.email||'Account')+'.':'Sign in to access your wallet and transactions.';const firstName=(currentSession?.user?.user_metadata?.full_name||currentSession?.user?.email?.split('@')[0]||'').trim().split(/\s+/)[0];const hour=new Date().getHours();const timeGreeting=hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';$('greeting').replaceChildren(document.createTextNode((currentSession?timeGreeting+(firstName?', '+firstName:''):'Welcome to PanBill')+' '));const greetingSpark=document.createElement('span');greetingSpark.className='greeting-spark';greetingSpark.setAttribute('aria-hidden','true');greetingSpark.textContent='✦';$('greeting').append(greetingSpark);$('account-email').textContent=currentSession?(currentSession.user.email||'Account'):'You are not signed in.';if(currentSession){loadWallet();checkBackend();loadSellerApplication();$('my-digital-purchases').hidden=false;loadDigitalPurchases()}else{$('my-digital-purchases').hidden=true;$('seller-marketplace-panel').hidden=true;$('wallet-message').textContent='Sign in to load your wallet.';$('transaction-history').textContent='Sign in to view your transactions.'}}
+function showSignedIn(session){const incoming=session||null;if(incoming?.user&&!(incoming.user.email_confirmed_at||incoming.user.confirmed_at)){currentSession=null;$('auth-overlay').hidden=false;$('wallet-panel').hidden=true;$('transaction-pin-overlay').hidden=true;return}currentSession=incoming;if(!currentSession){transactionPinCheckedUser=null;transactionPinHasPin=null;$('transaction-pin-overlay').hidden=true;$('transaction-pin-form').reset();}restoreMarketplaceCartForSession(currentSession);updateMarketplaceCheckoutButton();$('wallet-panel').hidden=!currentSession;$('auth-overlay').hidden=!!currentSession;$('logout-button').hidden=!currentSession;$('header-user').hidden=!currentSession;$('header-user').textContent=currentSession?(currentSession.user.email||'Account'):'';$('account-status').textContent=currentSession?'Signed in as '+(currentSession.user.email||'Account')+'.':'Sign in to access your wallet and transactions.';const firstName=(currentSession?.user?.user_metadata?.full_name||currentSession?.user?.email?.split('@')[0]||'').trim().split(/\s+/)[0];const hour=new Date().getHours();const timeGreeting=hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';$('greeting').replaceChildren(document.createTextNode((currentSession?timeGreeting+(firstName?', '+firstName:''):'Welcome to PanBill')+' '));const greetingSpark=document.createElement('span');greetingSpark.className='greeting-spark';greetingSpark.setAttribute('aria-hidden','true');greetingSpark.textContent='✦';$('greeting').append(greetingSpark);$('account-email').textContent=currentSession?(currentSession.user.email||'Account'):'You are not signed in.';if(currentSession){loadWallet();checkBackend();loadSellerApplication();$('my-digital-purchases').hidden=false;loadDigitalPurchases()}else{$('my-digital-purchases').hidden=true;$('seller-marketplace-panel').hidden=true;$('wallet-message').textContent='Sign in to load your wallet.';$('transaction-history').textContent='Sign in to view your transactions.'}}
 async function invoke(body){if(!authClient||!currentSession)throw Error('Please sign in first.');const r=await authClient.functions.invoke('super-responder',{body});if(r.error){let extra='';try{extra=await r.error.context?.json?.().then(x=>x.error||x.message||'').catch(()=> '')}catch{}throw Error(extra||r.data?.error||r.error.message||'Backend request failed.')}if(r.data?.error)throw Error(r.data.error);return r.data||{}}
 async function enforceTransactionPinSetup(force=false){const userId=currentSession?.user?.id;if(!userId)return false;if(!force&&transactionPinCheckedUser===userId&&transactionPinHasPin===true)return true;if(transactionPinSetupPromise)return transactionPinSetupPromise;if(!currentSession||currentSession.user.id!==userId)return false;transactionPinSetupPromise=(async()=>{const overlay=$('transaction-pin-overlay'),form=$('transaction-pin-form'),retry=$('retry-transaction-pin-status');overlay.hidden=false;form.hidden=true;retry.hidden=true;message($('transaction-pin-message'),'Checking your transaction PIN security…');try{const result=await invoke({action:'transaction_pin_status'});if(currentSession?.user?.id!==userId)return false;transactionPinCheckedUser=userId;transactionPinHasPin=result.has_pin===true;if(transactionPinHasPin){overlay.hidden=true;form.reset();message($('transaction-pin-message'),'');return true}form.hidden=false;message($('transaction-pin-message'),'Create your four-digit transaction PIN to continue with this VTU purchase.')}catch(error){transactionPinCheckedUser=null;transactionPinHasPin=null;form.hidden=true;retry.hidden=false;message($('transaction-pin-message'),(error.message||'Could not verify your transaction PIN status.')+' Your account remains protected until this check succeeds.',true)}return false})().finally(()=>{transactionPinSetupPromise=null});return transactionPinSetupPromise}
 $('transaction-pin-form').addEventListener('submit',async e=>{e.preventDefault();if(!currentSession)return message($('transaction-pin-message'),'Please sign in again to create your transaction PIN.',true);const pin=$('transaction-pin-new').value.trim(),confirmPin=$('transaction-pin-confirm').value.trim();if(!/^[0-9]{4}$/.test(pin))return message($('transaction-pin-message'),'Your transaction PIN must contain exactly four digits.',true);if(pin!==confirmPin)return message($('transaction-pin-message'),'The two PIN entries do not match.',true);const b=$('save-transaction-pin');b.disabled=true;message($('transaction-pin-message'),'Saving your transaction PIN securely…');try{const result=await invoke({action:'set_transaction_pin',pin});if(!result.success)throw new Error(result.message||'PanBill could not save your transaction PIN.');transactionPinCheckedUser=currentSession.user.id;transactionPinHasPin=true;$('transaction-pin-form').reset();$('transaction-pin-overlay').hidden=true;message($('transaction-pin-message'),'');const nextService=pendingVtuService;pendingVtuService=null;if(nextService)void openService(nextService)}catch(error){message($('transaction-pin-message'),error.message||'Could not create your transaction PIN.',true)}finally{b.disabled=false}});
@@ -1925,72 +1904,6 @@ function printPanbillTransactionStatement(){
 }
 </style>
 
-<script id="panbill-transaction-notifications-v1">
-(function(){
- let channel=null;
- const knownStatuses=new Map();
- let notificationUserId=null;
- let toastTimer=null;
- function el(id){return document.getElementById(id)}
- function statusOf(row){return typeof normalizedTransactionStatus==='function'?normalizedTransactionStatus(row?.status||row?.provider_status):'unknown'}
- function statusLabel(status){return status==='successful'?'Successful':status==='failed'?'Failed':status==='pending'?'Pending':'Updated'}
- function setConnection(text){const node=el('panbill-notification-status');if(node)node.textContent=text}
- function showToast(row,status){
-  let toast=el('panbill-transaction-toast');
-  if(!toast){toast=document.createElement('div');toast.id='panbill-transaction-toast';toast.setAttribute('role','status');toast.setAttribute('aria-live','polite');toast.style.cssText='position:fixed;z-index:10050;left:14px;right:14px;bottom:24px;max-width:520px;margin:auto;padding:14px 16px;border:1px solid #d8ad4c;border-radius:14px;background:#102344;color:#fff;box-shadow:0 12px 35px #0005;font:14px/1.45 system-ui,sans-serif;';document.body.append(toast)}
-  const title=statusLabel(status);const amount=typeof money==='function'?money(row.amount):String(row.amount??'');
-  toast.textContent='PanBill transaction '+title+(amount?' · '+amount:'')+(row.reference?' · Ref: '+row.reference:'');toast.hidden=false;
-  if(toastTimer)clearTimeout(toastTimer);toastTimer=setTimeout(()=>{toast.hidden=true},9000);
-  try{if('Notification'in window&&Notification.permission==='granted'&&document.visibilityState==='hidden'){new Notification('PanBill transaction '+title,{body:(amount?amount+' · ':'')+(row.reference?'Reference: '+row.reference:'Your transaction status has changed.')})}}catch(_){ }
- }
- function updateLocalRecord(row){
-  if(!row?.reference)return;
-  if(typeof transactionRecords!=='undefined'&&Array.isArray(transactionRecords)){
-   const i=transactionRecords.findIndex(x=>x.reference===row.reference);
-   if(i>=0){transactionRecords[i]={...transactionRecords[i],...row};if(typeof renderTransactionHistory==='function')renderTransactionHistory()}
-  }
- }
- window.subscribePanbillTransactionNotifications=function(){
-  if(typeof authClient==='undefined')return;
-  if(typeof currentSession==='undefined'||!currentSession?.user?.id){if(channel){try{authClient.removeChannel(channel)}catch(_){}}channel=null;notificationUserId=null;knownStatuses.clear();setConnection('Sign in to receive live transaction alerts.');return;}
-  const uid=currentSession.user.id;
-  if(notificationUserId===uid&&channel)return;
-  if(channel){try{authClient.removeChannel(channel)}catch(_){}}
-  notificationUserId=uid;knownStatuses.clear();
-  (typeof transactionRecords!=='undefined'?transactionRecords:[]).forEach(row=>{if(row.reference)knownStatuses.set(row.reference,statusOf(row))});
-  channel=authClient.channel('panbill-transaction-alerts-'+uid)
-   .on('postgres_changes',{event:'INSERT',schema:'public',table:'transactions',filter:'user_id=eq.'+uid},payload=>{
-    const row=payload.new||{};if(row.reference)knownStatuses.set(row.reference,statusOf(row));
-    updateLocalRecord(row);
-   })
-   .on('postgres_changes',{event:'UPDATE',schema:'public',table:'transactions',filter:'user_id=eq.'+uid},payload=>{
-    const row=payload.new||{};if(!row.reference)return;
-    const next=statusOf(row),previous=knownStatuses.get(row.reference);
-    knownStatuses.set(row.reference,next);updateLocalRecord(row);
-    if(previous&&previous!==next&&['successful','failed','pending'].includes(next))showToast(row,next);
-   })
-   .subscribe(state=>{
-    if(state==='SUBSCRIBED')setConnection('Live transaction alerts are connected while PanBill is open.');
-    else if(state==='CHANNEL_ERROR'||state==='TIMED_OUT')setConnection('Live alerts are unavailable. Use Refresh to check transaction status.');
-    else if(state==='CLOSED')setConnection('Live alerts disconnected. Reopen PanBill or sign in again to reconnect.');
-   });
- };
- window.addEventListener('DOMContentLoaded',()=>{});
- const enable=el('panbill-enable-browser-alerts');
- if(enable){
-  if(!('Notification'in window)){enable.disabled=true;enable.textContent='Browser alerts unavailable';setConnection('In-app alerts are available when live connection is enabled.')}
-  else if(Notification.permission==='granted'){enable.textContent='Browser alerts enabled'}
-  else if(Notification.permission==='denied'){enable.disabled=true;enable.textContent='Browser alerts blocked'}
-  enable.addEventListener('click',async()=>{
-   if(!('Notification'in window))return;
-   try{const permission=await Notification.requestPermission();
-    if(permission==='granted'){enable.textContent='Browser alerts enabled';setConnection('Browser alerts enabled. Keep PanBill open to receive live updates.')}
-    else{enable.textContent=permission==='denied'?'Browser alerts blocked':'Enable browser alerts';setConnection('Browser permission was not granted. In-app alerts can still appear while PanBill is open.')}
-   }catch(_){setConnection('Could not request browser alert permission on this device.')}
-  });
- }
-})();
-</script>
 </body></html>');
  w.document.close();
 }
@@ -2187,73 +2100,7 @@ function panbillSeasonForDate(date){const y=date.getFullYear(),m=date.getMonth()
 function updatePanbillSeasonalGreetings(){const season=panbillSeasonForDate(new Date());const card=$('dashboard-seasonal-greeting');if(!card)return;card.dataset.theme=season.theme;const kicker=card.querySelector('[data-season-kicker]'),title=card.querySelector('[data-season-title]'),messageEl=card.querySelector('[data-season-message]'),art=card.querySelector('[data-season-art]');if(kicker)kicker.textContent=season.kicker;if(title)title.textContent=season.title;if(messageEl)messageEl.textContent=season.message;if(art)art.textContent=season.art}
 updatePanbillSeasonalGreetings();setInterval(updatePanbillSeasonalGreetings,60*60*1000);
 
-async function waitForPanbillSupabaseSDK(timeoutMs=10000){
- if(window.supabase)return window.supabase;
- const script=$('panbill-supabase-sdk');
- if(!script)throw new Error('PanBill could not find its Supabase connection script. Refresh the page and try again.');
- await Promise.race([
-  new Promise((resolve,reject)=>{
-   script.addEventListener('load',resolve,{once:true});
-   script.addEventListener('error',()=>reject(new Error('PanBill could not load its secure sign-in service. Check your internet connection and try again.')),{once:true});
-   if(window.supabase)resolve();
-  }),
-  new Promise((_,reject)=>setTimeout(()=>reject(new Error('PanBill sign-in service is taking too long to load. Please check your connection and try again.')),timeoutMs))
- ]);
- if(!window.supabase)throw new Error('PanBill could not start its secure sign-in service. Please refresh and try again.');
- return window.supabase;
-}
-async function init(){
- // Retain the branded loading screen and its existing minimum display time.
- // Release it without waiting for the external SDK download or session lookup.
- hidePanbillSplash();
- try{
-  await waitForPanbillSupabaseSDK();
-  authClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{experimental:{passkey:true}}});
-  updatePasskeyAvailability();
-  loadCustomerMarketplace();
-  loadMarketplacePickupPoints();
-  authClient.auth.onAuthStateChange((_event,session)=>{
-   showSignedIn(session);
-   if(session&&(new URLSearchParams(location.search).has('reference')||new URLSearchParams(location.search).has('trxref')))void handlePaystackReturn();
-  });
-  authClient.auth.onAuthStateChange((event)=>{
-   if(event==='PASSWORD_RECOVERY'){
-    $('reset-overlay').hidden=false;
-    $('reset-title').textContent='Choose a new password';
-    $('reset-description').textContent='Enter a new password for your account.';
-    $('reset-email-field').hidden=true;
-    $('reset-email').required=false;
-    $('new-password-field').hidden=false;
-    $('new-password').required=true;
-    $('reset-submit').textContent='Update password';
-    message($('reset-message'),'');
-   }
-  });
-  // A slow session restoration no longer keeps the login page behind the splash.
-  let sessionTimer;
-  let r;
-  try{
-   r=await Promise.race([
-    authClient.auth.getSession(),
-    new Promise((_,reject)=>{sessionTimer=setTimeout(()=>reject(new Error('PanBill is taking longer than usual to restore your session. You can still try signing in.')),12000)})
-   ]);
-  }finally{clearTimeout(sessionTimer)}
-  if(r.error)throw r.error;
-  // Avoid clearing a session if the user signs in while this check is running.
-  if(r.data.session){
-   showSignedIn(r.data.session);
-   await handlePaystackReturn();
-  }else if(location.search.includes('reference=')||location.search.includes('trxref=')){
-   authMessage(new URLSearchParams(location.search).get('marketplace_payment')==='1'?'Log in to verify your marketplace payment.':'Log in to verify your payment and refresh your wallet.');
-  }
- }catch(error){
-  authMessage(error?.message||'PanBill could not finish loading. Refresh the page and try again.');
- }finally{
-  hidePanbillSplash();
- }
-}
-setAuthMode('login');
-init();
+async function init(){try{if(!window.supabase){authMessage('Supabase library failed to load. Check your connection.');return}authClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{experimental:{passkey:true}}});updatePasskeyAvailability();loadCustomerMarketplace();loadMarketplacePickupPoints();authClient.auth.onAuthStateChange((_event,session)=>{showSignedIn(session);if(session&&(new URLSearchParams(location.search).has('reference')||new URLSearchParams(location.search).has('trxref')))void handlePaystackReturn()});let r=await withPanbillTimeout(authClient.auth.getSession(),8000,'PanBill could not restore your session within 8 seconds. You can still try signing in.');if(r.error)throw r.error;showSignedIn(r.data.session);if(r.data.session)await handlePaystackReturn();else if(location.search.includes('reference=')||location.search.includes('trxref=')){authMessage(new URLSearchParams(location.search).get('marketplace_payment')==='1'?'Log in to verify your marketplace payment.':'Log in to verify your payment and refresh your wallet.');}const {data:{subscription}}=authClient.auth.onAuthStateChange((event)=>{if(event==='PASSWORD_RECOVERY'){$('reset-overlay').hidden=false;$('reset-title').textContent='Choose a new password';$('reset-description').textContent='Enter a new password for your account.';$('reset-email-field').hidden=true;$('reset-email').required=false;$('new-password-field').hidden=false;$('new-password').required=true;$('reset-submit').textContent='Update password';message($('reset-message'),'')}})}catch(error){authMessage(error?.message||'PanBill could not finish loading. Refresh the page and try again.')}finally{hidePanbillSplash()}}setAuthMode('login');init();
 </script><script>
 /* Keep provider tiles readable if a remote brand asset is temporarily unavailable. */
 document.querySelectorAll('.provider-mark.logo-mark img').forEach(function(img){img.addEventListener('error',function(){var mark=img.closest('.provider-mark');if(mark){mark.classList.remove('logo-mark');mark.textContent=img.alt.replace(/ original logo| logo/i,'');}} ,{once:true});});
@@ -2731,7 +2578,6 @@ main.wrap:not([data-view="history"]) #history-back-home{display:none!important}
       window.setTimeout(showHome, 0);
     }, true);
   }
- if(typeof currentSession!=='undefined'&&currentSession)window.subscribePanbillTransactionNotifications();
 })();
 </script>
 <script id="panbill-wallet-transaction-history-navigation">
@@ -4234,63 +4080,7 @@ main.wrap[data-view="travel"] #panbill-travel-page{display:block!important}
   const popup=window.open('','_blank','width=900,height=700');
   if(!popup){msg('batch-message','Allow pop-ups for PanBill to print this batch record.',true);return;}
   popup.opener=null;
-  popup.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>PanBill Batch ${safe(batch.reference)}</title><style>body{font:14px Arial,sans-serif;color:#172033;padding:28px}h1{margin:0;color:#10274b}small{color:#64748b}.meta{margin:20px 0;padding:14px;background:#f1f5f9;border-radius:8px}.status{font-weight:bold;color:${allPaid?'#087443':'#9a5b00'}}table{width:100%;border-collapse:collapse;margin-top:18px}th,td{padding:10px 7px;border-bottom:1px solid #ddd;text-align:left;font-size:12px}th{background:#f1f5f9}.foot{margin-top:24px;color:#64748b;font-size:11px}@media print{button{display:none}}</style>
-<style id="panbill-fullscreen-responsive-fix">
-/* Responsive viewport fit for the existing startup and authentication screens. */
-html, body { min-height:100%; }
-#panbill-loading-screen {
-  min-height:100vh; min-height:100svh; min-height:100dvh;
-  box-sizing:border-box;
-  padding-top:max(20px, env(safe-area-inset-top));
-  padding-right:max(18px, env(safe-area-inset-right));
-  padding-bottom:max(20px, env(safe-area-inset-bottom));
-  padding-left:max(18px, env(safe-area-inset-left));
-  text-align:center;
-}
-.panbill-loader-mark { width:clamp(58px, 13vw, 78px); height:clamp(58px, 13vw, 78px); font-size:clamp(34px, 8vw, 45px); }
-.panbill-loader-name { font-size:clamp(24px, 6vw, 29px); }
-#auth-overlay {
-  min-height:100vh; min-height:100svh; min-height:100dvh;
-  height:auto; box-sizing:border-box;
-  padding-top:max(10px, env(safe-area-inset-top));
-  padding-right:max(10px, env(safe-area-inset-right));
-  padding-bottom:max(10px, env(safe-area-inset-bottom));
-  padding-left:max(10px, env(safe-area-inset-left));
-  overflow-x:hidden; overflow-y:auto;
-  align-items:center;
-}
-#auth-overlay .auth-card {
-  box-sizing:border-box;
-  width:min(100%, 435px);
-  max-height:calc(100dvh - max(20px, env(safe-area-inset-top)) - max(20px, env(safe-area-inset-bottom)));
-  overflow-x:hidden; overflow-y:auto;
-  overscroll-behavior:contain;
-  scrollbar-width:thin;
-  margin:0 auto;
-}
-#auth-overlay .auth-card > * { min-width:0; }
-@media (max-width:520px) {
-  #auth-overlay { padding-left:max(8px, env(safe-area-inset-left)); padding-right:max(8px, env(safe-area-inset-right)); }
-  #auth-overlay .auth-card { width:100%; max-width:420px; }
-}
-@media (max-height:760px) {
-  #auth-overlay { align-items:flex-start; }
-  #auth-overlay .auth-card { margin-top:0; margin-bottom:0; }
-  #auth-overlay .auth-present-scene { min-height:64px; }
-  #auth-overlay .auth-boys { height:52px; }
-  #auth-overlay .auth-boy { font-size:30px; }
-  #auth-overlay .auth-boy-two { font-size:28px; }
-  #auth-overlay .auth-phone { height:62px; width:46px; }
-  #auth-overlay .auth-network-item { min-height:48px; }
-}
-@media (max-height:620px) {
-  #auth-overlay .auth-network-promo { margin-top:4px; margin-bottom:4px; padding:5px 7px; }
-  #auth-overlay .auth-present-scene { min-height:54px; margin:4px 0; }
-  #auth-overlay .auth-app-promise { margin:3px 0; }
-  #auth-overlay .auth-card { padding-top:10px; padding-bottom:10px; }
-}
-</style>
-</head><body><h1>PanBill</h1><small>Multi-bill transaction record</small><div class="meta"><b>Batch reference:</b> ${safe(batch.reference)}<br><b>Date:</b> ${safe(batch.created_at?new Date(batch.created_at).toLocaleString('en-NG'):'Not available')}<br><b>Batch status:</b> <span class="status">${allPaid?'PAID — ALL BILLS SUCCESSFUL':pending?'PENDING — AWAITING CONFIRMATION':failed?'PARTIAL / NOT FULLY SUCCESSFUL':'NOT CONFIRMED'}</span><br><b>Successful:</b> ${successful} &nbsp; <b>Pending:</b> ${pending} &nbsp; <b>Failed/cancelled:</b> ${failed}</div><table><thead><tr><th>Service</th><th>Provider</th><th>Recipient</th><th>Amount</th><th>Status</th><th>Transaction ref</th></tr></thead><tbody>${rows||'<tr><td colspan="6">No bills in this batch.</td></tr>'}</tbody></table><p><b>Draft total / estimate:</b> ${safe(money(batch.total_amount))}</p><p class="foot">${allPaid?'This record reflects successful statuses recorded by PanBill.': 'This is a transaction record, not proof that all bills have been paid. Pending or failed items must not be treated as successful.'} Keep this reference for support enquiries.</p><button onclick="window.print()">Print / Save as PDF</button>
+  popup.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>PanBill Batch ${safe(batch.reference)}</title><style>body{font:14px Arial,sans-serif;color:#172033;padding:28px}h1{margin:0;color:#10274b}small{color:#64748b}.meta{margin:20px 0;padding:14px;background:#f1f5f9;border-radius:8px}.status{font-weight:bold;color:${allPaid?'#087443':'#9a5b00'}}table{width:100%;border-collapse:collapse;margin-top:18px}th,td{padding:10px 7px;border-bottom:1px solid #ddd;text-align:left;font-size:12px}th{background:#f1f5f9}.foot{margin-top:24px;color:#64748b;font-size:11px}@media print{button{display:none}}</style></head><body><h1>PanBill</h1><small>Multi-bill transaction record</small><div class="meta"><b>Batch reference:</b> ${safe(batch.reference)}<br><b>Date:</b> ${safe(batch.created_at?new Date(batch.created_at).toLocaleString('en-NG'):'Not available')}<br><b>Batch status:</b> <span class="status">${allPaid?'PAID — ALL BILLS SUCCESSFUL':pending?'PENDING — AWAITING CONFIRMATION':failed?'PARTIAL / NOT FULLY SUCCESSFUL':'NOT CONFIRMED'}</span><br><b>Successful:</b> ${successful} &nbsp; <b>Pending:</b> ${pending} &nbsp; <b>Failed/cancelled:</b> ${failed}</div><table><thead><tr><th>Service</th><th>Provider</th><th>Recipient</th><th>Amount</th><th>Status</th><th>Transaction ref</th></tr></thead><tbody>${rows||'<tr><td colspan="6">No bills in this batch.</td></tr>'}</tbody></table><p><b>Draft total / estimate:</b> ${safe(money(batch.total_amount))}</p><p class="foot">${allPaid?'This record reflects successful statuses recorded by PanBill.': 'This is a transaction record, not proof that all bills have been paid. Pending or failed items must not be treated as successful.'} Keep this reference for support enquiries.</p><button onclick="window.print()">Print / Save as PDF</button>
 <style id="panbill-transaction-history-responsive-fix-v1">
 /* Keep transaction history controls and summary cards inside their own panel. */
 #transaction-panel{min-width:0;max-width:100%;overflow:hidden}
