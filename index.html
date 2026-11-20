@@ -1977,37 +1977,7 @@ function printPanbillTransactionStatement(){
  const w=window.open('','_blank','width=1000,height=800');
  if(!w){alert('Allow pop-ups to print your PanBill statement.');return;}
  const body=rows.map(x=>'<tr><td>'+esc(x.created_at?new Date(x.created_at).toLocaleString('en-NG'):'')+'</td><td>'+esc(String(x.description||x.type||'Transaction').replace(/wisesub/gi,'PanBill'))+'</td><td>'+esc(x.reference||'')+'</td><td>'+esc(normalizedTransactionStatus(x.status||x.provider_status))+'</td><td class="amount">'+esc(money(x.amount))+'</td></tr>').join('');
- const html=`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PanBill Transaction Statement</title><style>body{font:13px Arial,sans-serif;color:#18243a;margin:28px}header{border-bottom:3px solid #d7a842;padding-bottom:12px}h1{margin:0 0 5px}p{color:#5b6678}.summary{display:flex;gap:24px;flex-wrap:wrap;margin:18px 0}.summary strong{display:block;font-size:18px;margin-top:4px}table{width:100%;border-collapse:collapse}th,td{padding:9px 7px;border-bottom:1px solid #e4e8ee;text-align:left;vertical-align:top}th{background:#f3f5f8}.amount{text-align:right;white-space:nowrap}.note{margin-top:18px;font-size:11px}@media print{body{margin:12mm}button{display:none}}</style></head><body><header><h1>PanBill</h1><strong>Transaction Statement</strong><p>${esc(period)} · ${rows.length} transaction(s)</p></header><div class="summary"><div>Successful transaction volume<strong>${esc(money(successfulTotal))}</strong></div><div>All displayed transaction amounts<strong>${esc(money(total))}</strong></div></div><table><thead><tr><th>Date</th><th>Description</th><th>Reference</th><th>Status</th><th class="amount">Amount</th></tr></thead><tbody>${body}</tbody></table><p class="note">This statement contains only transactions currently loaded in PanBill and matching the active filters. It is an informational record, not a bank-issued statement or proof of settlement.</p><div id="panbill-transfer-overlay" class="modal-backdrop" hidden style="z-index:1200"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="panbill-transfer-title"><div class="modal-top"><h2 id="panbill-transfer-title">Send Money</h2><button type="button" class="close" id="panbill-transfer-close">Close</button></div><p class="muted">Transfer money to another PanBill wallet. No transfer fee.</p><label for="panbill-transfer-recipient">Recipient PanBill account number</label><input id="panbill-transfer-recipient" inputmode="numeric" maxlength="10" placeholder="033XXXXXXXX"><label for="panbill-transfer-amount">Amount (₦)</label><input id="panbill-transfer-amount" type="number" min="1" step="1" placeholder="Amount"><label for="panbill-transfer-pin">Transaction PIN</label><input id="panbill-transfer-pin" type="password" inputmode="numeric" maxlength="4" placeholder="4-digit PIN"><button type="button" class="gold-btn" id="panbill-transfer-submit" style="width:100%;margin-top:16px">Transfer</button><div class="status" id="panbill-transfer-status" role="status"></div></section></div><script id="panbill-wallet-transfer-addition-v1">
-(()=>{
- const walletActions=document.querySelector('#wallet-panel .wallet-actions');
- if(!walletActions||document.getElementById('panbill-send-money-button'))return;
- const btn=document.createElement('button');btn.type='button';btn.id='panbill-send-money-button';btn.innerHTML='<span class="ico">⇄</span>Send Money';
- walletActions.insertBefore(btn,walletActions.children[1]||null);
- const overlay=document.getElementById('panbill-transfer-overlay'),close=document.getElementById('panbill-transfer-close'),submit=document.getElementById('panbill-transfer-submit'),status=document.getElementById('panbill-transfer-status');
- function showStatus(t,error=false){status.textContent=t;status.classList.add('visible');status.classList.toggle('error',error)}
- function open(){overlay.hidden=false;status.textContent='';status.classList.remove('visible','error')}
- function shut(){overlay.hidden=true;submit.disabled=false}
- btn.addEventListener('click',open);close.addEventListener('click',shut);overlay.addEventListener('click',e=>{if(e.target===overlay)shut()});
- submit.addEventListener('click',async()=>{
-  const recipient=document.getElementById('panbill-transfer-recipient').value.trim(),amount=Number(document.getElementById('panbill-transfer-amount').value),pin=document.getElementById('panbill-transfer-pin').value.trim();
-  if(!/^033\d{7}$/.test(recipient)){showStatus('Enter a valid 10-digit PanBill account number beginning with 033.',true);return}
-  if(!Number.isFinite(amount)||amount<=0||!Number.isInteger(amount)){showStatus('Enter a valid whole-number amount.',true);return}
-  if(!/^\d{4}$/.test(pin)){showStatus('Enter your 4-digit Transaction PIN.',true);return}
-  if(!window.crypto?.randomUUID){showStatus('This browser cannot create a secure transfer request ID. Please try another browser.',true);return}
-  submit.disabled=true;showStatus('Processing transfer securely…');
-  const requestId=crypto.randomUUID();
-  try{
-   const result=await authClient.rpc('panbill_transfer_wallet',{p_recipient_account_number:recipient,p_amount:amount,p_transaction_pin:pin,p_request_id:requestId});
-   if(result.error)throw result.error;
-   if(result.data?.success===false)throw new Error(result.data.message||'Transfer failed.');
-   showStatus(result.data?.message||'Transfer completed successfully.');
-   document.getElementById('panbill-transfer-pin').value='';
-   if(typeof loadWallet==='function')await loadWallet();
-  }catch(err){showStatus(err.message||'Transfer failed. Please try again.',true)}
-  finally{submit.disabled=false}
- });
-})();
-</script></body></html>`;
+ const html=`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PanBill Transaction Statement</title><style>body{font:13px Arial,sans-serif;color:#18243a;margin:28px}header{border-bottom:3px solid #d7a842;padding-bottom:12px}h1{margin:0 0 5px}p{color:#5b6678}.summary{display:flex;gap:24px;flex-wrap:wrap;margin:18px 0}.summary strong{display:block;font-size:18px;margin-top:4px}table{width:100%;border-collapse:collapse}th,td{padding:9px 7px;border-bottom:1px solid #e4e8ee;text-align:left;vertical-align:top}th{background:#f3f5f8}.amount{text-align:right;white-space:nowrap}.note{margin-top:18px;font-size:11px}@media print{body{margin:12mm}button{display:none}}</style></head><body><header><h1>PanBill</h1><strong>Transaction Statement</strong><p>${esc(period)} · ${rows.length} transaction(s)</p></header><div class="summary"><div>Successful transaction volume<strong>${esc(money(successfulTotal))}</strong></div><div>All displayed transaction amounts<strong>${esc(money(total))}</strong></div></div><table><thead><tr><th>Date</th><th>Description</th><th>Reference</th><th>Status</th><th class="amount">Amount</th></tr></thead><tbody>${body}</tbody></table><p class="note">This statement contains only transactions currently loaded in PanBill and matching the active filters. It is an informational record, not a bank-issued statement or proof of settlement.</p></body></html>`;
  w.document.open();w.document.write(html);w.document.close();w.focus();w.print();
 }
 document.getElementById('print-transaction-statement')?.addEventListener('click',printPanbillTransactionStatement);
