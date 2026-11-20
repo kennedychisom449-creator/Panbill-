@@ -1228,7 +1228,7 @@ main.wrap[data-view="bill-tools"] #panbill-bill-tools-page{display:block!importa
 
 
 
-<div class="two-col" id="history-area"><button aria-label="Back to VTU dashboard" class="history-back-home" id="history-back-home" type="button">← Back to Home</button><section class="panel" id="transaction-panel"><div class="section-head" style="margin-top:0"><h2>Transaction history</h2><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="text-button" id="export-transactions" type="button">Export CSV</button><button class="text-button" id="print-transaction-statement" type="button">Print statement</button><button class="text-button" id="refresh-transactions" type="button">Refresh</button></div></div><div aria-label="Filter transactions" class="tx-filter-bar" id="transaction-filters" role="group">
+<div class="two-col" id="history-area"><button aria-label="Back to VTU dashboard" class="history-back-home" id="history-back-home" type="button">← Back to Home</button><section class="panel" id="transaction-panel"><div class="section-head" style="margin-top:0"><h2>Transaction history</h2><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="text-button" id="export-transactions" type="button">Export CSV</button><button class="text-button" id="print-transaction-statement" type="button">Print statement</button><button class="text-button" id="refresh-transactions" type="button">Refresh</button></div></div><div class="panbill-notification-controls" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:8px 0 12px;padding:10px 12px;border:1px solid #e9bb5840;border-radius:12px;background:#ffffff06"><div><strong style="display:block;font-size:13px">Transaction alerts</strong><small id="panbill-notification-status" class="muted" role="status" aria-live="polite">In-app alerts connect when you sign in.</small></div><button class="outline-btn" id="panbill-enable-browser-alerts" type="button" style="white-space:normal">Enable browser alerts</button></div><div aria-label="Filter transactions" class="tx-filter-bar" id="transaction-filters" role="group">
 <button aria-pressed="true" class="tx-filter" data-tx-filter="all" type="button">All</button>
 <button aria-pressed="false" class="tx-filter" data-tx-filter="successful" type="button">Successful</button>
 <button aria-pressed="false" class="tx-filter" data-tx-filter="pending" type="button">Pending</button>
@@ -1697,7 +1697,7 @@ function renderMarketplaceCategoryNav(){
 function syncMarketplaceCategoryNav(){const selected=$('marketplace-category')?.value||'';document.querySelectorAll('#marketplace-category-nav .marketplace-category-chip').forEach(b=>b.classList.toggle('active',b.dataset.category===selected))}
  $('marketplace-category-nav')?.addEventListener('click',e=>{const b=e.target.closest('button[data-category]');if(!b||!e.currentTarget.contains(b))return;const categoryId=b.dataset.category||'';const categorySelect=$('marketplace-category');if(!categorySelect)return;categorySelect.value=categoryId;const search=$('marketplace-search');if(search)search.value='';syncMarketplaceCategoryNav();renderMarketplaceProducts();const selectedName=categoryId?(marketplaceCategories.find(c=>c.id===categoryId)?.name||'Selected category'):'All products';const visibleCount=marketplaceProducts.filter(p=>(!categoryId||p.category_id===categoryId)&&(!marketplaceSavedOnly||marketplaceWishlist.has(p.id))).length;setMarketplaceMessage(visibleCount?`Showing ${visibleCount} product${visibleCount===1?'':'s'} in ${selectedName}.`:`No products available in ${selectedName} yet.`);$('marketplace-products')?.scrollIntoView({behavior:'smooth',block:'start'});});$('marketplace-refresh')?.addEventListener('click',loadCustomerMarketplace);$('marketplace-search')?.addEventListener('input',renderMarketplaceProducts);$('marketplace-category')?.addEventListener('change',()=>{syncMarketplaceCategoryNav();renderMarketplaceProducts()});
 
-function showSignedIn(session){const incoming=session||null;if(incoming?.user&&!(incoming.user.email_confirmed_at||incoming.user.confirmed_at)){currentSession=null;$('auth-overlay').hidden=false;$('wallet-panel').hidden=true;$('transaction-pin-overlay').hidden=true;return}currentSession=incoming;if(!currentSession){transactionPinCheckedUser=null;transactionPinHasPin=null;$('transaction-pin-overlay').hidden=true;$('transaction-pin-form').reset();}restoreMarketplaceCartForSession(currentSession);updateMarketplaceCheckoutButton();$('wallet-panel').hidden=!currentSession;$('auth-overlay').hidden=!!currentSession;$('logout-button').hidden=!currentSession;$('header-user').hidden=!currentSession;$('header-user').textContent=currentSession?(currentSession.user.email||'Account'):'';$('account-status').textContent=currentSession?'Signed in as '+(currentSession.user.email||'Account')+'.':'Sign in to access your wallet and transactions.';const firstName=(currentSession?.user?.user_metadata?.full_name||currentSession?.user?.email?.split('@')[0]||'').trim().split(/\s+/)[0];const hour=new Date().getHours();const timeGreeting=hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';$('greeting').replaceChildren(document.createTextNode((currentSession?timeGreeting+(firstName?', '+firstName:''):'Welcome to PanBill')+' '));const greetingSpark=document.createElement('span');greetingSpark.className='greeting-spark';greetingSpark.setAttribute('aria-hidden','true');greetingSpark.textContent='✦';$('greeting').append(greetingSpark);$('account-email').textContent=currentSession?(currentSession.user.email||'Account'):'You are not signed in.';if(currentSession){loadWallet();checkBackend();loadSellerApplication();$('my-digital-purchases').hidden=false;loadDigitalPurchases()}else{$('my-digital-purchases').hidden=true;$('seller-marketplace-panel').hidden=true;$('wallet-message').textContent='Sign in to load your wallet.';$('transaction-history').textContent='Sign in to view your transactions.'}}
+function showSignedIn(session){const incoming=session||null;if(incoming?.user&&!(incoming.user.email_confirmed_at||incoming.user.confirmed_at)){currentSession=null;$('auth-overlay').hidden=false;$('wallet-panel').hidden=true;$('transaction-pin-overlay').hidden=true;return}currentSession=incoming;try{if(typeof window.subscribePanbillTransactionNotifications==='function')window.subscribePanbillTransactionNotifications()}catch(notificationError){console.warn('PanBill transaction alerts could not connect:',notificationError)}if(!currentSession){transactionPinCheckedUser=null;transactionPinHasPin=null;$('transaction-pin-overlay').hidden=true;$('transaction-pin-form').reset();}restoreMarketplaceCartForSession(currentSession);updateMarketplaceCheckoutButton();$('wallet-panel').hidden=!currentSession;$('auth-overlay').hidden=!!currentSession;$('logout-button').hidden=!currentSession;$('header-user').hidden=!currentSession;$('header-user').textContent=currentSession?(currentSession.user.email||'Account'):'';$('account-status').textContent=currentSession?'Signed in as '+(currentSession.user.email||'Account')+'.':'Sign in to access your wallet and transactions.';const firstName=(currentSession?.user?.user_metadata?.full_name||currentSession?.user?.email?.split('@')[0]||'').trim().split(/\s+/)[0];const hour=new Date().getHours();const timeGreeting=hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';$('greeting').replaceChildren(document.createTextNode((currentSession?timeGreeting+(firstName?', '+firstName:''):'Welcome to PanBill')+' '));const greetingSpark=document.createElement('span');greetingSpark.className='greeting-spark';greetingSpark.setAttribute('aria-hidden','true');greetingSpark.textContent='✦';$('greeting').append(greetingSpark);$('account-email').textContent=currentSession?(currentSession.user.email||'Account'):'You are not signed in.';if(currentSession){loadWallet();checkBackend();loadSellerApplication();$('my-digital-purchases').hidden=false;loadDigitalPurchases()}else{$('my-digital-purchases').hidden=true;$('seller-marketplace-panel').hidden=true;$('wallet-message').textContent='Sign in to load your wallet.';$('transaction-history').textContent='Sign in to view your transactions.'}}
 async function invoke(body){if(!authClient||!currentSession)throw Error('Please sign in first.');const r=await authClient.functions.invoke('super-responder',{body});if(r.error){let extra='';try{extra=await r.error.context?.json?.().then(x=>x.error||x.message||'').catch(()=> '')}catch{}throw Error(extra||r.data?.error||r.error.message||'Backend request failed.')}if(r.data?.error)throw Error(r.data.error);return r.data||{}}
 async function enforceTransactionPinSetup(force=false){const userId=currentSession?.user?.id;if(!userId)return false;if(!force&&transactionPinCheckedUser===userId&&transactionPinHasPin===true)return true;if(transactionPinSetupPromise)return transactionPinSetupPromise;if(!currentSession||currentSession.user.id!==userId)return false;transactionPinSetupPromise=(async()=>{const overlay=$('transaction-pin-overlay'),form=$('transaction-pin-form'),retry=$('retry-transaction-pin-status');overlay.hidden=false;form.hidden=true;retry.hidden=true;message($('transaction-pin-message'),'Checking your transaction PIN security…');try{const result=await invoke({action:'transaction_pin_status'});if(currentSession?.user?.id!==userId)return false;transactionPinCheckedUser=userId;transactionPinHasPin=result.has_pin===true;if(transactionPinHasPin){overlay.hidden=true;form.reset();message($('transaction-pin-message'),'');return true}form.hidden=false;message($('transaction-pin-message'),'Create your four-digit transaction PIN to continue with this VTU purchase.')}catch(error){transactionPinCheckedUser=null;transactionPinHasPin=null;form.hidden=true;retry.hidden=false;message($('transaction-pin-message'),(error.message||'Could not verify your transaction PIN status.')+' Your account remains protected until this check succeeds.',true)}return false})().finally(()=>{transactionPinSetupPromise=null});return transactionPinSetupPromise}
 $('transaction-pin-form').addEventListener('submit',async e=>{e.preventDefault();if(!currentSession)return message($('transaction-pin-message'),'Please sign in again to create your transaction PIN.',true);const pin=$('transaction-pin-new').value.trim(),confirmPin=$('transaction-pin-confirm').value.trim();if(!/^[0-9]{4}$/.test(pin))return message($('transaction-pin-message'),'Your transaction PIN must contain exactly four digits.',true);if(pin!==confirmPin)return message($('transaction-pin-message'),'The two PIN entries do not match.',true);const b=$('save-transaction-pin');b.disabled=true;message($('transaction-pin-message'),'Saving your transaction PIN securely…');try{const result=await invoke({action:'set_transaction_pin',pin});if(!result.success)throw new Error(result.message||'PanBill could not save your transaction PIN.');transactionPinCheckedUser=currentSession.user.id;transactionPinHasPin=true;$('transaction-pin-form').reset();$('transaction-pin-overlay').hidden=true;message($('transaction-pin-message'),'');const nextService=pendingVtuService;pendingVtuService=null;if(nextService)void openService(nextService)}catch(error){message($('transaction-pin-message'),error.message||'Could not create your transaction PIN.',true)}finally{b.disabled=false}});
@@ -1891,6 +1891,72 @@ function printPanbillTransactionStatement(){
 }
 </style>
 
+<script id="panbill-transaction-notifications-v1">
+(function(){
+ let channel=null;
+ const knownStatuses=new Map();
+ let notificationUserId=null;
+ let toastTimer=null;
+ function el(id){return document.getElementById(id)}
+ function statusOf(row){return typeof normalizedTransactionStatus==='function'?normalizedTransactionStatus(row?.status||row?.provider_status):'unknown'}
+ function statusLabel(status){return status==='successful'?'Successful':status==='failed'?'Failed':status==='pending'?'Pending':'Updated'}
+ function setConnection(text){const node=el('panbill-notification-status');if(node)node.textContent=text}
+ function showToast(row,status){
+  let toast=el('panbill-transaction-toast');
+  if(!toast){toast=document.createElement('div');toast.id='panbill-transaction-toast';toast.setAttribute('role','status');toast.setAttribute('aria-live','polite');toast.style.cssText='position:fixed;z-index:10050;left:14px;right:14px;bottom:24px;max-width:520px;margin:auto;padding:14px 16px;border:1px solid #d8ad4c;border-radius:14px;background:#102344;color:#fff;box-shadow:0 12px 35px #0005;font:14px/1.45 system-ui,sans-serif;';document.body.append(toast)}
+  const title=statusLabel(status);const amount=typeof money==='function'?money(row.amount):String(row.amount??'');
+  toast.textContent='PanBill transaction '+title+(amount?' · '+amount:'')+(row.reference?' · Ref: '+row.reference:'');toast.hidden=false;
+  if(toastTimer)clearTimeout(toastTimer);toastTimer=setTimeout(()=>{toast.hidden=true},9000);
+  try{if('Notification'in window&&Notification.permission==='granted'&&document.visibilityState==='hidden'){new Notification('PanBill transaction '+title,{body:(amount?amount+' · ':'')+(row.reference?'Reference: '+row.reference:'Your transaction status has changed.')})}}catch(_){ }
+ }
+ function updateLocalRecord(row){
+  if(!row?.reference)return;
+  if(typeof transactionRecords!=='undefined'&&Array.isArray(transactionRecords)){
+   const i=transactionRecords.findIndex(x=>x.reference===row.reference);
+   if(i>=0){transactionRecords[i]={...transactionRecords[i],...row};if(typeof renderTransactionHistory==='function')renderTransactionHistory()}
+  }
+ }
+ window.subscribePanbillTransactionNotifications=function(){
+  if(typeof authClient==='undefined')return;
+  if(typeof currentSession==='undefined'||!currentSession?.user?.id){if(channel){try{authClient.removeChannel(channel)}catch(_){}}channel=null;notificationUserId=null;knownStatuses.clear();setConnection('Sign in to receive live transaction alerts.');return;}
+  const uid=currentSession.user.id;
+  if(notificationUserId===uid&&channel)return;
+  if(channel){try{authClient.removeChannel(channel)}catch(_){}}
+  notificationUserId=uid;knownStatuses.clear();
+  (typeof transactionRecords!=='undefined'?transactionRecords:[]).forEach(row=>{if(row.reference)knownStatuses.set(row.reference,statusOf(row))});
+  channel=authClient.channel('panbill-transaction-alerts-'+uid)
+   .on('postgres_changes',{event:'INSERT',schema:'public',table:'transactions',filter:'user_id=eq.'+uid},payload=>{
+    const row=payload.new||{};if(row.reference)knownStatuses.set(row.reference,statusOf(row));
+    updateLocalRecord(row);
+   })
+   .on('postgres_changes',{event:'UPDATE',schema:'public',table:'transactions',filter:'user_id=eq.'+uid},payload=>{
+    const row=payload.new||{};if(!row.reference)return;
+    const next=statusOf(row),previous=knownStatuses.get(row.reference);
+    knownStatuses.set(row.reference,next);updateLocalRecord(row);
+    if(previous&&previous!==next&&['successful','failed','pending'].includes(next))showToast(row,next);
+   })
+   .subscribe(state=>{
+    if(state==='SUBSCRIBED')setConnection('Live transaction alerts are connected while PanBill is open.');
+    else if(state==='CHANNEL_ERROR'||state==='TIMED_OUT')setConnection('Live alerts are unavailable. Use Refresh to check transaction status.');
+    else if(state==='CLOSED')setConnection('Live alerts disconnected. Reopen PanBill or sign in again to reconnect.');
+   });
+ };
+ window.addEventListener('DOMContentLoaded',()=>{});
+ const enable=el('panbill-enable-browser-alerts');
+ if(enable){
+  if(!('Notification'in window)){enable.disabled=true;enable.textContent='Browser alerts unavailable';setConnection('In-app alerts are available when live connection is enabled.')}
+  else if(Notification.permission==='granted'){enable.textContent='Browser alerts enabled'}
+  else if(Notification.permission==='denied'){enable.disabled=true;enable.textContent='Browser alerts blocked'}
+  enable.addEventListener('click',async()=>{
+   if(!('Notification'in window))return;
+   try{const permission=await Notification.requestPermission();
+    if(permission==='granted'){enable.textContent='Browser alerts enabled';setConnection('Browser alerts enabled. Keep PanBill open to receive live updates.')}
+    else{enable.textContent=permission==='denied'?'Browser alerts blocked':'Enable browser alerts';setConnection('Browser permission was not granted. In-app alerts can still appear while PanBill is open.')}
+   }catch(_){setConnection('Could not request browser alert permission on this device.')}
+  });
+ }
+})();
+</script>
 </body></html>');
  w.document.close();
 }
@@ -2565,6 +2631,7 @@ main.wrap:not([data-view="history"]) #history-back-home{display:none!important}
       window.setTimeout(showHome, 0);
     }, true);
   }
+ if(typeof currentSession!=='undefined'&&currentSession)window.subscribePanbillTransactionNotifications();
 })();
 </script>
 <script id="panbill-wallet-transaction-history-navigation">
