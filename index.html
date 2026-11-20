@@ -1822,7 +1822,21 @@ function syncMarketplaceCategoryNav(){const selected=$('marketplace-category')?.
 
 async function loadPanbillRewards(){
  const panel=$('panbill-rewards-panel');
- if(!currentSession||!authClient){panel.hidden=true;return}
+ if(!panel)return;
+ if(!currentSession||!authClient){
+  panel.hidden=false;panel.style.display='block';
+  $('panbill-rewards-total').textContent='—';
+  $('panbill-cashback-total').textContent='—';
+  $('panbill-referral-total').textContent='—';
+  $('panbill-referral-link').value='';
+  $('panbill-referral-link').placeholder='Sign in to load your personal referral link';
+  $('panbill-copy-referral').disabled=true;
+  $('panbill-referral-message').textContent='You can view this rewards page now. Sign in when you are ready to load your personal referral link, reward totals and history.';
+  $('panbill-rewards-history').textContent='Sign in to view your personal cashback and referral reward history.';
+  return;
+ }
+ $('panbill-copy-referral').disabled=false;
+ $('panbill-referral-message').textContent='';
  $('panbill-rewards-history').textContent='Loading rewards…';
  try{
   const uid=currentSession.user.id;
@@ -1867,7 +1881,7 @@ function panbillCloseSubpage(){
  window.scrollTo({top:0,behavior:'smooth'});
 }
 $('panbill-rewards-refresh')?.addEventListener('click',loadPanbillRewards);
-$('home-referral-shortcut')?.addEventListener('click',()=>{if(!currentSession){$('auth-overlay').hidden=false;$('auth-overlay').scrollIntoView({behavior:'smooth'});return;}panbillOpenSubpage('panbill-rewards-panel');loadPanbillRewards();});
+$('home-referral-shortcut')?.addEventListener('click',event=>{event.preventDefault();panbillOpenSubpage('panbill-rewards-panel');loadPanbillRewards();});
 $('panbill-referral-close')?.addEventListener('click',panbillCloseSubpage);
 $('panbill-copy-referral')?.addEventListener('click',async()=>{const link=$('panbill-referral-link').value;if(!link){$('panbill-referral-message').textContent='Your referral link is not available yet.';return}try{await navigator.clipboard.writeText(link);$('panbill-referral-message').textContent='Referral link copied. Share it with your friends.'}catch(e){$('panbill-referral-link').focus();$('panbill-referral-link').select();$('panbill-referral-message').textContent='Select and copy your referral link.'}});
 function showSignedIn(session){const incoming=session||null;if(incoming?.user&&!(incoming.user.email_confirmed_at||incoming.user.confirmed_at)){currentSession=null;$('auth-overlay').hidden=false;$('wallet-panel').hidden=true;$('transaction-pin-overlay').hidden=true;return}currentSession=incoming;if(!currentSession){panbillCloseSubpage();transactionPinCheckedUser=null;transactionPinHasPin=null;$('transaction-pin-overlay').hidden=true;$('transaction-pin-form').reset();}restoreMarketplaceCartForSession(currentSession);updateMarketplaceCheckoutButton();$('wallet-panel').hidden=!currentSession;$('panbill-rewards-panel').hidden=true;$('auth-overlay').hidden=!!currentSession;$('logout-button').hidden=!currentSession;$('header-user').hidden=!currentSession;$('header-user').textContent=currentSession?(currentSession.user.email||'Account'):'';$('account-status').textContent=currentSession?'Signed in as '+(currentSession.user.email||'Account')+'.':'Sign in to access your wallet and transactions.';const firstName=(currentSession?.user?.user_metadata?.full_name||currentSession?.user?.email?.split('@')[0]||'').trim().split(/\s+/)[0];const hour=new Date().getHours();const timeGreeting=hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';$('greeting').replaceChildren(document.createTextNode((currentSession?timeGreeting+(firstName?', '+firstName:''):'Welcome to PanBill')+' '));const greetingSpark=document.createElement('span');greetingSpark.className='greeting-spark';greetingSpark.setAttribute('aria-hidden','true');greetingSpark.textContent='✦';$('greeting').append(greetingSpark);$('account-email').textContent=currentSession?(currentSession.user.email||'Account'):'You are not signed in.';if(currentSession){loadWallet();loadPanbillRewards();checkBackend();loadSellerApplication();$('my-digital-purchases').hidden=false;loadDigitalPurchases()}else{$('my-digital-purchases').hidden=true;$('seller-marketplace-panel').hidden=true;$('wallet-message').textContent='Sign in to load your wallet.';$('transaction-history').textContent='Sign in to view your transactions.'}window.dispatchEvent(new Event('panbill-session-ready'))}
@@ -4345,20 +4359,14 @@ body:has(#seller-dashboard-page:not([hidden])) #settings-top-button{
     wrap.classList.add('panbill-subpage-active');
     document.body.classList.add('panbill-subpage-open');
     if(budget){budget.hidden=true;budget.style.display='none';budget.setAttribute('aria-hidden','true');}
-    rewards.hidden=false;
-    rewards.style.display='block';
-    rewards.setAttribute('aria-hidden','false');
-    rewards.scrollTop=0;
+    rewards.hidden=false;rewards.style.display='block';rewards.setAttribute('aria-hidden','false');
     requestAnimationFrame(()=>rewards.scrollIntoView({behavior:'auto',block:'start'}));
-    if(typeof window.loadPanbillRewards==='function')window.loadPanbillRewards();
+    if(typeof loadPanbillRewards==='function')loadPanbillRewards();
   }
   document.addEventListener('click',function(event){
     const shortcut=event.target&&event.target.closest('#home-referral-shortcut');
     if(!shortcut)return;
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    const session=window.currentSession;
-    if(!session){const auth=document.getElementById('auth-overlay');if(auth){auth.hidden=false;auth.scrollIntoView({behavior:'smooth'});}return;}
+    event.preventDefault();event.stopImmediatePropagation();
     openReferralPage();
   },true);
 })();
