@@ -1093,17 +1093,19 @@ main.wrap.panbill-subpage-active>#panbill-rewards-panel{
 <main class="wrap"><section class="hero"><div class="hero-copy"><div class="eyebrow">Simple • Secure • Convenient</div><h1>Your bills,<br/><span>beautifully handled.</span></h1><p>Recharge airtime, buy data, pay bills, add money to your wallet, shop and explore the marketplace every day — all in one secure app.</p><div class="trust"><span>✦ Secure account</span><span>✦ Clear transactions</span><span>✦ Fast checkout</span></div></div><div aria-label="PanBill animated seasonal background" class="portrait-card" role="img"></div></section>
 <div class="signed-greeting"><div><div class="eyebrow">YOUR PANBILL DASHBOARD</div><h2 id="greeting">Welcome to PanBill <span aria-hidden="true" class="greeting-spark">✦</span></h2><div class="muted" id="account-status" style="font-size:13px">Sign in to access your wallet.</div></div><span aria-hidden="true" class="greeting-decoration">✧</span><button aria-label="Open account settings" class="outline-btn" id="open-account" type="button" hidden="">Settings</button></div>
 <section aria-label="PanBill dashboard and seasonal message" aria-live="polite" class="seasonal-card" id="dashboard-seasonal-greeting"><div class="seasonal-copy"><div class="dashboard-brand-message"><strong>Your bills, beautifully handled.</strong><span>Recharge airtime, buy data, pay bills, add money, shop and explore — all in one secure app.</span></div><div class="seasonal-kicker" data-season-kicker="">SEASONAL GREETINGS</div><h2 class="seasonal-title" data-season-title="">Wishing you joy</h2><p class="seasonal-message" data-season-message="">Warm wishes from PanBill.</p></div><div aria-hidden="true" class="seasonal-art"><span class="season-main" data-season-art="">✦</span><span class="season-sparkles">✧ ✦</span></div></section>
-<section class="panel wallet" hidden="" id="wallet-panel"><div class="wallet-top"><span class="wallet-label">AVAILABLE WALLET BALANCE</span><button aria-label="Hide balance" class="pill" id="toggle-balance" style="color:#101b30;border-color:#07152f30" type="button">◉</button></div><div class="balance" id="wallet-balance">₦••••••</div><div class="wallet-actions"><button id="fund-wallet-button" type="button"><span class="ico">＋</span>Add Money</button><button id="wallet-history-button" type="button"><span class="ico">↗</span>Transactions</button><button id="refresh-wallet" type="button"><span class="ico">⟳</span>Refresh</button></div><div id="wallet-message" style="font-size:12px;margin-top:12px;position:relative;z-index:1">Wallet information loads after sign-in.</div></section>
+<section class="panel wallet" hidden="" id="wallet-panel"><div class="wallet-top"><span class="wallet-label">AVAILABLE WALLET BALANCE</span><button aria-label="Hide balance" class="pill" id="toggle-balance" style="color:#101b30;border-color:#07152f30" type="button">◉</button></div><div class="balance" id="wallet-balance">₦••••••</div><div class="panbill-account-box" id="panbill-account-box"><div><small>YOUR PANBILL ACCOUNT NUMBER</small><strong id="panbill-account-number">Loading account number…</strong><span>Share this number to receive money from other PanBill users.</span></div><button id="copy-panbill-account" type="button" aria-label="Copy PanBill account number">Copy</button></div><div class="wallet-actions"><button id="fund-wallet-button" type="button"><span class="ico">＋</span>Add Money</button><button id="wallet-history-button" type="button"><span class="ico">↗</span>Transactions</button><button id="refresh-wallet" type="button"><span class="ico">⟳</span>Refresh</button></div><div id="wallet-message" style="font-size:12px;margin-top:12px;position:relative;z-index:1">Wallet information loads after sign-in.</div></section>
 <section class="panel" id="panbill-rewards-panel" hidden style="margin:12px 0;border:1px solid #e9bb5850;background:linear-gradient(145deg,#10264a,#0a1b38)">
  <div class="section-head" style="margin-top:0"><div><div class="eyebrow">PANBILL REWARDS</div><h2 style="margin:4px 0">Referral &amp; rewards</h2><p class="muted" style="font-size:12px;margin:0">Earn 1% cashback on eligible successful VTU purchases and referral bonuses.</p></div><div style="display:flex;gap:8px;align-items:center"><button class="text-button" id="panbill-rewards-refresh" type="button">Refresh</button><button class="outline-btn panbill-page-back" id="panbill-referral-close" type="button">← Back to dashboard</button></div></div>
  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:10px;margin:14px 0">
   <div class="settings-group" style="padding:13px;border:1px solid var(--line);border-radius:13px"><small class="muted">Total rewards</small><strong id="panbill-rewards-total" style="display:block;font-size:22px">₦0.00</strong></div>
   <div class="settings-group" style="padding:13px;border:1px solid var(--line);border-radius:13px"><small class="muted">Cashback</small><strong id="panbill-cashback-total" style="display:block;font-size:22px">₦0.00</strong></div>
   <div class="settings-group" style="padding:13px;border:1px solid var(--line);border-radius:13px"><small class="muted">Referral rewards</small><strong id="panbill-referral-total" style="display:block;font-size:22px">₦0.00</strong></div>
+  <div class="settings-group" style="padding:13px;border:1px solid var(--line);border-radius:13px"><small class="muted">Available to transfer</small><strong id="panbill-rewards-available" style="display:block;font-size:22px">₦0.00</strong></div>
  </div>
+ <div class="settings-group" style="padding:14px;border:1px solid var(--line);border-radius:13px;margin:12px 0"><h3 style="margin:0 0 6px">Move rewards to your wallet</h3><p class="muted" style="font-size:12px;margin:0 0 10px">Transfer your available rewards into your main PanBill wallet. Transfers are processed securely and cannot be reversed.</p><button class="gold-btn" id="panbill-transfer-rewards" type="button" disabled>Transfer rewards to wallet</button><p id="panbill-transfer-message" class="muted" role="status" style="font-size:12px;margin:8px 0 0"></p></div>
  <div class="settings-group" style="padding:14px;border:1px solid var(--line);border-radius:13px;margin:12px 0"><h3 style="margin:0 0 5px">Your referral link</h3><p class="muted" style="font-size:12px;margin:0 0 10px">Invite a friend. When they make their first successful VTU purchase, you both receive ₦100.</p><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><input id="panbill-referral-link" readonly aria-label="Your referral link" style="flex:1;min-width:160px" placeholder="Loading your referral link…"><button class="gold-btn" id="panbill-copy-referral" type="button">Copy link</button></div><p id="panbill-referral-message" class="muted" role="status" style="font-size:12px;margin:8px 0 0"></p></div>
  <div class="settings-group" style="padding:14px;border:1px solid var(--line);border-radius:13px;margin:12px 0"><h3 style="margin:0 0 8px">Rewards history</h3><div id="panbill-rewards-history" class="muted" style="font-size:13px">Loading rewards…</div></div>
- <p class="muted" style="font-size:11px;margin-bottom:0">Rewards are tracked separately from your main wallet. Only eligible successful VTU purchases qualify. Reward redemption is not enabled yet.</p>
+ <p class="muted" style="font-size:11px;margin-bottom:0">Rewards are tracked separately until you transfer them. Only eligible successful VTU purchases and referral bonuses qualify. You can transfer available rewards to your main wallet at any time.</p>
 </section>
 <div id="panbill-dashboard-shortcuts" class="panbill-dashboard-shortcuts">
  <button class="service-card panbill-compact-shortcut" id="home-budget-shortcut" type="button"><span class="service-icon" aria-hidden="true">📊</span><span class="panbill-shortcut-copy"><strong>Spending &amp; Budgets</strong><small>Monthly insights &amp; limits</small></span></button>
@@ -1824,28 +1826,53 @@ async function loadPanbillRewards(){
  const panel=$('panbill-rewards-panel');
  if(!currentSession||!authClient){panel.hidden=true;return}
  $('panbill-rewards-history').textContent='Loading rewards…';
+ $('panbill-transfer-message').textContent='';
+ const transferButton=$('panbill-transfer-rewards');if(transferButton)transferButton.disabled=true;
  try{
   const uid=currentSession.user.id;
-  const [codeResult,rewardResult]=await Promise.all([
+  const [codeResult,rewardResult,transferResult]=await Promise.all([
    authClient.from('panbill_referral_codes').select('referral_code').eq('user_id',uid).maybeSingle(),
-   authClient.from('panbill_rewards').select('reward_type,amount,description,created_at').eq('user_id',uid).order('created_at',{ascending:false}).limit(50)
+   authClient.from('panbill_rewards').select('reward_type,amount,description,created_at').eq('user_id',uid).order('created_at',{ascending:false}).limit(1000),
+   authClient.from('panbill_reward_transfers').select('amount,created_at').eq('user_id',uid).order('created_at',{ascending:false}).limit(1000)
   ]);
   if(codeResult.error)throw codeResult.error;
   if(rewardResult.error)throw rewardResult.error;
+  if(transferResult.error)throw transferResult.error;
   const code=codeResult.data?.referral_code;
   $('panbill-referral-link').value=code?location.origin+location.pathname+'?ref='+encodeURIComponent(code):'';
   const rows=Array.isArray(rewardResult.data)?rewardResult.data:[];
+  const transfers=Array.isArray(transferResult.data)?transferResult.data:[];
   const total=rows.reduce((sum,r)=>sum+Number(r.amount||0),0);
+  const transferred=transfers.reduce((sum,r)=>sum+Number(r.amount||0),0);
+  const available=Math.max(0,Math.round((total-transferred)*100)/100);
   const cashback=rows.filter(r=>r.reward_type==='cashback').reduce((sum,r)=>sum+Number(r.amount||0),0);
   const referral=rows.filter(r=>r.reward_type!=='cashback').reduce((sum,r)=>sum+Number(r.amount||0),0);
   $('panbill-rewards-total').textContent=money(total);
   $('panbill-cashback-total').textContent=money(cashback);
   $('panbill-referral-total').textContent=money(referral);
+  $('panbill-rewards-available').textContent=money(available);
+  if(transferButton){transferButton.disabled=available<=0;transferButton.textContent=available>0?'Transfer '+money(available)+' to wallet':'No rewards available to transfer';}
   const history=$('panbill-rewards-history');history.replaceChildren();
-  if(!rows.length){history.textContent='No rewards yet. Your eligible cashback and referral rewards will appear here.';return}
-  rows.forEach(r=>{const item=document.createElement('div');item.style.cssText='display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)';const left=document.createElement('div');const title=document.createElement('strong');title.style.display='block';title.textContent=r.reward_type==='cashback'?'VTU cashback':r.reward_type==='referral_inviter'?'Referral bonus':'Welcome referral bonus';const detail=document.createElement('small');detail.className='muted';detail.textContent=r.description||new Date(r.created_at).toLocaleDateString();left.append(title,detail);const amount=document.createElement('strong');amount.style.whiteSpace='nowrap';amount.textContent='+'+money(r.amount);item.append(left,amount);history.append(item)});
+  if(!rows.length&&!transfers.length){history.textContent='No rewards yet. Your eligible cashback and referral rewards will appear here.';return}
+  const entries=[...rows.map(r=>({...r,entryType:'reward'})),...transfers.map(r=>({...r,entryType:'transfer',reward_type:'transfer',description:'Rewards transferred to main wallet'}))].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,100);
+  entries.forEach(r=>{const item=document.createElement('div');item.style.cssText='display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)';const left=document.createElement('div');const title=document.createElement('strong');title.style.display='block';title.textContent=r.entryType==='transfer'?'Transfer to main wallet':r.reward_type==='cashback'?'VTU cashback':r.reward_type==='referral_inviter'?'Referral bonus':'Welcome referral bonus';const detail=document.createElement('small');detail.className='muted';detail.textContent=r.description||new Date(r.created_at).toLocaleDateString();left.append(title,detail);const amount=document.createElement('strong');amount.style.whiteSpace='nowrap';amount.textContent=(r.entryType==='transfer'?'−':'+')+money(r.amount);item.append(left,amount);history.append(item)});
  }catch(error){$('panbill-rewards-history').textContent='Could not load rewards: '+(error.message||'Please try again.');}
 }
+$('panbill-transfer-rewards')?.addEventListener('click',async()=>{
+ const button=$('panbill-transfer-rewards');const status=$('panbill-transfer-message');
+ if(!currentSession||!authClient){status.textContent='Please sign in to transfer rewards.';return}
+ if(!button||button.disabled)return;
+ button.disabled=true;button.textContent='Transferring…';status.textContent='Processing your rewards transfer securely…';
+ try{
+  const result=await authClient.rpc('panbill_transfer_rewards_to_wallet');
+  if(result.error)throw result.error;
+  const data=Array.isArray(result.data)?result.data[0]:result.data;
+  if(data?.success===false)throw new Error(data.message||'The rewards transfer could not be completed.');
+  status.textContent='Your rewards have been transferred to your main wallet successfully.';
+  await Promise.all([loadPanbillRewards(),loadWallet()]);
+ }catch(error){status.textContent=error.message||'Transfer failed. Please refresh and try again.';button.disabled=false;}
+});
+
 function panbillOpenSubpage(pageId){
  const wrap=document.querySelector('main.wrap');
  const budget=$('panbill-budget-page');
@@ -2049,6 +2076,13 @@ async function loadWallet(){
   if(w.error)throw w.error;
   realBalance=w.data?money(w.data.balance):'Unavailable';
   $('wallet-balance').textContent=balanceVisible?realBalance:'₦••••••';
+  try{
+   const accountResult=await authClient.rpc('panbill_my_account_number');
+   if(accountResult.error)throw accountResult.error;
+   const panbillAccountNumber=String(accountResult.data||'');
+   $('panbill-account-number').textContent=panbillAccountNumber||'Unavailable';
+   $('copy-panbill-account').disabled=!/^\d{10}$/.test(panbillAccountNumber);
+  }catch(accountError){$('panbill-account-number').textContent='Setup required';$('copy-panbill-account').disabled=true;}
   $('wallet-message').textContent=w.data?'Your wallet balance is up to date.':'No wallet record found.';
   const t=await authClient.from('transactions').select('type,amount,status,reference,description,created_at,provider,provider_status,provider_reference,provider_response').eq('user_id',uid).order('created_at',{ascending:false}).limit(50);
   if(t.error)throw t.error;
@@ -2164,7 +2198,7 @@ $('load-more-transactions')?.addEventListener('click',async()=>{
  }catch(error){alert('Could not load older transactions. Please try again.');button.textContent='Try loading more';}
  finally{transactionLoadMoreBusy=false;button.disabled=false;}
 });
-$('refresh-wallet').onclick=loadWallet;$('refresh-transactions').onclick=loadWallet;$('wallet-history-button').onclick=()=>$('transaction-panel').scrollIntoView({behavior:'smooth'});$('toggle-balance').onclick=()=>{balanceVisible=!balanceVisible;$('wallet-balance').textContent=balanceVisible?realBalance:'₦••••••';$('toggle-balance').setAttribute('aria-label',balanceVisible?'Hide balance':'Show balance');$('toggle-balance').textContent=balanceVisible?'◉':'◎'};
+$('copy-panbill-account')?.addEventListener('click',async()=>{const number=$('panbill-account-number')?.textContent?.trim()||'';if(!/^\d{10}$/.test(number))return;try{await navigator.clipboard.writeText(number);$('copy-panbill-account').textContent='Copied';setTimeout(()=>{$('copy-panbill-account').textContent='Copy'},1600)}catch(e){const temp=document.createElement('textarea');temp.value=number;temp.style.position='fixed';temp.style.opacity='0';document.body.append(temp);temp.select();try{document.execCommand('copy');$('copy-panbill-account').textContent='Copied';setTimeout(()=>{$('copy-panbill-account').textContent='Copy'},1600)}finally{temp.remove()}}});$('refresh-wallet').onclick=loadWallet;$('refresh-transactions').onclick=loadWallet;$('wallet-history-button').onclick=()=>$('transaction-panel').scrollIntoView({behavior:'smooth'});$('toggle-balance').onclick=()=>{balanceVisible=!balanceVisible;$('wallet-balance').textContent=balanceVisible?realBalance:'₦••••••';$('toggle-balance').setAttribute('aria-label',balanceVisible?'Hide balance':'Show balance');$('toggle-balance').textContent=balanceVisible?'◉':'◎'};
 $('fund-wallet-button').onclick=async()=>{let text=prompt('How much do you want to add? Enter amount in naira:');if(text===null)return;let amount=Number(text);if(!Number.isFinite(amount)||amount<100||amount>1000000)return alert('Enter an amount from ₦100 to ₦1,000,000.');$('fund-wallet-button').disabled=true;try{let r=await invoke({action:'initialize',amount});if(!r.authorization_url)throw Error('Paystack did not return a payment link.');location.href=r.authorization_url}catch(e){alert(e.message||'Payment could not start.');$('fund-wallet-button').disabled=false}};
 async function handlePaystackReturn(){const p=new URLSearchParams(location.search),ref=p.get('reference')||p.get('trxref');if(!ref)return;if(paystackReturnPromise)return paystackReturnPromise;if(p.get('marketplace_payment')==='1'&&!currentSession)return;paystackReturnPromise=(async()=>{if(p.get('marketplace_payment')==='1'){try{const result=await marketplaceCheckoutRequest({action:'verify_payment',reference:ref});history.replaceState({},document.title,location.pathname);if(result.success&&result.payment_status==='paid'){alert('Marketplace payment confirmed. Order '+(result.order_number||'')+' is now paid. You can view its status in your PanBill marketplace orders.');panbillCart=[];pendingMarketplacePayment=null;try{sessionStorage.removeItem(MARKETPLACE_PENDING_KEY)}catch(_){}renderMarketplaceCart()}else if(result.payment_review_required){pendingMarketplacePayment=null;try{sessionStorage.removeItem(MARKETPLACE_PENDING_KEY)}catch(_){}alert('Paystack received your payment, but the stock reservation needs review. Please contact PanBill support and quote order '+(result.order_number||'')+'. Do not pay again.')}else{if(result.payment_status==='failed'){pendingMarketplacePayment=null;try{sessionStorage.removeItem(MARKETPLACE_PENDING_KEY)}catch(_){}}alert(result.message||'Payment has not been confirmed yet. Please check your marketplace order status shortly.')}}catch(error){alert(error.message||'We could not verify this marketplace payment yet. Do not pay again until you check your order status or contact PanBill support.')}return}history.replaceState({},document.title,location.pathname);try{let r=await invoke({action:'verify',reference:ref});if(r.success||r.credited||r.already_credited||['credited','already_credited','successful'].includes(r.status)){alert('Payment confirmed. Refreshing wallet.');await loadWallet()}else alert(r.message||'Payment not confirmed yet. Check your wallet shortly.')}catch(e){alert('We could not confirm payment yet. Check your wallet and transaction history before paying again.')}})();return paystackReturnPromise}
 $('nav-home').onclick=()=>window.scrollTo({top:0,behavior:'smooth'});$('nav-services').onclick=()=>{if($('service-panel').hidden)document.querySelector('.services').scrollIntoView({behavior:'smooth'});else $('close-service').focus({preventScroll:true})};$('nav-wallet').onclick=()=>$('wallet-panel').hidden?($('auth-overlay').hidden=false):$('wallet-panel').scrollIntoView({behavior:'smooth'});$('nav-transactions').onclick=()=>$('transaction-panel').scrollIntoView({behavior:'smooth'});
@@ -4430,4 +4464,14 @@ main.wrap.panbill-subpage-active>#panbill-budget-page:not([hidden]){display:bloc
 })();
 </script>
 
+
+<style id="panbill-account-number-wallet-card">
+#panbill-account-box{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 12px;margin:0 0 14px;border:1px solid #07152f2b;border-radius:13px;background:#07152f12;min-width:0}
+#panbill-account-box>div{min-width:0;display:flex;flex-direction:column;gap:2px}
+#panbill-account-box small{font-size:10px;font-weight:850;letter-spacing:.7px;color:#28334a}
+#panbill-account-box strong{font-size:clamp(17px,4.6vw,22px);letter-spacing:1.4px;font-weight:950;color:#101b31;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#panbill-account-box span{font-size:10px;line-height:1.35;color:#344158}
+#copy-panbill-account{flex:0 0 auto;border:1px solid #07152f45;border-radius:9px;padding:8px 12px;background:#07152f;color:#ffe4a0;font-size:12px;font-weight:800}
+#copy-panbill-account:disabled{opacity:.5}
+</style>
 </body></html>
