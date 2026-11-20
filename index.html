@@ -989,6 +989,40 @@ main.wrap[data-view="bill-tools"] #panbill-bill-tools-page{display:block!importa
 .bill-tools-panel{padding:18px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,#10264a,#0a1b38);margin-bottom:14px}.bill-tools-panel-head h3{margin:0;font-size:19px}.bill-tools-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 12px;margin-top:10px}.bill-tools-wide{grid-column:1/-1}.bill-tools-form .gold-btn{margin-top:14px}.bill-tools-check{display:flex;align-items:center;gap:9px;margin:13px 0;color:var(--muted);font-size:13px}.bill-tools-check input{width:18px;min-width:18px;min-height:18px;height:18px;padding:0}.bill-tools-message{font-size:12px;margin-top:10px;color:#9bf2ce}.bill-tools-message.error{color:#ffc2c4}.bill-tools-list{display:grid;gap:9px;margin-top:14px}.bill-tools-item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#ffffff08}.bill-tools-item strong{display:block;font-size:13px;overflow-wrap:anywhere}.bill-tools-item small{display:block;color:var(--muted);font-size:11px;margin-top:3px;overflow-wrap:anywhere}.bill-tools-item-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.bill-tools-item-actions button{border:1px solid var(--line);border-radius:9px;padding:7px 9px;background:#ffffff0b;color:var(--ink);font-size:11px}.bill-tools-empty,.bill-tools-note{font-size:12px;color:var(--muted);line-height:1.6}.bill-tools-note{padding:11px;border:1px solid #f2c15d44;border-radius:11px;background:#f2c15d0c}
 @media(max-width:600px){#panbill-bill-tools-page{padding:4px 0 100px}.bill-tools-panel{padding:14px;border-radius:15px}.bill-tools-form{grid-template-columns:1fr}.bill-tools-wide{grid-column:auto}.bill-tools-tabs{gap:3px}.bill-tools-tab{font-size:10px;padding:11px 4px}.bill-tools-item{align-items:flex-start;flex-direction:column}.bill-tools-item-actions{justify-content:flex-start}}
 </style>
+
+<style id="panbill-login-stability-repair-v3">
+/* Stable centered login: override the earlier conflicting full-height auth rules. */
+html:has(#auth-overlay:not([hidden])),
+body:has(#auth-overlay:not([hidden])){width:100%!important;max-width:100%!important;min-width:0!important;min-height:100%!important;min-height:100dvh!important;overflow-x:hidden!important;}
+body:has(#auth-overlay:not([hidden])) #auth-overlay{
+ position:fixed!important;inset:0!important;z-index:1200!important;
+ display:grid!important;place-items:center!important;
+ width:100%!important;max-width:100%!important;height:100vh!important;height:100dvh!important;
+ min-height:0!important;max-height:none!important;
+ padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom))!important;
+ overflow-x:hidden!important;overflow-y:auto!important;box-sizing:border-box!important;
+}
+body:has(#auth-overlay:not([hidden])) #auth-overlay>.auth-card{
+ display:block!important;flex:none!important;width:min(100%,440px)!important;
+ min-width:0!important;min-height:0!important;height:auto!important;max-height:calc(100dvh - 24px)!important;
+ margin:auto!important;padding:18px!important;border-radius:20px!important;
+ overflow-x:hidden!important;overflow-y:auto!important;box-sizing:border-box!important;
+ transform:none!important;zoom:1!important;animation:none!important;
+}
+body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-card *{max-width:100%;}
+body:has(#auth-overlay:not([hidden])) #auth-overlay input,
+body:has(#auth-overlay:not([hidden])) #auth-overlay select{font-size:16px!important;min-width:0!important;}
+body:has(#auth-overlay:not([hidden])) #auth-overlay .form-grid{grid-template-columns:minmax(0,1fr)!important;}
+body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-network-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;}
+/* Remove decorative motion only from the login panel to prevent apparent zooming. */
+body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-card,
+body:has(#auth-overlay:not([hidden])) #auth-overlay .auth-card *{scroll-behavior:auto!important;}
+@media(max-width:520px){
+ body:has(#auth-overlay:not([hidden])) #auth-overlay{padding:10px 10px max(10px,env(safe-area-inset-bottom))!important;}
+ body:has(#auth-overlay:not([hidden])) #auth-overlay>.auth-card{width:100%!important;max-width:440px!important;max-height:calc(100dvh - 20px)!important;padding:14px!important;border-radius:17px!important;}
+}
+@media(prefers-reduced-motion:reduce){body:has(#auth-overlay:not([hidden])) #auth-overlay *{animation:none!important;transition:none!important;}}
+</style>
 </head><body>
 <div aria-label="PanBill is loading" aria-live="polite" id="panbill-loading-screen" role="status"><div aria-hidden="true" class="panbill-loader-mark">P</div><div class="panbill-loader-name">PanBill</div><div class="panbill-loader-caption">One app. All your bills.</div><div aria-hidden="true" class="panbill-loader-ring"></div></div>
 <header class="app-header"><div class="brand"><span class="brand-mark">P</span> PanBill</div><div class="header-actions"><span class="muted" hidden="" id="header-user" style="font-size:12px"></span><button class="pill" id="settings-top-button" type="button" aria-label="Open Settings menu" title="Settings">☰</button><button aria-hidden="true" class="pill" hidden="" id="logout-button" type="button">Log out</button></div></header>
