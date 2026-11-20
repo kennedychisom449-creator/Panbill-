@@ -1233,7 +1233,7 @@ main.wrap[data-view="bill-tools"] #panbill-bill-tools-page{display:block!importa
 <button aria-pressed="false" class="tx-filter" data-tx-filter="successful" type="button">Successful</button>
 <button aria-pressed="false" class="tx-filter" data-tx-filter="pending" type="button">Pending</button>
 <button aria-pressed="false" class="tx-filter" data-tx-filter="failed" type="button">Failed</button>
-</div><div style="margin:12px 0"><label for="transaction-search" class="muted" style="display:block;margin-bottom:6px">Search by description or reference</label><input id="transaction-search" type="search" placeholder="Enter transaction reference or service" autocomplete="off" style="width:100%;box-sizing:border-box"></div><div class="muted" id="transaction-history">Sign in to view your transactions.</div><div style="display:flex;justify-content:center;margin-top:14px"><button class="outline-btn" id="load-more-transactions" type="button" hidden>Load more transactions</button></div></section><section class="panel"><h3>Security matters</h3><p style="font-size:13px">Keep your password private. Always check your transaction status before trying a payment again.</p><div class="status" id="panbill-backend-status" role="status"></div></section></div>
+</div><div style="margin:12px 0"><label for="transaction-search" class="muted" style="display:block;margin-bottom:6px">Search by description or reference</label><input id="transaction-search" type="search" placeholder="Enter transaction reference or service" autocomplete="off" style="width:100%;box-sizing:border-box"></div><div class="tx-date-filter" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin:12px 0"><div><label for="transaction-date-from" class="muted" style="display:block;margin-bottom:6px">From date</label><input id="transaction-date-from" type="date" style="width:100%;box-sizing:border-box"></div><div><label for="transaction-date-to" class="muted" style="display:block;margin-bottom:6px">To date</label><input id="transaction-date-to" type="date" style="width:100%;box-sizing:border-box"></div><div style="display:flex;align-items:end"><button class="text-button" id="clear-transaction-dates" type="button">Clear dates</button></div></div><p class="muted" id="transaction-date-hint" style="font-size:12px;margin:0 0 10px">Date filters apply to transactions currently loaded. Load more to include older records.</p><div class="muted" id="transaction-history">Sign in to view your transactions.</div><div style="display:flex;justify-content:center;margin-top:14px"><button class="outline-btn" id="load-more-transactions" type="button" hidden>Load more transactions</button></div></section><section class="panel"><h3>Security matters</h3><p style="font-size:13px">Keep your password private. Always check your transaction status before trying a payment again.</p><div class="status" id="panbill-backend-status" role="status"></div></section></div>
 <section class="panel" hidden="" id="service-panel"><div class="section-head" style="margin-top:0"><div><div class="eyebrow">Secure checkout</div><h2 id="service-title" style="margin:4px 0">Service</h2></div><button class="close" id="close-service" type="button">Close</button></div><p class="muted" id="service-help" style="font-size:13px">Select the product and check your details.</p><form id="service-form" novalidate><div class="form-grid" id="service-fields"></div><input id="transaction-pin" type="hidden" value=""/><button class="gold-btn" id="service-submit" style="width:100%;margin-top:18px" type="button">Continue securely</button></form><div class="status" id="service-message" role="status"></div><button class="outline-btn" hidden="" id="check-status-button" style="margin-top:12px;width:100%" type="button">Check purchase status</button></section>
 <a aria-label="Contact PanBill support on WhatsApp" class="whatsapp-support" href="https://wa.me/2349127449861?text=Hello%20PanBill%20Support%2C%20I%20need%20help%20with%20my%20account%20or%20a%20transaction." rel="noopener noreferrer" target="_blank"><span aria-hidden="true" class="wa-icon"><svg viewBox="0 0 32 32" width="27" height="27" focusable="false"><path fill="currentColor" d="M16 3.2A12.5 12.5 0 0 0 5.2 22l-1.5 5.5 5.7-1.5A12.5 12.5 0 1 0 16 3.2Zm0 22.7a10.1 10.1 0 0 1-5.1-1.4l-.4-.2-3.4.9.9-3.3-.2-.4A10.1 10.1 0 1 1 16 25.9Zm5.6-7.6c-.3-.2-1.8-.9-2.1-1s-.5-.2-.7.2-.8 1-.9 1.1-.3.2-.6.1a8.2 8.2 0 0 1-2.4-1.5 9 9 0 0 1-1.7-2.1c-.2-.3 0-.5.1-.6l.5-.6c.2-.2.2-.4.3-.5s0-.4 0-.5-.7-1.7-1-2.3c-.2-.5-.5-.4-.7-.4h-.6c-.2 0-.5.1-.8.4s-1.1 1.1-1.1 2.6 1.1 3 1.2 3.2a11.4 11.4 0 0 0 4.4 4c.6.3 1.1.5 1.5.6.6.2 1.2.2 1.7.1.5-.1 1.8-.7 2.1-1.4.3-.7.3-1.3.2-1.4s-.2-.2-.5-.4Z"/></svg></span><span class="wa-label">WhatsApp Support</span></a>
 
@@ -1781,10 +1781,21 @@ function normalizedTransactionStatus(value){
  if(['failed','failure','declined','rejected','cancelled','canceled','error','reversed'].includes(s))return 'failed';
  return 'unknown';
 }
+function transactionMatchesCurrentFilters(x){
+ const term=String(document.getElementById('transaction-search')?.value||'').trim().toLowerCase();
+ const from=document.getElementById('transaction-date-from')?.value||'';
+ const to=document.getElementById('transaction-date-to')?.value||'';
+ if(transactionFilter!=='all'&&normalizedTransactionStatus(x.status||x.provider_status)!==transactionFilter)return false;
+ if(term&&![x.reference,x.description,x.type,x.provider_reference].some(v=>String(v||'').toLowerCase().includes(term)))return false;
+ if(from||to){if(!x.created_at)return false;const d=new Date(x.created_at);if(Number.isNaN(d.getTime()))return false;const localDate=[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');if(from&&localDate<from)return false;if(to&&localDate>to)return false;}
+ return true;
+}
 function renderTransactionHistory(){
  const box=$('transaction-history');if(!box)return;box.replaceChildren();
- const term=String(document.getElementById('transaction-search')?.value||'').trim().toLowerCase();
- const visible=transactionRecords.filter(x=>(transactionFilter==='all'||normalizedTransactionStatus(x.status||x.provider_status)===transactionFilter)&&(!term||[x.reference,x.description,x.type,x.provider_reference].some(v=>String(v||'').toLowerCase().includes(term))));
+ const from=document.getElementById('transaction-date-from')?.value||'';
+ const to=document.getElementById('transaction-date-to')?.value||'';
+ const hint=$('transaction-date-hint');if(hint){if(from&&to&&from>to){hint.textContent='The start date must be on or before the end date.';hint.style.color='#b42318'}else{hint.textContent='Date filters apply to transactions currently loaded. Load more to include older records.';hint.style.color=''}}
+ const visible=from&&to&&from>to?[]:transactionRecords.filter(transactionMatchesCurrentFilters);
  document.querySelectorAll('[data-tx-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.txFilter===transactionFilter)));
  if(!transactionRecords.length){const empty=document.createElement('div');empty.className='tx-empty';empty.textContent=currentSession?'No transactions yet.':'Sign in to view your transactions.';box.append(empty);return}
  if(!visible.length){const empty=document.createElement('div');empty.className='tx-empty';empty.textContent='No '+transactionFilter+' transactions found.';box.append(empty);return}
@@ -1804,9 +1815,14 @@ function renderTransactionHistory(){
 }
 document.querySelectorAll('[data-tx-filter]').forEach(b=>b.addEventListener('click',()=>{transactionFilter=b.dataset.txFilter||'all';renderTransactionHistory()}));
 document.getElementById('transaction-search')?.addEventListener('input',renderTransactionHistory);
+document.getElementById('transaction-date-from')?.addEventListener('change',renderTransactionHistory);
+document.getElementById('transaction-date-to')?.addEventListener('change',renderTransactionHistory);
+document.getElementById('clear-transaction-dates')?.addEventListener('click',()=>{const from=$('transaction-date-from'),to=$('transaction-date-to');if(from)from.value='';if(to)to.value='';renderTransactionHistory()});
 function exportPanbillTransactionsCsv(){
- const term=String(document.getElementById('transaction-search')?.value||'').trim().toLowerCase();
- const rows=transactionRecords.filter(x=>(transactionFilter==='all'||normalizedTransactionStatus(x.status||x.provider_status)===transactionFilter)&&(!term||[x.reference,x.description,x.type,x.provider_reference].some(v=>String(v||'').toLowerCase().includes(term))));
+ const from=document.getElementById('transaction-date-from')?.value||'';
+ const to=document.getElementById('transaction-date-to')?.value||'';
+ if(from&&to&&from>to){alert('The start date must be on or before the end date.');return;}
+ const rows=transactionRecords.filter(transactionMatchesCurrentFilters);
  if(!rows.length){alert('There are no transactions in the current view to export.');return;}
  const headers=['Date and time','Description','Type','Amount (NGN)','Status','Transaction reference','Provider','Provider reference'];
  const safeCell=value=>{let v=String(value??'');if(/^[\s]*[=+@\-]/.test(v))v="'"+v;return '"'+v.replace(/"/g,'""')+'"';};
