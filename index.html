@@ -1228,7 +1228,7 @@ main.wrap[data-view="bill-tools"] #panbill-bill-tools-page{display:block!importa
 
 
 
-<div class="two-col" id="history-area"><button aria-label="Back to VTU dashboard" class="history-back-home" id="history-back-home" type="button">← Back to Home</button><section class="panel" id="transaction-panel"><div class="section-head" style="margin-top:0"><h2>Transaction history</h2><button class="text-button" id="refresh-transactions" type="button">Refresh</button></div><div aria-label="Filter transactions" class="tx-filter-bar" id="transaction-filters" role="group">
+<div class="two-col" id="history-area"><button aria-label="Back to VTU dashboard" class="history-back-home" id="history-back-home" type="button">← Back to Home</button><section class="panel" id="transaction-panel"><div class="section-head" style="margin-top:0"><h2>Transaction history</h2><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="text-button" id="export-transactions" type="button">Export CSV</button><button class="text-button" id="refresh-transactions" type="button">Refresh</button></div></div><div aria-label="Filter transactions" class="tx-filter-bar" id="transaction-filters" role="group">
 <button aria-pressed="true" class="tx-filter" data-tx-filter="all" type="button">All</button>
 <button aria-pressed="false" class="tx-filter" data-tx-filter="successful" type="button">Successful</button>
 <button aria-pressed="false" class="tx-filter" data-tx-filter="pending" type="button">Pending</button>
@@ -1804,6 +1804,16 @@ function renderTransactionHistory(){
 }
 document.querySelectorAll('[data-tx-filter]').forEach(b=>b.addEventListener('click',()=>{transactionFilter=b.dataset.txFilter||'all';renderTransactionHistory()}));
 document.getElementById('transaction-search')?.addEventListener('input',renderTransactionHistory);
+function exportPanbillTransactionsCsv(){
+ const term=String(document.getElementById('transaction-search')?.value||'').trim().toLowerCase();
+ const rows=transactionRecords.filter(x=>(transactionFilter==='all'||normalizedTransactionStatus(x.status||x.provider_status)===transactionFilter)&&(!term||[x.reference,x.description,x.type,x.provider_reference].some(v=>String(v||'').toLowerCase().includes(term))));
+ if(!rows.length){alert('There are no transactions in the current view to export.');return;}
+ const headers=['Date and time','Description','Type','Amount (NGN)','Status','Transaction reference','Provider','Provider reference'];
+ const safeCell=value=>{let v=String(value??'');if(/^[\s]*[=+@\-]/.test(v))v="'"+v;return '"'+v.replace(/"/g,'""')+'"';};
+ const lines=[headers,...rows.map(x=>[x.created_at?new Date(x.created_at).toLocaleString('en-NG'):'',String(x.description||'').replace(/wisesub/gi,'PanBill'),x.type||'',x.amount??'',normalizedTransactionStatus(x.status||x.provider_status),x.reference||'',x.provider||'PanBill',x.provider_reference||''])].map(row=>row.map(safeCell).join(','));
+ const blob=new Blob(['\\ufeff'+lines.join('\\r\\n')],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='panbill-transactions-'+new Date().toISOString().slice(0,10)+'.csv';document.body.append(a);a.click();a.remove();URL.revokeObjectURL(url);
+}
+document.getElementById('export-transactions')?.addEventListener('click',exportPanbillTransactionsCsv);
 async function loadWallet(){
  if(!currentSession)return;
  $('wallet-message').textContent='Loading wallet…';$('refresh-wallet').disabled=true;$('refresh-transactions').disabled=true;
