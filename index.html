@@ -1233,7 +1233,7 @@ main.wrap[data-view="bill-tools"] #panbill-bill-tools-page{display:block!importa
 <button aria-pressed="false" class="tx-filter" data-tx-filter="successful" type="button">Successful</button>
 <button aria-pressed="false" class="tx-filter" data-tx-filter="pending" type="button">Pending</button>
 <button aria-pressed="false" class="tx-filter" data-tx-filter="failed" type="button">Failed</button>
-</div><div style="margin:12px 0"><label for="transaction-search" class="muted" style="display:block;margin-bottom:6px">Search by description or reference</label><input id="transaction-search" type="search" placeholder="Enter transaction reference or service" autocomplete="off" style="width:100%;box-sizing:border-box"></div><div class="tx-date-filter" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin:12px 0"><div><label for="transaction-date-from" class="muted" style="display:block;margin-bottom:6px">From date</label><input id="transaction-date-from" type="date" style="width:100%;box-sizing:border-box"></div><div><label for="transaction-date-to" class="muted" style="display:block;margin-bottom:6px">To date</label><input id="transaction-date-to" type="date" style="width:100%;box-sizing:border-box"></div><div style="display:flex;align-items:end"><button class="text-button" id="clear-transaction-dates" type="button">Clear dates</button></div></div><p class="muted" id="transaction-date-hint" style="font-size:12px;margin:0 0 10px">Date filters apply to transactions currently loaded. Load more to include older records.</p><div id="transaction-summary" aria-live="polite" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:9px;margin:12px 0 14px"><div class="panel" style="padding:12px"><small class="muted">Loaded transactions</small><strong id="tx-summary-count" style="display:block;font-size:20px">0</strong></div><div class="panel" style="padding:12px"><small class="muted">Successful volume</small><strong id="tx-summary-success-volume" style="display:block;font-size:20px">₦0.00</strong></div><div class="panel" style="padding:12px"><small class="muted">Pending</small><strong id="tx-summary-pending" style="display:block;font-size:20px">0</strong></div><div class="panel" style="padding:12px"><small class="muted">Failed</small><strong id="tx-summary-failed" style="display:block;font-size:20px">0</strong></div></div><p class="muted" style="font-size:11px;margin:0 0 8px">Summary covers records currently loaded, not necessarily your full account history.</p><div class="muted" id="transaction-history">Sign in to view your transactions.</div><div style="display:flex;justify-content:center;margin-top:14px"><button class="outline-btn" id="load-more-transactions" type="button" hidden>Load more transactions</button></div></section><section class="panel"><h3>Security matters</h3><p style="font-size:13px">Keep your password private. Always check your transaction status before trying a payment again.</p><div class="status" id="panbill-backend-status" role="status"></div></section></div>
+</div><div style="margin:12px 0"><label for="transaction-search" class="muted" style="display:block;margin-bottom:6px">Search by description or reference</label><input id="transaction-search" type="search" placeholder="Enter transaction reference or service" autocomplete="off" style="width:100%;box-sizing:border-box"></div><div class="tx-reference-lookup" style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;margin:12px 0;padding:13px;border:1px solid #e9bb5840;border-radius:13px;background:#ffffff06"><div><label for="transaction-reference-lookup" style="display:block;margin:0 0 6px">Find a transaction by exact reference</label><input id="transaction-reference-lookup" type="search" placeholder="Paste transaction reference" autocomplete="off" spellcheck="false"></div><button class="outline-btn" id="lookup-transaction-reference" type="button" style="align-self:end">Find transaction</button><p id="transaction-reference-lookup-status" class="muted" role="status" aria-live="polite" style="grid-column:1/-1;margin:0;font-size:12px"></p></div><div class="tx-date-filter" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin:12px 0"><div><label for="transaction-date-from" class="muted" style="display:block;margin-bottom:6px">From date</label><input id="transaction-date-from" type="date" style="width:100%;box-sizing:border-box"></div><div><label for="transaction-date-to" class="muted" style="display:block;margin-bottom:6px">To date</label><input id="transaction-date-to" type="date" style="width:100%;box-sizing:border-box"></div><div style="display:flex;align-items:end"><button class="text-button" id="clear-transaction-dates" type="button">Clear dates</button></div></div><p class="muted" id="transaction-date-hint" style="font-size:12px;margin:0 0 10px">Date filters apply to transactions currently loaded. Load more to include older records.</p><div id="transaction-summary" aria-live="polite" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:9px;margin:12px 0 14px"><div class="panel" style="padding:12px"><small class="muted">Loaded transactions</small><strong id="tx-summary-count" style="display:block;font-size:20px">0</strong></div><div class="panel" style="padding:12px"><small class="muted">Successful volume</small><strong id="tx-summary-success-volume" style="display:block;font-size:20px">₦0.00</strong></div><div class="panel" style="padding:12px"><small class="muted">Pending</small><strong id="tx-summary-pending" style="display:block;font-size:20px">0</strong></div><div class="panel" style="padding:12px"><small class="muted">Failed</small><strong id="tx-summary-failed" style="display:block;font-size:20px">0</strong></div></div><p class="muted" style="font-size:11px;margin:0 0 8px">Summary covers records currently loaded, not necessarily your full account history.</p><div class="muted" id="transaction-history">Sign in to view your transactions.</div><div style="display:flex;justify-content:center;margin-top:14px"><button class="outline-btn" id="load-more-transactions" type="button" hidden>Load more transactions</button></div></section><section class="panel"><h3>Security matters</h3><p style="font-size:13px">Keep your password private. Always check your transaction status before trying a payment again.</p><div class="status" id="panbill-backend-status" role="status"></div></section></div>
 <section class="panel" hidden="" id="service-panel"><div class="section-head" style="margin-top:0"><div><div class="eyebrow">Secure checkout</div><h2 id="service-title" style="margin:4px 0">Service</h2></div><button class="close" id="close-service" type="button">Close</button></div><p class="muted" id="service-help" style="font-size:13px">Select the product and check your details.</p><form id="service-form" novalidate><div class="form-grid" id="service-fields"></div><input id="transaction-pin" type="hidden" value=""/><button class="gold-btn" id="service-submit" style="width:100%;margin-top:18px" type="button">Continue securely</button></form><div class="status" id="service-message" role="status"></div><button class="outline-btn" hidden="" id="check-status-button" style="margin-top:12px;width:100%" type="button">Check purchase status</button></section>
 <a aria-label="Contact PanBill support on WhatsApp" class="whatsapp-support" href="https://wa.me/2349127449861?text=Hello%20PanBill%20Support%2C%20I%20need%20help%20with%20my%20account%20or%20a%20transaction." rel="noopener noreferrer" target="_blank"><span aria-hidden="true" class="wa-icon"><svg viewBox="0 0 32 32" width="27" height="27" focusable="false"><path fill="currentColor" d="M16 3.2A12.5 12.5 0 0 0 5.2 22l-1.5 5.5 5.7-1.5A12.5 12.5 0 1 0 16 3.2Zm0 22.7a10.1 10.1 0 0 1-5.1-1.4l-.4-.2-3.4.9.9-3.3-.2-.4A10.1 10.1 0 1 1 16 25.9Zm5.6-7.6c-.3-.2-1.8-.9-2.1-1s-.5-.2-.7.2-.8 1-.9 1.1-.3.2-.6.1a8.2 8.2 0 0 1-2.4-1.5 9 9 0 0 1-1.7-2.1c-.2-.3 0-.5.1-.6l.5-.6c.2-.2.2-.4.3-.5s0-.4 0-.5-.7-1.7-1-2.3c-.2-.5-.5-.4-.7-.4h-.6c-.2 0-.5.1-.8.4s-1.1 1.1-1.1 2.6 1.1 3 1.2 3.2a11.4 11.4 0 0 0 4.4 4c.6.3 1.1.5 1.5.6.6.2 1.2.2 1.7.1.5-.1 1.8-.7 2.1-1.4.3-.7.3-1.3.2-1.4s-.2-.2-.5-.4Z"/></svg></span><span class="wa-label">WhatsApp Support</span></a>
 
@@ -1254,7 +1254,7 @@ main.wrap[data-view="bill-tools"] #panbill-bill-tools-page{display:block!importa
 </section></div>
 <div class="modal-backdrop" hidden="" id="transaction-detail-overlay">
 <section aria-labelledby="transaction-detail-title" aria-modal="true" class="modal" role="dialog">
-<div class="modal-top"><h2 id="transaction-detail-title">Transaction details</h2><button class="close" id="close-transaction-detail" type="button">Close</button></div>
+<div class="modal-top"><h2 id="transaction-detail-title">Transaction details</h2><div style="display:flex;gap:8px;align-items:center"><button class="outline-btn" id="refresh-detail-transaction" type="button" hidden>Refresh status</button><button class="close" id="close-transaction-detail" type="button">Close</button></div></div>
 <div id="transaction-detail-content"></div>
 </section>
 </div>
@@ -1848,7 +1848,50 @@ function printPanbillTransactionStatement(){
  const w=window.open('','_blank','width=1000,height=800');
  if(!w){alert('Allow pop-ups to print your PanBill statement.');return;}
  const body=rows.map(x=>'<tr><td>'+esc(x.created_at?new Date(x.created_at).toLocaleString('en-NG'):'')+'</td><td>'+esc(String(x.description||x.type||'Transaction').replace(/wisesub/gi,'PanBill'))+'</td><td>'+esc(x.reference||'')+'</td><td>'+esc(normalizedTransactionStatus(x.status||x.provider_status))+'</td><td class="amount">'+esc(money(x.amount))+'</td></tr>').join('');
- w.document.write('<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PanBill Transaction Statement</title><style>body{font:13px Arial,sans-serif;color:#18243a;margin:28px}header{border-bottom:3px solid #d7a842;padding-bottom:12px}h1{margin:0 0 5px}p{color:#5b6678}.summary{display:flex;gap:24px;flex-wrap:wrap;margin:18px 0}.summary strong{display:block;font-size:18px;margin-top:4px}table{width:100%;border-collapse:collapse}th,td{padding:9px 7px;border-bottom:1px solid #e4e8ee;text-align:left;vertical-align:top}th{background:#f3f5f8}.amount{text-align:right;white-space:nowrap}.note{margin-top:18px;font-size:11px}@media print{body{margin:12mm}button{display:none}}</style></head><body><header><h1>PanBill</h1><strong>Transaction Statement</strong><p>'+esc(period)+' · '+rows.length+' transaction(s)</p></header><div class="summary"><div>Successful transaction volume<strong>'+esc(money(successfulTotal))+'</strong></div><div>All displayed transaction amounts<strong>'+esc(money(total))+'</strong></div></div><table><thead><tr><th>Date</th><th>Description</th><th>Reference</th><th>Status</th><th class="amount">Amount</th></tr></thead><tbody>'+body+'</tbody></table><p class="note">This statement contains only transactions currently loaded in PanBill and matching the active filters. It is an informational record, not a bank-issued statement or proof of settlement.</p><script>window.onload=()=>window.print()<\/script></body></html>');
+ w.document.write('<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PanBill Transaction Statement</title><style>body{font:13px Arial,sans-serif;color:#18243a;margin:28px}header{border-bottom:3px solid #d7a842;padding-bottom:12px}h1{margin:0 0 5px}p{color:#5b6678}.summary{display:flex;gap:24px;flex-wrap:wrap;margin:18px 0}.summary strong{display:block;font-size:18px;margin-top:4px}table{width:100%;border-collapse:collapse}th,td{padding:9px 7px;border-bottom:1px solid #e4e8ee;text-align:left;vertical-align:top}th{background:#f3f5f8}.amount{text-align:right;white-space:nowrap}.note{margin-top:18px;font-size:11px}@media print{body{margin:12mm}button{display:none}}</style></head><body><header><h1>PanBill</h1><strong>Transaction Statement</strong><p>'+esc(period)+' · '+rows.length+' transaction(s)</p></header><div class="summary"><div>Successful transaction volume<strong>'+esc(money(successfulTotal))+'</strong></div><div>All displayed transaction amounts<strong>'+esc(money(total))+'</strong></div></div><table><thead><tr><th>Date</th><th>Description</th><th>Reference</th><th>Status</th><th class="amount">Amount</th></tr></thead><tbody>'+body+'</tbody></table><p class="note">This statement contains only transactions currently loaded in PanBill and matching the active filters. It is an informational record, not a bank-issued statement or proof of settlement.</p><script>window.onload=()=>window.print()<\/script>
+<style id="panbill-transaction-history-responsive-fix-v1">
+/* Keep transaction history controls and summary cards inside their own panel. */
+#transaction-panel{min-width:0;max-width:100%;overflow:hidden}
+#transaction-panel *{min-width:0}
+#transaction-panel .section-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+#transaction-panel .section-head h2{flex:1 1 150px;min-width:0}
+#transaction-panel .section-head>div{display:flex;flex:1 1 100%;width:100%;max-width:100%;flex-wrap:wrap;gap:8px!important}
+#transaction-panel .section-head>div button{flex:1 1 105px;min-width:0;white-space:normal;overflow-wrap:anywhere;padding:9px 8px;font-size:13px}
+#transaction-panel .tx-filter-bar{max-width:100%;min-width:0;flex-wrap:wrap}
+#transaction-panel .tx-reference-lookup{grid-template-columns:minmax(0,1fr)!important}
+#transaction-panel .tx-reference-lookup>button{width:100%;align-self:stretch!important}
+#transaction-panel .tx-reference-lookup input,
+#transaction-panel #transaction-search,
+#transaction-panel .tx-date-filter input{max-width:100%;min-width:0}
+#transaction-panel #transaction-summary{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;width:100%;max-width:100%;gap:9px!important}
+#transaction-panel #transaction-summary>.panel{width:100%;max-width:100%;min-width:0;overflow:hidden;padding:12px!important}
+#transaction-panel #transaction-summary small{display:block;line-height:1.35;overflow-wrap:anywhere}
+#transaction-panel #transaction-summary strong{display:block;max-width:100%;min-width:0;font-size:clamp(16px,4.4vw,21px)!important;line-height:1.25;overflow-wrap:anywhere;word-break:break-word;font-variant-numeric:tabular-nums}
+#transaction-panel #tx-summary-success-volume{letter-spacing:-.45px}
+#transaction-panel .tx-date-filter{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+#transaction-panel .tx-date-filter>div{min-width:0}
+#transaction-panel .tx-date-filter>div:last-child{grid-column:1/-1;justify-content:flex-start}
+#transaction-panel .tx-date-filter button{max-width:100%;white-space:normal}
+@media(max-width:420px){
+ #transaction-panel{padding:14px!important;border-radius:17px}
+ #transaction-panel .section-head{align-items:flex-start}
+ #transaction-panel .section-head h2{flex-basis:100%;font-size:19px!important}
+ #transaction-panel .section-head>div button{flex:1 1 30%;font-size:12px;padding:9px 5px}
+ #transaction-panel #transaction-summary{gap:8px!important}
+ #transaction-panel #transaction-summary>.panel{padding:11px!important;border-radius:15px}
+ #transaction-panel #transaction-summary small{font-size:12px}
+ #transaction-panel #transaction-summary strong{font-size:clamp(15px,4vw,19px)!important}
+ #transaction-panel .tx-date-filter{gap:8px!important}
+}
+@media(max-width:340px){
+ #transaction-panel #transaction-summary{grid-template-columns:minmax(0,1fr)!important}
+ #transaction-panel .section-head>div button{flex-basis:100%}
+ #transaction-panel .tx-date-filter{grid-template-columns:minmax(0,1fr)!important}
+ #transaction-panel .tx-date-filter>div:last-child{grid-column:auto}
+}
+</style>
+
+</body></html>');
  w.document.close();
 }
 document.getElementById('print-transaction-statement')?.addEventListener('click',printPanbillTransactionStatement);
@@ -1873,17 +1916,135 @@ async function loadWallet(){
   const box=$('transaction-history');if(box){box.replaceChildren();const error=document.createElement('div');error.className='tx-empty';error.textContent='Transaction history could not be loaded. Please refresh and try again.';box.append(error)}
  }finally{$('refresh-wallet').disabled=false;$('refresh-transactions').disabled=false}
 }
-function showTransactionDetails(x){const overlay=$('transaction-detail-overlay'),content=$('transaction-detail-content');content.replaceChildren();const providerData=x.provider_response&&typeof x.provider_response==='object'?x.provider_response:{};const responseData=providerData.response&&typeof providerData.response==='object'?providerData.response:providerData;const inner=responseData.data&&typeof responseData.data==='object'?responseData.data:{};const status=normalizedTransactionStatus(x.status||x.provider_status);const statusText=({successful:'Successful',pending:'Pending',failed:'Failed',unknown:'Status unavailable'})[status];const badge=document.createElement('div');badge.className='tx-detail-status tx-status '+status;badge.textContent=statusText;content.append(badge);const grid=document.createElement('div');grid.className='tx-detail-grid';const add=(label,value)=>{if(value===null||value===undefined||String(value).trim()==='')return;const item=document.createElement('div');item.className='tx-detail-item';const small=document.createElement('small');small.textContent=label;const strong=document.createElement('strong');strong.textContent=String(value);item.append(small,strong);grid.append(item)};add('Service',String(x.description||x.type||'Transaction').replace(/wisesub/gi,'PanBill'));add('Amount',money(x.amount));add('Date and time',x.created_at?new Date(x.created_at).toLocaleString('en-NG'):'Not available');add('Transaction reference',x.reference||'Not available');add('Provider','PanBill');add('Provider status',x.provider_status||'Not available');add('Provider reference',x.provider_reference||'Not available');add('Package',inner.package||inner.product||'');add('Units',inner.units||'');content.append(grid);const note=document.createElement('p');note.className='muted';note.style.fontSize='13px';const providerMessage=responseData.message||providerData.message;note.textContent=providerMessage?String(providerMessage).replace(/wisesub/gi,'PanBill'):status==='pending'?'This transaction is still being processed. Refresh your transaction history later for the latest status.':status==='failed'?'This transaction was not completed. If your wallet was debited, contact support and provide the transaction reference.':'Transaction details are shown from the records available for this payment.';content.append(note);
+let activeTransactionDetail=null;
+function showTransactionDetails(x){
+ activeTransactionDetail=x;
+ const overlay=$('transaction-detail-overlay'),content=$('transaction-detail-content');content.replaceChildren();
+ const providerData=x.provider_response&&typeof x.provider_response==='object'?x.provider_response:{};
+ const responseData=providerData.response&&typeof providerData.response==='object'?providerData.response:providerData;
+ const inner=responseData.data&&typeof responseData.data==='object'?responseData.data:{};
+ const status=normalizedTransactionStatus(x.status||x.provider_status);
+ const statusText=({successful:'Successful',pending:'Pending',failed:'Failed',unknown:'Status unavailable'})[status];
+ const badge=document.createElement('div');badge.className='tx-detail-status tx-status '+status;badge.textContent=statusText;content.append(badge);
+ const grid=document.createElement('div');grid.className='tx-detail-grid';
+ const add=(label,value)=>{if(value===null||value===undefined||String(value).trim()==='')return;const item=document.createElement('div');item.className='tx-detail-item';const small=document.createElement('small');small.textContent=label;const strong=document.createElement('strong');strong.textContent=String(value);item.append(small,strong);grid.append(item)};
+ add('Service',String(x.description||x.type||'Transaction').replace(/wisesub/gi,'PanBill'));
+ add('Amount',money(x.amount));add('Date and time',x.created_at?new Date(x.created_at).toLocaleString('en-NG'):'Not available');
+ add('Transaction reference',x.reference||'Not available');add('Provider','PanBill');
+ add('Provider status',x.provider_status||'Not available');add('Provider reference',x.provider_reference||'Not available');
+ add('Package',inner.package||inner.product||'');add('Units',inner.units||'');
+ content.append(grid);
+ const timeline=document.createElement('div');timeline.className='tx-detail-item';timeline.style.marginTop='10px';
+ const timelineTitle=document.createElement('strong');timelineTitle.textContent='Transaction timeline';
+ const timelineText=document.createElement('p');timelineText.className='muted';timelineText.style.margin='7px 0 0';timelineText.style.fontSize='12px';
+ timelineText.textContent=(x.created_at?'Created: '+new Date(x.created_at).toLocaleString('en-NG')+'. ':'')+'Latest recorded status: '+statusText+'. PanBill displays the latest status available; earlier status changes are not stored in this view.';
+ timeline.append(timelineTitle,timelineText);content.append(timeline);
+ const note=document.createElement('p');note.className='muted';note.style.fontSize='13px';
+ const providerMessage=responseData.message||providerData.message;
+ note.textContent=providerMessage?String(providerMessage).replace(/wisesub/gi,'PanBill'):status==='pending'?'This transaction is still being processed. Refresh its status before trying the payment again.':status==='failed'?'This transaction was not completed. If your wallet was debited, contact support and provide the transaction reference.':'Transaction details are shown from the records available for this payment.';
+ content.append(note);
  const receiptButton=document.createElement('button');receiptButton.type='button';receiptButton.className='gold-btn';receiptButton.style.cssText='width:100%;margin-top:14px';receiptButton.textContent=status==='successful'?'Download payment receipt':'Download transaction record';
- receiptButton.addEventListener('click',()=>printPanbillTransactionRecord(x,status));content.append(receiptButton);overlay.hidden=false}
+ receiptButton.addEventListener('click',()=>printPanbillTransactionRecord(x,status));content.append(receiptButton);
+ const refresh=$('refresh-detail-transaction');if(refresh){refresh.hidden=status!=='pending';refresh.disabled=false;refresh.textContent='Refresh status'}
+ overlay.hidden=false;
+}
+async function refreshActiveTransactionDetail(){
+ const x=activeTransactionDetail;if(!x?.reference||!currentSession)return;
+ const button=$('refresh-detail-transaction');if(!button)return;
+ button.disabled=true;button.textContent='Checking…';
+ try{
+  const result=await invoke({action:'status',reference:x.reference});
+  const query=await authClient.from('transactions')
+   .select('type,amount,status,reference,description,created_at,provider,provider_status,provider_reference,provider_response')
+   .eq('user_id',currentSession.user.id).eq('reference',x.reference).maybeSingle();
+  if(query.error)throw query.error;
+  if(!query.data)throw Error('The transaction record could not be refreshed. Please try again.');
+  const fresh=query.data;
+  const index=transactionRecords.findIndex(row=>row.reference===fresh.reference);
+  if(index>=0)transactionRecords[index]=fresh;
+  renderTransactionHistory();showTransactionDetails(fresh);
+  const status=normalizedTransactionStatus(fresh.status||fresh.provider_status);
+  if(status==='pending'){$('refresh-detail-transaction').textContent='Still pending';}
+  else if(status==='successful'){$('refresh-detail-transaction').hidden=true;}
+  else {$('refresh-detail-transaction').hidden=true;}
+  if(result?.message){const note=document.createElement('p');note.className='muted';note.style.fontSize='12px';note.textContent=String(result.message);$('transaction-detail-content').append(note);}
+ }catch(error){
+  button.disabled=false;button.textContent='Retry status check';
+  const note=document.createElement('p');note.className='muted';note.style.fontSize='12px';note.textContent=error?.message||'Could not confirm the latest status. Try again shortly.';$('transaction-detail-content').append(note);
+ }finally{if(!$('refresh-detail-transaction').hidden&&$('refresh-detail-transaction').textContent==='Checking…'){$('refresh-detail-transaction').disabled=false;$('refresh-detail-transaction').textContent='Refresh status'}}
+}
+$('refresh-detail-transaction')?.addEventListener('click',refreshActiveTransactionDetail);
+document.getElementById('lookup-transaction-reference')?.addEventListener('click',async()=>{
+ const input=$('transaction-reference-lookup'),status=$('transaction-reference-lookup-status');
+ const reference=String(input?.value||'').trim();
+ if(!reference){status.textContent='Enter the complete transaction reference.';return;}
+ if(!currentSession){status.textContent='Please sign in to look up a transaction.';return;}
+ const button=$('lookup-transaction-reference');button.disabled=true;status.textContent='Looking up your transaction…';
+ try{
+  const result=await authClient.from('transactions')
+   .select('type,amount,status,reference,description,created_at,provider,provider_status,provider_reference,provider_response')
+   .eq('user_id',currentSession.user.id).eq('reference',reference).maybeSingle();
+  if(result.error)throw result.error;
+  if(!result.data){status.textContent='No transaction with that exact reference was found in your account.';return;}
+  status.textContent='Transaction found. Showing its latest recorded details.';
+  const index=transactionRecords.findIndex(row=>row.reference===result.data.reference);
+  if(index>=0)transactionRecords[index]=result.data;else transactionRecords.unshift(result.data);
+  renderTransactionHistory();showTransactionDetails(result.data);
+ }catch(error){status.textContent=error?.message||'Could not look up this transaction. Please try again.';}
+ finally{button.disabled=false;}
+});
+
 function printPanbillTransactionRecord(x,status){
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const confirmed=status==='successful';const title=confirmed?'PanBill Payment Receipt':'PanBill Transaction Record';
  const rows=[['Service',String(x.description||x.type||'Transaction').replace(/wisesub/gi,'PanBill')],['Amount',money(x.amount)],['Status',({successful:'Successful',pending:'Pending',failed:'Failed',unknown:'Status unavailable'})[status]],['Date and time',x.created_at?new Date(x.created_at).toLocaleString('en-NG'):'Not available'],['Transaction reference',x.reference||'Not available'],['Provider reference',x.provider_reference||'Not available'],['Provider status',x.provider_status||'Not available']];
  const w=window.open('','_blank','width=720,height=800');if(!w){alert('Allow pop-ups to print or save your PanBill record.');return;}
- w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title><style>body{font:15px Arial,sans-serif;color:#17243a;margin:36px}header{border-bottom:3px solid #dcae48;padding-bottom:16px;margin-bottom:24px}h1{margin:0 0 6px;font-size:26px}p{color:#586579}.status{font-weight:bold;color:'+(confirmed?'#087443':'#9a5b00')+'}table{width:100%;border-collapse:collapse}td{padding:13px 8px;border-bottom:1px solid #e4e8ee}td:first-child{color:#647084;width:38%}.foot{margin-top:30px;font-size:12px;color:#697586}@media print{button{display:none}}</style></head><body><header><h1>PanBill</h1><p>'+title+'</p></header><table>'+rows.map(r=>'<tr><td>'+esc(r[0])+'</td><td class="'+(r[0]==='Status'?'status':'')+'">'+esc(r[1])+'</td></tr>').join('')+'</table><p class="foot">'+(confirmed?'This record reflects a transaction marked successful in PanBill records.':'This is a transaction record, not proof of successful payment. Check PanBill for the latest status before taking further action.')+'</p><script>window.onload=()=>window.print()<\/script></body></html>');w.document.close();
+ w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title><style>body{font:15px Arial,sans-serif;color:#17243a;margin:36px}header{border-bottom:3px solid #dcae48;padding-bottom:16px;margin-bottom:24px}h1{margin:0 0 6px;font-size:26px}p{color:#586579}.status{font-weight:bold;color:'+(confirmed?'#087443':'#9a5b00')+'}table{width:100%;border-collapse:collapse}td{padding:13px 8px;border-bottom:1px solid #e4e8ee}td:first-child{color:#647084;width:38%}.foot{margin-top:30px;font-size:12px;color:#697586}@media print{button{display:none}}</style></head><body><header><h1>PanBill</h1><p>'+title+'</p></header><table>'+rows.map(r=>'<tr><td>'+esc(r[0])+'</td><td class="'+(r[0]==='Status'?'status':'')+'">'+esc(r[1])+'</td></tr>').join('')+'</table><p class="foot">'+(confirmed?'This record reflects a transaction marked successful in PanBill records.':'This is a transaction record, not proof of successful payment. Check PanBill for the latest status before taking further action.')+'</p><script>window.onload=()=>window.print()<\/script>
+<style id="panbill-transaction-history-responsive-fix-v1">
+/* Keep transaction history controls and summary cards inside their own panel. */
+#transaction-panel{min-width:0;max-width:100%;overflow:hidden}
+#transaction-panel *{min-width:0}
+#transaction-panel .section-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+#transaction-panel .section-head h2{flex:1 1 150px;min-width:0}
+#transaction-panel .section-head>div{display:flex;flex:1 1 100%;width:100%;max-width:100%;flex-wrap:wrap;gap:8px!important}
+#transaction-panel .section-head>div button{flex:1 1 105px;min-width:0;white-space:normal;overflow-wrap:anywhere;padding:9px 8px;font-size:13px}
+#transaction-panel .tx-filter-bar{max-width:100%;min-width:0;flex-wrap:wrap}
+#transaction-panel .tx-reference-lookup{grid-template-columns:minmax(0,1fr)!important}
+#transaction-panel .tx-reference-lookup>button{width:100%;align-self:stretch!important}
+#transaction-panel .tx-reference-lookup input,
+#transaction-panel #transaction-search,
+#transaction-panel .tx-date-filter input{max-width:100%;min-width:0}
+#transaction-panel #transaction-summary{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;width:100%;max-width:100%;gap:9px!important}
+#transaction-panel #transaction-summary>.panel{width:100%;max-width:100%;min-width:0;overflow:hidden;padding:12px!important}
+#transaction-panel #transaction-summary small{display:block;line-height:1.35;overflow-wrap:anywhere}
+#transaction-panel #transaction-summary strong{display:block;max-width:100%;min-width:0;font-size:clamp(16px,4.4vw,21px)!important;line-height:1.25;overflow-wrap:anywhere;word-break:break-word;font-variant-numeric:tabular-nums}
+#transaction-panel #tx-summary-success-volume{letter-spacing:-.45px}
+#transaction-panel .tx-date-filter{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+#transaction-panel .tx-date-filter>div{min-width:0}
+#transaction-panel .tx-date-filter>div:last-child{grid-column:1/-1;justify-content:flex-start}
+#transaction-panel .tx-date-filter button{max-width:100%;white-space:normal}
+@media(max-width:420px){
+ #transaction-panel{padding:14px!important;border-radius:17px}
+ #transaction-panel .section-head{align-items:flex-start}
+ #transaction-panel .section-head h2{flex-basis:100%;font-size:19px!important}
+ #transaction-panel .section-head>div button{flex:1 1 30%;font-size:12px;padding:9px 5px}
+ #transaction-panel #transaction-summary{gap:8px!important}
+ #transaction-panel #transaction-summary>.panel{padding:11px!important;border-radius:15px}
+ #transaction-panel #transaction-summary small{font-size:12px}
+ #transaction-panel #transaction-summary strong{font-size:clamp(15px,4vw,19px)!important}
+ #transaction-panel .tx-date-filter{gap:8px!important}
 }
-function closeTransactionDetails(){$('transaction-detail-overlay').hidden=true}$('close-transaction-detail').onclick=closeTransactionDetails;$('transaction-detail-overlay').addEventListener('click',e=>{if(e.target===$('transaction-detail-overlay'))closeTransactionDetails()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('transaction-detail-overlay').hidden)closeTransactionDetails()});
+@media(max-width:340px){
+ #transaction-panel #transaction-summary{grid-template-columns:minmax(0,1fr)!important}
+ #transaction-panel .section-head>div button{flex-basis:100%}
+ #transaction-panel .tx-date-filter{grid-template-columns:minmax(0,1fr)!important}
+ #transaction-panel .tx-date-filter>div:last-child{grid-column:auto}
+}
+</style>
+
+</body></html>');w.document.close();
+}
+function closeTransactionDetails(){$('transaction-detail-overlay').hidden=true;activeTransactionDetail=null}$('close-transaction-detail').onclick=closeTransactionDetails;$('transaction-detail-overlay').addEventListener('click',e=>{if(e.target===$('transaction-detail-overlay'))closeTransactionDetails()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('transaction-detail-overlay').hidden)closeTransactionDetails()});
 let transactionLoadMoreBusy=false;
 $('load-more-transactions')?.addEventListener('click',async()=>{
  if(!currentSession||transactionLoadMoreBusy)return;
@@ -3906,7 +4067,50 @@ main.wrap[data-view="travel"] #panbill-travel-page{display:block!important}
   const popup=window.open('','_blank','width=900,height=700');
   if(!popup){msg('batch-message','Allow pop-ups for PanBill to print this batch record.',true);return;}
   popup.opener=null;
-  popup.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>PanBill Batch ${safe(batch.reference)}</title><style>body{font:14px Arial,sans-serif;color:#172033;padding:28px}h1{margin:0;color:#10274b}small{color:#64748b}.meta{margin:20px 0;padding:14px;background:#f1f5f9;border-radius:8px}.status{font-weight:bold;color:${allPaid?'#087443':'#9a5b00'}}table{width:100%;border-collapse:collapse;margin-top:18px}th,td{padding:10px 7px;border-bottom:1px solid #ddd;text-align:left;font-size:12px}th{background:#f1f5f9}.foot{margin-top:24px;color:#64748b;font-size:11px}@media print{button{display:none}}</style></head><body><h1>PanBill</h1><small>Multi-bill transaction record</small><div class="meta"><b>Batch reference:</b> ${safe(batch.reference)}<br><b>Date:</b> ${safe(batch.created_at?new Date(batch.created_at).toLocaleString('en-NG'):'Not available')}<br><b>Batch status:</b> <span class="status">${allPaid?'PAID — ALL BILLS SUCCESSFUL':pending?'PENDING — AWAITING CONFIRMATION':failed?'PARTIAL / NOT FULLY SUCCESSFUL':'NOT CONFIRMED'}</span><br><b>Successful:</b> ${successful} &nbsp; <b>Pending:</b> ${pending} &nbsp; <b>Failed/cancelled:</b> ${failed}</div><table><thead><tr><th>Service</th><th>Provider</th><th>Recipient</th><th>Amount</th><th>Status</th><th>Transaction ref</th></tr></thead><tbody>${rows||'<tr><td colspan="6">No bills in this batch.</td></tr>'}</tbody></table><p><b>Draft total / estimate:</b> ${safe(money(batch.total_amount))}</p><p class="foot">${allPaid?'This record reflects successful statuses recorded by PanBill.': 'This is a transaction record, not proof that all bills have been paid. Pending or failed items must not be treated as successful.'} Keep this reference for support enquiries.</p><button onclick="window.print()">Print / Save as PDF</button></body></html>`);
+  popup.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>PanBill Batch ${safe(batch.reference)}</title><style>body{font:14px Arial,sans-serif;color:#172033;padding:28px}h1{margin:0;color:#10274b}small{color:#64748b}.meta{margin:20px 0;padding:14px;background:#f1f5f9;border-radius:8px}.status{font-weight:bold;color:${allPaid?'#087443':'#9a5b00'}}table{width:100%;border-collapse:collapse;margin-top:18px}th,td{padding:10px 7px;border-bottom:1px solid #ddd;text-align:left;font-size:12px}th{background:#f1f5f9}.foot{margin-top:24px;color:#64748b;font-size:11px}@media print{button{display:none}}</style></head><body><h1>PanBill</h1><small>Multi-bill transaction record</small><div class="meta"><b>Batch reference:</b> ${safe(batch.reference)}<br><b>Date:</b> ${safe(batch.created_at?new Date(batch.created_at).toLocaleString('en-NG'):'Not available')}<br><b>Batch status:</b> <span class="status">${allPaid?'PAID — ALL BILLS SUCCESSFUL':pending?'PENDING — AWAITING CONFIRMATION':failed?'PARTIAL / NOT FULLY SUCCESSFUL':'NOT CONFIRMED'}</span><br><b>Successful:</b> ${successful} &nbsp; <b>Pending:</b> ${pending} &nbsp; <b>Failed/cancelled:</b> ${failed}</div><table><thead><tr><th>Service</th><th>Provider</th><th>Recipient</th><th>Amount</th><th>Status</th><th>Transaction ref</th></tr></thead><tbody>${rows||'<tr><td colspan="6">No bills in this batch.</td></tr>'}</tbody></table><p><b>Draft total / estimate:</b> ${safe(money(batch.total_amount))}</p><p class="foot">${allPaid?'This record reflects successful statuses recorded by PanBill.': 'This is a transaction record, not proof that all bills have been paid. Pending or failed items must not be treated as successful.'} Keep this reference for support enquiries.</p><button onclick="window.print()">Print / Save as PDF</button>
+<style id="panbill-transaction-history-responsive-fix-v1">
+/* Keep transaction history controls and summary cards inside their own panel. */
+#transaction-panel{min-width:0;max-width:100%;overflow:hidden}
+#transaction-panel *{min-width:0}
+#transaction-panel .section-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+#transaction-panel .section-head h2{flex:1 1 150px;min-width:0}
+#transaction-panel .section-head>div{display:flex;flex:1 1 100%;width:100%;max-width:100%;flex-wrap:wrap;gap:8px!important}
+#transaction-panel .section-head>div button{flex:1 1 105px;min-width:0;white-space:normal;overflow-wrap:anywhere;padding:9px 8px;font-size:13px}
+#transaction-panel .tx-filter-bar{max-width:100%;min-width:0;flex-wrap:wrap}
+#transaction-panel .tx-reference-lookup{grid-template-columns:minmax(0,1fr)!important}
+#transaction-panel .tx-reference-lookup>button{width:100%;align-self:stretch!important}
+#transaction-panel .tx-reference-lookup input,
+#transaction-panel #transaction-search,
+#transaction-panel .tx-date-filter input{max-width:100%;min-width:0}
+#transaction-panel #transaction-summary{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;width:100%;max-width:100%;gap:9px!important}
+#transaction-panel #transaction-summary>.panel{width:100%;max-width:100%;min-width:0;overflow:hidden;padding:12px!important}
+#transaction-panel #transaction-summary small{display:block;line-height:1.35;overflow-wrap:anywhere}
+#transaction-panel #transaction-summary strong{display:block;max-width:100%;min-width:0;font-size:clamp(16px,4.4vw,21px)!important;line-height:1.25;overflow-wrap:anywhere;word-break:break-word;font-variant-numeric:tabular-nums}
+#transaction-panel #tx-summary-success-volume{letter-spacing:-.45px}
+#transaction-panel .tx-date-filter{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+#transaction-panel .tx-date-filter>div{min-width:0}
+#transaction-panel .tx-date-filter>div:last-child{grid-column:1/-1;justify-content:flex-start}
+#transaction-panel .tx-date-filter button{max-width:100%;white-space:normal}
+@media(max-width:420px){
+ #transaction-panel{padding:14px!important;border-radius:17px}
+ #transaction-panel .section-head{align-items:flex-start}
+ #transaction-panel .section-head h2{flex-basis:100%;font-size:19px!important}
+ #transaction-panel .section-head>div button{flex:1 1 30%;font-size:12px;padding:9px 5px}
+ #transaction-panel #transaction-summary{gap:8px!important}
+ #transaction-panel #transaction-summary>.panel{padding:11px!important;border-radius:15px}
+ #transaction-panel #transaction-summary small{font-size:12px}
+ #transaction-panel #transaction-summary strong{font-size:clamp(15px,4vw,19px)!important}
+ #transaction-panel .tx-date-filter{gap:8px!important}
+}
+@media(max-width:340px){
+ #transaction-panel #transaction-summary{grid-template-columns:minmax(0,1fr)!important}
+ #transaction-panel .section-head>div button{flex-basis:100%}
+ #transaction-panel .tx-date-filter{grid-template-columns:minmax(0,1fr)!important}
+ #transaction-panel .tx-date-filter>div:last-child{grid-column:auto}
+}
+</style>
+
+</body></html>`);
   popup.document.close();
  }
  $('batch-list')?.addEventListener('click',async e=>{const receipt=e.target.closest('[data-batch-receipt]');if(receipt){receipt.disabled=true;try{const r=await api({action:'batches_list'});const batch=(r.data||[]).find(x=>x.id===receipt.dataset.batchReceipt);if(!batch)throw Error('Batch not found. Refresh and try again.');printBatchRecord(batch);}catch(err){msg('batch-message',err.message,true);}finally{receipt.disabled=false;}return;}const verify=e.target.closest('[data-verify-batch]');if(verify){verify.disabled=true;msg('batch-message','Checking pending bill transactions with the provider…');try{const result=await api({action:'batches_verify',batch_id:verify.dataset.verifyBatch});const summary=(result.outcomes||[]).map(x=>x.status.toUpperCase()+' · '+(x.reference||x.id)+' · '+(x.message||'')).join('\n');msg('batch-message',(result.message||'Verification finished.')+'\n'+summary,result.batch_status!=='successful');await loadBatches();}catch(err){msg('batch-message',err.message,true);}finally{verify.disabled=false;}return;}const execute=e.target.closest('[data-execute-batch]');if(execute){execute.disabled=true;msg('batch-message','Checking bill details before checkout…');try{await previewBatch(execute.dataset.executeBatch);msg('batch-message','Review the validated bill details before confirming payment.');}catch(err){msg('batch-message',err.message,true);}finally{execute.disabled=false;}return;}const b=e.target.closest('[data-open-batch]');if(!b)return;try{const r=await api({action:'batches_list'});const batch=(r.data||[]).find(x=>x.id===b.dataset.openBatch);if(!batch)return;activeBatch=batch.id;const lines=(batch.panbill_bill_batch_items||[]).map(x=>x.service_type+' · '+x.recipient+' · '+money(x.amount)+' · '+x.status).join('\n');alert('Batch '+batch.reference+'\nEstimated total: '+money(batch.total_amount)+'\n\n'+(lines||'No bills added.')+'\n\nFinal charges are calculated separately by the existing bill-purchase service.');}catch(err){msg('batch-message',err.message,true);}});
@@ -3975,4 +4179,47 @@ main.wrap[data-view="services"] .services .service-card small{display:block!impo
 }
 @media(min-width:900px){main.wrap[data-view="services"] .services{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
 </style>
+
+<style id="panbill-transaction-history-responsive-fix-v1">
+/* Keep transaction history controls and summary cards inside their own panel. */
+#transaction-panel{min-width:0;max-width:100%;overflow:hidden}
+#transaction-panel *{min-width:0}
+#transaction-panel .section-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+#transaction-panel .section-head h2{flex:1 1 150px;min-width:0}
+#transaction-panel .section-head>div{display:flex;flex:1 1 100%;width:100%;max-width:100%;flex-wrap:wrap;gap:8px!important}
+#transaction-panel .section-head>div button{flex:1 1 105px;min-width:0;white-space:normal;overflow-wrap:anywhere;padding:9px 8px;font-size:13px}
+#transaction-panel .tx-filter-bar{max-width:100%;min-width:0;flex-wrap:wrap}
+#transaction-panel .tx-reference-lookup{grid-template-columns:minmax(0,1fr)!important}
+#transaction-panel .tx-reference-lookup>button{width:100%;align-self:stretch!important}
+#transaction-panel .tx-reference-lookup input,
+#transaction-panel #transaction-search,
+#transaction-panel .tx-date-filter input{max-width:100%;min-width:0}
+#transaction-panel #transaction-summary{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;width:100%;max-width:100%;gap:9px!important}
+#transaction-panel #transaction-summary>.panel{width:100%;max-width:100%;min-width:0;overflow:hidden;padding:12px!important}
+#transaction-panel #transaction-summary small{display:block;line-height:1.35;overflow-wrap:anywhere}
+#transaction-panel #transaction-summary strong{display:block;max-width:100%;min-width:0;font-size:clamp(16px,4.4vw,21px)!important;line-height:1.25;overflow-wrap:anywhere;word-break:break-word;font-variant-numeric:tabular-nums}
+#transaction-panel #tx-summary-success-volume{letter-spacing:-.45px}
+#transaction-panel .tx-date-filter{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+#transaction-panel .tx-date-filter>div{min-width:0}
+#transaction-panel .tx-date-filter>div:last-child{grid-column:1/-1;justify-content:flex-start}
+#transaction-panel .tx-date-filter button{max-width:100%;white-space:normal}
+@media(max-width:420px){
+ #transaction-panel{padding:14px!important;border-radius:17px}
+ #transaction-panel .section-head{align-items:flex-start}
+ #transaction-panel .section-head h2{flex-basis:100%;font-size:19px!important}
+ #transaction-panel .section-head>div button{flex:1 1 30%;font-size:12px;padding:9px 5px}
+ #transaction-panel #transaction-summary{gap:8px!important}
+ #transaction-panel #transaction-summary>.panel{padding:11px!important;border-radius:15px}
+ #transaction-panel #transaction-summary small{font-size:12px}
+ #transaction-panel #transaction-summary strong{font-size:clamp(15px,4vw,19px)!important}
+ #transaction-panel .tx-date-filter{gap:8px!important}
+}
+@media(max-width:340px){
+ #transaction-panel #transaction-summary{grid-template-columns:minmax(0,1fr)!important}
+ #transaction-panel .section-head>div button{flex-basis:100%}
+ #transaction-panel .tx-date-filter{grid-template-columns:minmax(0,1fr)!important}
+ #transaction-panel .tx-date-filter>div:last-child{grid-column:auto}
+}
+</style>
+
 </body></html>
