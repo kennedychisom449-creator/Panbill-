@@ -1228,7 +1228,7 @@ main.wrap[data-view="bill-tools"] #panbill-bill-tools-page{display:block!importa
 
 
 
-<div class="two-col" id="history-area"><button aria-label="Back to VTU dashboard" class="history-back-home" id="history-back-home" type="button">← Back to Home</button><section class="panel" id="transaction-panel"><div class="section-head" style="margin-top:0"><h2>Transaction history</h2><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="text-button" id="export-transactions" type="button">Export CSV</button><button class="text-button" id="refresh-transactions" type="button">Refresh</button></div></div><div aria-label="Filter transactions" class="tx-filter-bar" id="transaction-filters" role="group">
+<div class="two-col" id="history-area"><button aria-label="Back to VTU dashboard" class="history-back-home" id="history-back-home" type="button">← Back to Home</button><section class="panel" id="transaction-panel"><div class="section-head" style="margin-top:0"><h2>Transaction history</h2><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="text-button" id="export-transactions" type="button">Export CSV</button><button class="text-button" id="print-transaction-statement" type="button">Print statement</button><button class="text-button" id="refresh-transactions" type="button">Refresh</button></div></div><div aria-label="Filter transactions" class="tx-filter-bar" id="transaction-filters" role="group">
 <button aria-pressed="true" class="tx-filter" data-tx-filter="all" type="button">All</button>
 <button aria-pressed="false" class="tx-filter" data-tx-filter="successful" type="button">Successful</button>
 <button aria-pressed="false" class="tx-filter" data-tx-filter="pending" type="button">Pending</button>
@@ -1834,6 +1834,25 @@ function exportPanbillTransactionsCsv(){
  const blob=new Blob(['\\ufeff'+lines.join('\\r\\n')],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='panbill-transactions-'+new Date().toISOString().slice(0,10)+'.csv';document.body.append(a);a.click();a.remove();URL.revokeObjectURL(url);
 }
 document.getElementById('export-transactions')?.addEventListener('click',exportPanbillTransactionsCsv);
+function printPanbillTransactionStatement(){
+ const from=document.getElementById('transaction-date-from')?.value||'';
+ const to=document.getElementById('transaction-date-to')?.value||'';
+ if(from&&to&&from>to){alert('The start date must be on or before the end date.');return;}
+ const rows=transactionRecords.filter(transactionMatchesCurrentFilters);
+ if(!rows.length){alert('There are no transactions in the current view to print.');return;}
+ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const total=rows.reduce((sum,x)=>sum+(Number(x.amount)||0),0);
+ const successful=rows.filter(x=>normalizedTransactionStatus(x.status||x.provider_status)==='successful');
+ const successfulTotal=successful.reduce((sum,x)=>sum+(Number(x.amount)||0),0);
+ const period=[from?'From '+from:'',to?'To '+to:''].filter(Boolean).join(' · ')||'All dates in loaded records';
+ const w=window.open('','_blank','width=1000,height=800');
+ if(!w){alert('Allow pop-ups to print your PanBill statement.');return;}
+ const body=rows.map(x=>'<tr><td>'+esc(x.created_at?new Date(x.created_at).toLocaleString('en-NG'):'')+'</td><td>'+esc(String(x.description||x.type||'Transaction').replace(/wisesub/gi,'PanBill'))+'</td><td>'+esc(x.reference||'')+'</td><td>'+esc(normalizedTransactionStatus(x.status||x.provider_status))+'</td><td class="amount">'+esc(money(x.amount))+'</td></tr>').join('');
+ w.document.write('<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PanBill Transaction Statement</title><style>body{font:13px Arial,sans-serif;color:#18243a;margin:28px}header{border-bottom:3px solid #d7a842;padding-bottom:12px}h1{margin:0 0 5px}p{color:#5b6678}.summary{display:flex;gap:24px;flex-wrap:wrap;margin:18px 0}.summary strong{display:block;font-size:18px;margin-top:4px}table{width:100%;border-collapse:collapse}th,td{padding:9px 7px;border-bottom:1px solid #e4e8ee;text-align:left;vertical-align:top}th{background:#f3f5f8}.amount{text-align:right;white-space:nowrap}.note{margin-top:18px;font-size:11px}@media print{body{margin:12mm}button{display:none}}</style></head><body><header><h1>PanBill</h1><strong>Transaction Statement</strong><p>'+esc(period)+' · '+rows.length+' transaction(s)</p></header><div class="summary"><div>Successful transaction volume<strong>'+esc(money(successfulTotal))+'</strong></div><div>All displayed transaction amounts<strong>'+esc(money(total))+'</strong></div></div><table><thead><tr><th>Date</th><th>Description</th><th>Reference</th><th>Status</th><th class="amount">Amount</th></tr></thead><tbody>'+body+'</tbody></table><p class="note">This statement contains only transactions currently loaded in PanBill and matching the active filters. It is an informational record, not a bank-issued statement or proof of settlement.</p><script>window.onload=()=>window.print()<\/script></body></html>');
+ w.document.close();
+}
+document.getElementById('print-transaction-statement')?.addEventListener('click',printPanbillTransactionStatement);
+
 async function loadWallet(){
  if(!currentSession)return;
  $('wallet-message').textContent='Loading wallet…';$('refresh-wallet').disabled=true;$('refresh-transactions').disabled=true;
