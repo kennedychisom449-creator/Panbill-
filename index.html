@@ -1822,21 +1822,7 @@ function syncMarketplaceCategoryNav(){const selected=$('marketplace-category')?.
 
 async function loadPanbillRewards(){
  const panel=$('panbill-rewards-panel');
- if(!panel)return;
- if(!currentSession||!authClient){
-  panel.hidden=false;panel.style.display='block';
-  $('panbill-rewards-total').textContent='—';
-  $('panbill-cashback-total').textContent='—';
-  $('panbill-referral-total').textContent='—';
-  $('panbill-referral-link').value='';
-  $('panbill-referral-link').placeholder='Sign in to load your personal referral link';
-  $('panbill-copy-referral').disabled=true;
-  $('panbill-referral-message').textContent='You can view this rewards page now. Sign in when you are ready to load your personal referral link, reward totals and history.';
-  $('panbill-rewards-history').textContent='Sign in to view your personal cashback and referral reward history.';
-  return;
- }
- $('panbill-copy-referral').disabled=false;
- $('panbill-referral-message').textContent='';
+ if(!currentSession||!authClient){panel.hidden=true;return}
  $('panbill-rewards-history').textContent='Loading rewards…';
  try{
   const uid=currentSession.user.id;
@@ -1881,7 +1867,7 @@ function panbillCloseSubpage(){
  window.scrollTo({top:0,behavior:'smooth'});
 }
 $('panbill-rewards-refresh')?.addEventListener('click',loadPanbillRewards);
-$('home-referral-shortcut')?.addEventListener('click',event=>{event.preventDefault();panbillOpenSubpage('panbill-rewards-panel');loadPanbillRewards();});
+$('home-referral-shortcut')?.addEventListener('click',()=>{if(!currentSession){$('auth-overlay').hidden=false;$('auth-overlay').scrollIntoView({behavior:'smooth'});return;}panbillOpenSubpage('panbill-rewards-panel');loadPanbillRewards();});
 $('panbill-referral-close')?.addEventListener('click',panbillCloseSubpage);
 $('panbill-copy-referral')?.addEventListener('click',async()=>{const link=$('panbill-referral-link').value;if(!link){$('panbill-referral-message').textContent='Your referral link is not available yet.';return}try{await navigator.clipboard.writeText(link);$('panbill-referral-message').textContent='Referral link copied. Share it with your friends.'}catch(e){$('panbill-referral-link').focus();$('panbill-referral-link').select();$('panbill-referral-message').textContent='Select and copy your referral link.'}});
 function showSignedIn(session){const incoming=session||null;if(incoming?.user&&!(incoming.user.email_confirmed_at||incoming.user.confirmed_at)){currentSession=null;$('auth-overlay').hidden=false;$('wallet-panel').hidden=true;$('transaction-pin-overlay').hidden=true;return}currentSession=incoming;if(!currentSession){panbillCloseSubpage();transactionPinCheckedUser=null;transactionPinHasPin=null;$('transaction-pin-overlay').hidden=true;$('transaction-pin-form').reset();}restoreMarketplaceCartForSession(currentSession);updateMarketplaceCheckoutButton();$('wallet-panel').hidden=!currentSession;$('panbill-rewards-panel').hidden=true;$('auth-overlay').hidden=!!currentSession;$('logout-button').hidden=!currentSession;$('header-user').hidden=!currentSession;$('header-user').textContent=currentSession?(currentSession.user.email||'Account'):'';$('account-status').textContent=currentSession?'Signed in as '+(currentSession.user.email||'Account')+'.':'Sign in to access your wallet and transactions.';const firstName=(currentSession?.user?.user_metadata?.full_name||currentSession?.user?.email?.split('@')[0]||'').trim().split(/\s+/)[0];const hour=new Date().getHours();const timeGreeting=hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';$('greeting').replaceChildren(document.createTextNode((currentSession?timeGreeting+(firstName?', '+firstName:''):'Welcome to PanBill')+' '));const greetingSpark=document.createElement('span');greetingSpark.className='greeting-spark';greetingSpark.setAttribute('aria-hidden','true');greetingSpark.textContent='✦';$('greeting').append(greetingSpark);$('account-email').textContent=currentSession?(currentSession.user.email||'Account'):'You are not signed in.';if(currentSession){loadWallet();loadPanbillRewards();checkBackend();loadSellerApplication();$('my-digital-purchases').hidden=false;loadDigitalPurchases()}else{$('my-digital-purchases').hidden=true;$('seller-marketplace-panel').hidden=true;$('wallet-message').textContent='Sign in to load your wallet.';$('transaction-history').textContent='Sign in to view your transactions.'}window.dispatchEvent(new Event('panbill-session-ready'))}
@@ -4341,34 +4327,37 @@ body:has(#seller-dashboard-page:not([hidden])) #settings-top-button{
  display:none!important;visibility:hidden!important;pointer-events:none!important
 }
 </style>
-
-<!-- PANBILL-REFERRAL-NAVIGATION-HOTFIX -->
-<style id="panbill-referral-navigation-hotfix">
-  main.wrap.panbill-subpage-active > #panbill-rewards-panel { display:block!important; }
-  main.wrap.panbill-subpage-active > #panbill-budget-page { display:block!important; }
-  main.wrap.panbill-subpage-active > #panbill-rewards-panel[hidden],
-  main.wrap.panbill-subpage-active > #panbill-budget-page[hidden] { display:none!important; }
+</body></html>
+<style id="panbill-budget-amount-fit-final-v3">
+/* Keep every spending figure inside the viewport and its own card. */
+#panbill-budget-page{width:100%!important;max-width:100%!important;min-width:0!important;overflow-x:hidden!important;box-sizing:border-box!important}
+#panbill-budget-page *{box-sizing:border-box!important;min-width:0}
+#panbill-budget-page #budget-summary{grid-template-columns:minmax(0,1fr)!important;width:100%!important;max-width:100%!important}
+#panbill-budget-page #budget-summary>.settings-group{width:100%!important;max-width:100%!important;overflow:hidden!important}
+#panbill-budget-page #budget-total{display:block!important;width:100%!important;max-width:100%!important;white-space:nowrap!important;overflow:hidden!important;overflow-wrap:normal!important;word-break:normal!important;text-overflow:clip!important;font-size:clamp(9px,3.4vw,18px)!important;letter-spacing:-.25px!important;font-variant-numeric:tabular-nums!important}
+#panbill-budget-page #budget-breakdown>div>div:first-child,#panbill-budget-page #budget-limits>div>div:first-child{display:flex!important;flex-flow:row nowrap!important;align-items:center!important;justify-content:space-between!important;gap:6px!important;width:100%!important;max-width:100%!important;overflow:hidden!important}
+#panbill-budget-page #budget-breakdown>div>div:first-child>strong,#panbill-budget-page #budget-limits>div>div:first-child>strong{flex:1 1 auto!important;min-width:0!important;white-space:normal!important;overflow-wrap:anywhere!important}
+#panbill-budget-page #budget-breakdown>div>div:first-child>span,#panbill-budget-page #budget-limits>div>div:first-child>span{display:block!important;flex:0 1 auto!important;width:auto!important;max-width:68%!important;min-width:0!important;white-space:nowrap!important;overflow:hidden!important;overflow-wrap:normal!important;word-break:normal!important;text-overflow:clip!important;text-align:right!important;font-size:clamp(8px,2.5vw,12px)!important;letter-spacing:-.3px!important;font-variant-numeric:tabular-nums!important}
 </style>
-<script id="panbill-referral-navigation-hotfix-script">
-(function(){
-  function openReferralPage(){
-    const wrap=document.querySelector('main.wrap');
-    const budget=document.getElementById('panbill-budget-page');
-    const rewards=document.getElementById('panbill-rewards-panel');
-    if(!wrap||!rewards)return;
-    wrap.classList.add('panbill-subpage-active');
-    document.body.classList.add('panbill-subpage-open');
-    if(budget){budget.hidden=true;budget.style.display='none';budget.setAttribute('aria-hidden','true');}
-    rewards.hidden=false;rewards.style.display='block';rewards.setAttribute('aria-hidden','false');
-    requestAnimationFrame(()=>rewards.scrollIntoView({behavior:'auto',block:'start'}));
-    if(typeof loadPanbillRewards==='function')loadPanbillRewards();
-  }
-  document.addEventListener('click',function(event){
-    const shortcut=event.target&&event.target.closest('#home-referral-shortcut');
-    if(!shortcut)return;
-    event.preventDefault();event.stopImmediatePropagation();
-    openReferralPage();
-  },true);
+<script id="panbill-budget-fit-amounts-final-v3">
+(()=>{
+ const page=document.getElementById('panbill-budget-page');if(!page)return;
+ const fit=()=>{
+  const targets=[page.querySelector('#budget-total'),...page.querySelectorAll('#budget-breakdown>div>div:first-child>span,#budget-limits>div>div:first-child>span')].filter(Boolean);
+  targets.forEach(el=>{
+   el.style.fontSize='';
+   const parent=el.parentElement;if(!parent)return;
+   const available=Math.max(0,el.clientWidth||parent.clientWidth);
+   if(!available)return;
+   let size=parseFloat(getComputedStyle(el).fontSize)||12;
+   for(let i=0;i<12&&el.scrollWidth>available&&size>6;i++){
+    size=Math.max(6,size*.88);el.style.fontSize=size+'px';
+   }
+  });
+ };
+ const schedule=()=>requestAnimationFrame(fit);
+ new MutationObserver(schedule).observe(page,{subtree:true,childList:true,characterData:true});
+ window.addEventListener('resize',schedule,{passive:true});
+ document.addEventListener('DOMContentLoaded',schedule);schedule();
 })();
 </script>
-</body></html>
