@@ -4045,7 +4045,46 @@ main.wrap[data-view="travel"] #panbill-travel-page{display:block!important}
   const popup=window.open('','_blank','width=900,height=700');
   if(!popup){msg('batch-message','Allow pop-ups for PanBill to print this batch record.',true);return;}
   popup.opener=null;
-  popup.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>PanBill Batch ${safe(batch.reference)}</title><style>body{font:14px Arial,sans-serif;color:#172033;padding:28px}h1{margin:0;color:#10274b}small{color:#64748b}.meta{margin:20px 0;padding:14px;background:#f1f5f9;border-radius:8px}.status{font-weight:bold;color:${allPaid?'#087443':'#9a5b00'}}table{width:100%;border-collapse:collapse;margin-top:18px}th,td{padding:10px 7px;border-bottom:1px solid #ddd;text-align:left;font-size:12px}th{background:#f1f5f9}.foot{margin-top:24px;color:#64748b;font-size:11px}@media print{button{display:none}}</style></head><body><h1>PanBill</h1><small>Multi-bill transaction record</small><div class="meta"><b>Batch reference:</b> ${safe(batch.reference)}<br><b>Date:</b> ${safe(batch.created_at?new Date(batch.created_at).toLocaleString('en-NG'):'Not available')}<br><b>Batch status:</b> <span class="status">${allPaid?'PAID — ALL BILLS SUCCESSFUL':pending?'PENDING — AWAITING CONFIRMATION':failed?'PARTIAL / NOT FULLY SUCCESSFUL':'NOT CONFIRMED'}</span><br><b>Successful:</b> ${successful} &nbsp; <b>Pending:</b> ${pending} &nbsp; <b>Failed/cancelled:</b> ${failed}</div><table><thead><tr><th>Service</th><th>Provider</th><th>Recipient</th><th>Amount</th><th>Status</th><th>Transaction ref</th></tr></thead><tbody>${rows||'<tr><td colspan="6">No bills in this batch.</td></tr>'}</tbody></table><p><b>Draft total / estimate:</b> ${safe(money(batch.total_amount))}</p><p class="foot">${allPaid?'This record reflects successful statuses recorded by PanBill.': 'This is a transaction record, not proof that all bills have been paid. Pending or failed items must not be treated as successful.'} Keep this reference for support enquiries.</p><button onclick="window.print()">Print / Save as PDF</button>
+  popup.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>PanBill Batch ${safe(batch.reference)}</title><style>body{font:14px Arial,sans-serif;color:#172033;padding:28px}h1{margin:0;color:#10274b}small{color:#64748b}.meta{margin:20px 0;padding:14px;background:#f1f5f9;border-radius:8px}.status{font-weight:bold;color:${allPaid?'#087443':'#9a5b00'}}table{width:100%;border-collapse:collapse;margin-top:18px}th,td{padding:10px 7px;border-bottom:1px solid #ddd;text-align:left;font-size:12px}th{background:#f1f5f9}.foot{margin-top:24px;color:#64748b;font-size:11px}@media print{button{display:none}}</style>
+<style id="panbill-transaction-amount-compact-fix">
+/* Shrink and wrap long transaction amounts so every digit stays inside its row. */
+#transaction-panel .transaction .tx-right {
+  flex: 0 1 32%;
+  width: 32%;
+  max-width: 32%;
+  min-width: 0;
+  overflow: hidden;
+}
+#transaction-panel .transaction .tx-amount {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  font-size: clamp(9px, 2.7vw, 12px);
+  line-height: 1.2;
+  letter-spacing: -0.4px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  font-variant-numeric: tabular-nums;
+}
+#transaction-panel .transaction .tx-right small {
+  font-size: 10px;
+  line-height: 1.25;
+}
+@media (max-width: 420px) {
+  #transaction-panel .transaction .tx-right {
+    flex-basis: 29%;
+    width: 29%;
+    max-width: 29%;
+  }
+  #transaction-panel .transaction .tx-amount {
+    font-size: 10px;
+    letter-spacing: -0.5px;
+  }
+}
+</style>
+</head><body><h1>PanBill</h1><small>Multi-bill transaction record</small><div class="meta"><b>Batch reference:</b> ${safe(batch.reference)}<br><b>Date:</b> ${safe(batch.created_at?new Date(batch.created_at).toLocaleString('en-NG'):'Not available')}<br><b>Batch status:</b> <span class="status">${allPaid?'PAID — ALL BILLS SUCCESSFUL':pending?'PENDING — AWAITING CONFIRMATION':failed?'PARTIAL / NOT FULLY SUCCESSFUL':'NOT CONFIRMED'}</span><br><b>Successful:</b> ${successful} &nbsp; <b>Pending:</b> ${pending} &nbsp; <b>Failed/cancelled:</b> ${failed}</div><table><thead><tr><th>Service</th><th>Provider</th><th>Recipient</th><th>Amount</th><th>Status</th><th>Transaction ref</th></tr></thead><tbody>${rows||'<tr><td colspan="6">No bills in this batch.</td></tr>'}</tbody></table><p><b>Draft total / estimate:</b> ${safe(money(batch.total_amount))}</p><p class="foot">${allPaid?'This record reflects successful statuses recorded by PanBill.': 'This is a transaction record, not proof that all bills have been paid. Pending or failed items must not be treated as successful.'} Keep this reference for support enquiries.</p><button onclick="window.print()">Print / Save as PDF</button>
 </body></html>`);
   popup.document.close();
  }
