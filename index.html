@@ -2255,56 +2255,7 @@ function printPanbillTransactionStatement(){
  const w=window.open('','_blank','width=1000,height=800');
  if(!w){alert('Allow pop-ups to print your PanBill statement.');return;}
  const body=rows.map(x=>'<tr><td>'+esc(x.created_at?new Date(x.created_at).toLocaleString('en-NG'):'')+'</td><td>'+esc(String(x.description||x.type||'Transaction').replace(/wisesub/gi,'PanBill'))+'</td><td>'+esc(x.reference||'')+'</td><td>'+esc(normalizedTransactionStatus(x.status||x.provider_status))+'</td><td class="amount">'+esc(money(x.amount))+'</td></tr>').join('');
- const html=`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PanBill Transaction Statement</title><style>body{font:13px Arial,sans-serif;color:#18243a;margin:28px}header{border-bottom:3px solid #d7a842;padding-bottom:12px}h1{margin:0 0 5px}p{color:#5b6678}.summary{display:flex;gap:24px;flex-wrap:wrap;margin:18px 0}.summary strong{display:block;font-size:18px;margin-top:4px}table{width:100%;border-collapse:collapse}th,td{padding:9px 7px;border-bottom:1px solid #e4e8ee;text-align:left;vertical-align:top}th{background:#f3f5f8}.amount{text-align:right;white-space:nowrap}.note{margin-top:18px;font-size:11px}@media print{body{margin:12mm}button{display:none}}</style></head><body><header><h1>PanBill</h1><strong>Transaction Statement</strong><p>${esc(period)} · ${rows.length} transaction(s)</p></header><div class="summary"><div>Successful transaction volume<strong>${esc(money(successfulTotal))}</strong></div><div>All displayed transaction amounts<strong>${esc(money(total))}</strong></div></div><table><thead><tr><th>Date</th><th>Description</th><th>Reference</th><th>Status</th><th class="amount">Amount</th></tr></thead><tbody>${body}</tbody></table><p class="note">This statement contains only transactions currently loaded in PanBill and matching the active filters. It is an informational record, not a bank-issued statement or proof of settlement.</p>
-<style id="panbill-bill-service-logo-chooser">
-/* Bill Tools service-logo chooser: presentation layer; original select values and APIs remain the source of truth. */
-.bill-service-logo-chooser{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:8px 0 12px}
-.bill-service-logo-option{min-width:0;min-height:94px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:11px 6px;border:1px solid #ffffff24;border-radius:14px;background:linear-gradient(145deg,#132b50,#091a35);color:#f5f7fc;font:inherit;cursor:pointer;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease,background .16s ease}
-.bill-service-logo-option:hover,.bill-service-logo-option:focus-visible{border-color:#f2c15d99;outline:none;transform:translateY(-2px)}
-.bill-service-logo-option[aria-pressed="true"]{border-color:#f2c15d;background:linear-gradient(145deg,#3c321f,#172747);box-shadow:0 0 0 2px #f2c15d22,0 8px 20px #0003}
-.bill-service-logo-mark{width:43px;height:43px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(145deg,#ffe4a0,#dca33b);color:#07152f;font-size:23px;line-height:1;box-shadow:0 5px 14px #0003}
-.bill-service-logo-option strong{font-size:11px;line-height:1.25;text-align:center;overflow-wrap:anywhere}
-.bill-service-native-select{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important;opacity:0!important;pointer-events:none!important}
-.bill-service-logo-error{display:none;margin:-3px 0 10px;color:#ffb0b3;font-size:11px}.bill-service-logo-error.visible{display:block}
-@media(max-width:390px){.bill-service-logo-chooser{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.bill-service-logo-option{min-height:88px}.bill-service-logo-mark{width:39px;height:39px}}
-@media(prefers-reduced-motion:reduce){.bill-service-logo-option{transition:none}}
-</style>
-
-
-<script id="panbill-bill-service-logo-controller-v1">
-(()=>{
- const definitions=[
-  {value:'AIRTIME',label:'Airtime',icon:'▣'},
-  {value:'DATA',label:'Data',icon:'◉'},
-  {value:'ELECTRICITY',label:'Electricity',icon:'ϟ'},
-  {value:'CABLE_TV',label:'Cable TV',icon:'▤'},
-  {value:'EXAM_PIN',label:'Exam PIN',icon:'✎'}
- ];
- const pairs=[['beneficiary-service','bill-beneficiary-form'],['schedule-service','bill-schedule-form'],['batch-service','bill-batch-form']];
- pairs.forEach(([selectId,formId])=>{
-  const select=document.getElementById(selectId),form=document.getElementById(formId);if(!select||!form)return;
-  const field=select.parentElement;if(!field)return;
-  const chooser=document.createElement('div');chooser.className='bill-service-logo-chooser';chooser.setAttribute('role','group');chooser.setAttribute('aria-label','Choose bill service');
-  const error=document.createElement('div');error.className='bill-service-logo-error';error.textContent='Please choose a bill service.';
-  definitions.forEach(item=>{
-   if(!Array.from(select.options).some(option=>option.value===item.value))return;
-   const button=document.createElement('button');button.type='button';button.className='bill-service-logo-option';button.dataset.serviceValue=item.value;button.setAttribute('aria-pressed','false');
-   const mark=document.createElement('span');mark.className='bill-service-logo-mark';mark.setAttribute('aria-hidden','true');mark.textContent=item.icon;
-   const label=document.createElement('strong');label.textContent=item.label;button.append(mark,label);
-   button.addEventListener('click',()=>{select.value=item.value;select.dispatchEvent(new Event('change',{bubbles:true}));sync();error.classList.remove('visible');});
-   chooser.append(button);
-  });
-  select.classList.add('bill-service-native-select');select.removeAttribute('required');select.setAttribute('aria-hidden','true');select.tabIndex=-1;
-  select.insertAdjacentElement('afterend',error);select.insertAdjacentElement('afterend',chooser);
-  function sync(){chooser.querySelectorAll('button').forEach(button=>{const active=button.dataset.serviceValue===select.value;button.setAttribute('aria-pressed',String(active));});}
-  select.addEventListener('change',sync);sync();
-  form.addEventListener('submit',event=>{if(!select.value){event.preventDefault();event.stopImmediatePropagation();error.classList.add('visible');chooser.querySelector('button')?.focus();}} ,true);
-  form.addEventListener('reset',()=>{requestAnimationFrame(()=>{sync();error.classList.remove('visible');});});
- });
-})();
-</script>
-
-</body></html>`;
+ const html=`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PanBill Transaction Statement</title><style>body{font:13px Arial,sans-serif;color:#18243a;margin:28px}header{border-bottom:3px solid #d7a842;padding-bottom:12px}h1{margin:0 0 5px}p{color:#5b6678}.summary{display:flex;gap:24px;flex-wrap:wrap;margin:18px 0}.summary strong{display:block;font-size:18px;margin-top:4px}table{width:100%;border-collapse:collapse}th,td{padding:9px 7px;border-bottom:1px solid #e4e8ee;text-align:left;vertical-align:top}th{background:#f3f5f8}.amount{text-align:right;white-space:nowrap}.note{margin-top:18px;font-size:11px}@media print{body{margin:12mm}button{display:none}}</style></head><body><header><h1>PanBill</h1><strong>Transaction Statement</strong><p>${esc(period)} · ${rows.length} transaction(s)</p></header><div class="summary"><div>Successful transaction volume<strong>${esc(money(successfulTotal))}</strong></div><div>All displayed transaction amounts<strong>${esc(money(total))}</strong></div></div><table><thead><tr><th>Date</th><th>Description</th><th>Reference</th><th>Status</th><th class="amount">Amount</th></tr></thead><tbody>${body}</tbody></table><p class="note">This statement contains only transactions currently loaded in PanBill and matching the active filters. It is an informational record, not a bank-issued statement or proof of settlement.</p></body></html>`;
  w.document.open();w.document.write(html);w.document.close();w.focus();w.print();
 }
 document.getElementById('print-transaction-statement')?.addEventListener('click',printPanbillTransactionStatement);
