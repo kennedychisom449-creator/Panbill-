@@ -1100,6 +1100,26 @@ body:has(main.wrap[data-view="notifications"]) #notifications-button{display:non
 #notifications-badge:not([hidden]){display:grid!important;visibility:visible!important}
 </style>
 
+
+<style id="panbill-mobile-header-notification-fit">
+/* Keep the notification shortcut completely inside the mobile dashboard header. */
+@media(max-width:520px){
+ .app-header{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;padding:10px 12px!important;width:100%!important;max-width:100%!important;overflow:visible!important}
+ .app-header .brand{flex:1 1 auto!important;min-width:0!important;gap:7px!important;font-size:20px!important;white-space:nowrap!important}
+ .app-header .brand-mark{flex:0 0 36px!important;width:36px!important;height:36px!important;font-size:22px!important}
+ #header-user{display:none!important}
+ .app-header .header-actions{flex:0 0 auto!important;min-width:0!important;gap:6px!important;display:flex!important;align-items:center!important}
+ .app-header .header-actions .pill{flex:0 0 44px!important;width:44px!important;min-width:44px!important;height:44px!important;padding:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;font-size:20px!important}
+ #notifications-button:not([hidden]){flex:0 0 44px!important;width:44px!important;min-width:44px!important;height:44px!important}
+}
+@media(max-width:360px){
+ .app-header{padding-left:9px!important;padding-right:9px!important;gap:5px!important}
+ .app-header .brand{font-size:18px!important}
+ .app-header .brand-mark{flex-basis:34px!important;width:34px!important;height:34px!important}
+ .app-header .header-actions{gap:4px!important}
+ .app-header .header-actions .pill,#notifications-button:not([hidden]){flex-basis:42px!important;width:42px!important;min-width:42px!important;height:42px!important}
+}
+</style>
 </head><body>
 <div aria-label="PanBill is loading" aria-live="polite" id="panbill-loading-screen" role="status"><div aria-hidden="true" class="panbill-loader-mark">P</div><div class="panbill-loader-name">PanBill</div><div class="panbill-loader-caption">One app. All your bills.</div><div aria-hidden="true" class="panbill-loader-ring"></div></div>
 <header class="app-header"><div class="brand"><span class="brand-mark">P</span> PanBill</div><div class="header-actions"><span class="muted" hidden="" id="header-user" style="font-size:12px"></span><button class="pill" id="settings-top-button" type="button" aria-label="Open Settings menu" title="Settings">☰</button><button class="pill" id="notifications-button" type="button" aria-label="Notifications" title="Notifications" hidden style="position:relative">🔔<span id="notifications-badge" hidden style="position:absolute;top:-4px;right:-4px;background:#ff676d;color:#fff;border-radius:99px;min-width:17px;height:17px;padding:0 4px;font-size:10px;display:grid;place-items:center"></span></button><button aria-hidden="true" class="pill" hidden="" id="logout-button" type="button">Log out</button></div></header>
