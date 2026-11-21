@@ -115,10 +115,9 @@
 
         <input
           id="panbill-wallet-transfer-amount"
-          type="number"
-          min="1"
-          step="1"
+          type="text"
           inputmode="numeric"
+          autocomplete="off"
           placeholder="Enter amount"
         >
 
@@ -642,10 +641,51 @@
   });
 
   // =========================================================
-  // AMOUNT INPUT
+  // AMOUNT INPUT WITH THOUSANDS SEPARATORS
   // =========================================================
 
   amountInput.addEventListener('input', () => {
+    const input = amountInput;
+
+    const cursorPosition =
+      input.selectionStart ?? input.value.length;
+
+    const digitsBeforeCursor = input.value
+      .slice(0, cursorPosition)
+      .replace(/\D/g, '')
+      .length;
+
+    // Remove all non-digit characters
+    const digits = input.value.replace(/\D/g, '');
+
+    // Format amount with commas
+    const formatted = digits
+      ? Number(digits).toLocaleString('en-NG')
+      : '';
+
+    input.value = formatted;
+
+    // Restore cursor position
+    let newCursorPosition = 0;
+    let digitCount = 0;
+
+    while (
+      newCursorPosition < formatted.length &&
+      digitCount < digitsBeforeCursor
+    ) {
+      if (/\d/.test(formatted[newCursorPosition])) {
+        digitCount++;
+      }
+
+      newCursorPosition++;
+    }
+
+    input.setSelectionRange(
+      newCursorPosition,
+      newCursorPosition
+    );
+
+    // Reset transfer request ID when amount changes
     if (requestFingerprint) {
       requestFingerprint = '';
       requestId = null;
@@ -663,7 +703,10 @@
 
     const recipient = recipientInput.value.trim();
 
-    const amount = Number(amountInput.value);
+    // Remove commas before converting to number
+    const amount = Number(
+      amountInput.value.replace(/,/g, '')
+    );
 
     const userId = currentSession?.user?.id;
 
