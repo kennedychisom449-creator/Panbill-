@@ -11,7 +11,7 @@
   ) return;
 
   // =========================================================
-  // MONEY FORMATTER
+  // MONEY FORMATTING
   // =========================================================
 
   function formatMoney(amount) {
@@ -250,10 +250,7 @@
         <button
           type="button"
           id="panbill-wallet-transfer-back"
-          style="
-            width:100%;
-            margin-top:10px;
-          ">
+          style="width:100%;margin-top:10px">
           Back
         </button>
 
@@ -323,7 +320,7 @@
     '#panbill-transfer-recipient-verification-status'
   );
 
-  const reviewAmount = overlay.querySelector(
+  const reviewAmountDisplay = overlay.querySelector(
     '#panbill-transfer-review-amount'
   );
 
@@ -366,14 +363,14 @@
   let verificationRequestNumber = 0;
 
   let reviewRecipient = '';
-  let reviewAmount = 0;
+  let reviewTransferAmount = 0;
 
   // =========================================================
   // STATUS HELPERS
   // =========================================================
 
-  function showStatus(text, error = false) {
-    status.textContent = text;
+  function showStatus(message, error = false) {
+    status.textContent = message;
     status.classList.add('visible');
     status.classList.toggle('error', error);
   }
@@ -381,10 +378,6 @@
   function hideStatus() {
     status.textContent = '';
     status.classList.remove('visible', 'error');
-  }
-
-  function showRecipientVerification() {
-    recipientVerification.style.display = 'block';
   }
 
   function hideRecipientVerification() {
@@ -422,7 +415,7 @@
   }
 
   // =========================================================
-  // IDEMPOTENCY / REQUEST ID
+  // REQUEST ID / RETRY PROTECTION
   // =========================================================
 
   function getFingerprint(recipient, amount) {
@@ -499,7 +492,7 @@
 
     const currentRequest = ++verificationRequestNumber;
 
-    showRecipientVerification();
+    recipientVerification.style.display = 'block';
 
     recipientNameDisplay.textContent = '';
 
@@ -759,7 +752,6 @@
         );
       }
 
-      // Verify recipient once more
       const verified = await verifyTransferRecipient();
 
       if (!verified) {
@@ -769,15 +761,11 @@
       }
 
       reviewRecipient = recipient;
-      reviewAmount = amount;
+      reviewTransferAmount = amount;
 
-      // Format money with thousands separators
-      reviewAmount.textContent = '';
-
-      reviewAmount = amount;
-
-      reviewAmountElement.textContent =
-        formatNaira(amount);
+      // Format the review screen amount
+      reviewAmountDisplay.textContent =
+        formatNaira(reviewTransferAmount);
 
       reviewName.textContent =
         verifiedRecipientName;
@@ -788,12 +776,13 @@
         recipient.slice(-3);
 
       reviewSubtotal.textContent =
-        formatNaira(amount);
+        formatNaira(reviewTransferAmount);
 
-      reviewFee.textContent = formatNaira(0);
+      reviewFee.textContent =
+        formatNaira(0);
 
       reviewTotal.textContent =
-        formatNaira(amount);
+        formatNaira(reviewTransferAmount);
 
       pinInput.value = '';
 
@@ -844,7 +833,7 @@
 
     const recipient = reviewRecipient;
 
-    const amount = reviewAmount;
+    const amount = reviewTransferAmount;
 
     const pin = pinInput.value.trim();
 
@@ -891,10 +880,12 @@
     );
 
     try {
-      // Verify account number before final transfer
       const verified = await verifyTransferRecipient();
 
-      if (!verified || verifiedRecipientAccount !== recipient) {
+      if (
+        !verified ||
+        verifiedRecipientAccount !== recipient
+      ) {
         throw new Error(
           'Recipient verification failed. Please go back and verify the recipient again.'
         );
