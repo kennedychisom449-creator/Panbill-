@@ -1148,7 +1148,8 @@ body:has(main.wrap[data-view="notifications"]) #notifications-button{display:non
  </div>
  <div class="settings-group" style="padding:14px;border:1px solid var(--line);border-radius:13px;margin:12px 0"><h3 style="margin:0 0 5px">Your referral link</h3><p class="muted" style="font-size:12px;margin:0 0 10px">Invite a friend. When they make their first successful VTU purchase, you both receive ₦100.</p><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><input id="panbill-referral-link" readonly aria-label="Your referral link" style="flex:1;min-width:160px" placeholder="Loading your referral link…"><button class="gold-btn" id="panbill-copy-referral" type="button">Copy link</button></div><p id="panbill-referral-message" class="muted" role="status" style="font-size:12px;margin:8px 0 0"></p></div>
  <div class="settings-group" style="padding:14px;border:1px solid var(--line);border-radius:13px;margin:12px 0"><h3 style="margin:0 0 8px">Rewards history</h3><div id="panbill-rewards-history" class="muted" style="font-size:13px">Loading rewards…</div></div>
- <p class="muted" style="font-size:11px;margin-bottom:0">Rewards are tracked separately from your main wallet. Only eligible successful VTU purchases qualify. Reward redemption is not enabled yet.</p>
+ <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px"><button class="gold-btn" id="panbill-rewards-withdraw" type="button">Withdraw available rewards to wallet</button><span id="panbill-rewards-withdraw-message" class="muted" role="status" aria-live="polite" style="font-size:12px"></span></div>
+ <p class="muted" style="font-size:11px;margin-bottom:0">Transfer your available cashback and referral rewards directly into your PanBill wallet.</p>
 </section>
 <div id="panbill-dashboard-shortcuts" class="panbill-dashboard-shortcuts">
  <button class="service-card panbill-compact-shortcut" id="home-budget-shortcut" type="button"><span class="service-icon" aria-hidden="true">📊</span><span class="panbill-shortcut-copy"><strong>Spending &amp; Budgets</strong><small>Monthly insights &amp; limits</small></span></button>
@@ -1913,6 +1914,21 @@ async function loadPanbillRewards(){
   rows.forEach(r=>{const item=document.createElement('div');item.style.cssText='display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)';const left=document.createElement('div');const title=document.createElement('strong');title.style.display='block';title.textContent=r.reward_type==='cashback'?'VTU cashback':r.reward_type==='referral_inviter'?'Referral bonus':'Welcome referral bonus';const detail=document.createElement('small');detail.className='muted';detail.textContent=r.description||new Date(r.created_at).toLocaleDateString();left.append(title,detail);const amount=document.createElement('strong');amount.style.whiteSpace='nowrap';amount.textContent='+'+money(r.amount);item.append(left,amount);history.append(item)});
  }catch(error){$('panbill-rewards-history').textContent='Could not load rewards: '+(error.message||'Please try again.');}
 }
+$('panbill-rewards-withdraw')?.addEventListener('click',async()=>{
+ const button=$('panbill-rewards-withdraw');
+ const status=$('panbill-rewards-withdraw-message');
+ if(!currentSession||!authClient){status.textContent='Please sign in again.';return;}
+ button.disabled=true;status.textContent='Transferring your available rewards…';
+ try{
+  const {data,error}=await authClient.rpc('panbill_transfer_rewards_to_wallet');
+  if(error)throw error;
+  if(!data?.success){status.textContent=data?.message||'No available rewards to transfer.';return;}
+  status.textContent=money(data.transferred)+' transferred successfully to your PanBill wallet.';
+  await Promise.all([loadWallet(),loadPanbillRewards()]);
+ }catch(error){
+  status.textContent=error?.message||'Reward transfer failed. Please try again.';
+ }finally{button.disabled=false;}
+});
 function panbillOpenSubpage(pageId){
  if(pageId==='panbill-disputes-page'){const shell=$('panbill-disputes-standalone');document.body.classList.add('panbill-disputes-active');if(shell)shell.hidden=false;$('panbill-disputes-page')?.scrollIntoView({behavior:'instant',block:'start'});return;}
  const wrap=document.querySelector('main.wrap');
