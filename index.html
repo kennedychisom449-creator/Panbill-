@@ -1939,7 +1939,63 @@ $('panbill-copy-referral')?.addEventListener('click',async()=>{const link=$('pan
 function showSignedIn(session){const incoming=session||null;if(incoming?.user&&!(incoming.user.email_confirmed_at||incoming.user.confirmed_at)){currentSession=null;$('auth-overlay').hidden=false;$('wallet-panel').hidden=true;$('transaction-pin-overlay').hidden=true;return}currentSession=incoming;$('notifications-button').hidden=!currentSession; if(currentSession){$('notifications-button').style.display='inline-flex';}else{$('notifications-button').style.removeProperty('display');}if(!currentSession){const nb=$('notifications-badge');if(nb){nb.hidden=true;nb.textContent=''}panbillCloseSubpage();transactionPinCheckedUser=null;transactionPinHasPin=null;$('transaction-pin-overlay').hidden=true;$('transaction-pin-form').reset();}restoreMarketplaceCartForSession(currentSession);updateMarketplaceCheckoutButton();$('wallet-panel').hidden=!currentSession;$('panbill-rewards-panel').hidden=true;$('auth-overlay').hidden=!!currentSession;$('logout-button').hidden=!currentSession;$('header-user').hidden=!currentSession;$('header-user').textContent=currentSession?(currentSession.user.email||'Account'):'';$('account-status').textContent=currentSession?'Signed in as '+(currentSession.user.email||'Account')+'.':'Sign in to access your wallet and transactions.';const firstName=(currentSession?.user?.user_metadata?.full_name||currentSession?.user?.email?.split('@')[0]||'').trim().split(/\s+/)[0];const hour=new Date().getHours();const timeGreeting=hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';$('greeting').replaceChildren(document.createTextNode((currentSession?timeGreeting+(firstName?', '+firstName:''):'Welcome to PanBill')+' '));const greetingSpark=document.createElement('span');greetingSpark.className='greeting-spark';greetingSpark.setAttribute('aria-hidden','true');greetingSpark.textContent='✦';$('greeting').append(greetingSpark);$('account-email').textContent=currentSession?(currentSession.user.email||'Account'):'You are not signed in.';if(currentSession){loadWallet();loadPanbillRewards();checkBackend();loadSellerApplication();$('my-digital-purchases').hidden=false;loadDigitalPurchases()}else{$('my-digital-purchases').hidden=true;$('seller-marketplace-panel').hidden=true;$('wallet-message').textContent='Sign in to load your wallet.';$('transaction-history').textContent='Sign in to view your transactions.'}}
 async function invoke(body){if(!authClient||!currentSession)throw Error('Please sign in first.');const r=await authClient.functions.invoke('super-responder',{body});if(r.error){let extra='';try{extra=await r.error.context?.json?.().then(x=>x.error||x.message||'').catch(()=> '')}catch{}throw Error(extra||r.data?.error||r.error.message||'Backend request failed.')}if(r.data?.error)throw Error(r.data.error);return r.data||{}}
 async function enforceTransactionPinSetup(force=false){const userId=currentSession?.user?.id;if(!userId)return false;if(!force&&transactionPinCheckedUser===userId&&transactionPinHasPin===true)return true;if(transactionPinSetupPromise)return transactionPinSetupPromise;if(!currentSession||currentSession.user.id!==userId)return false;transactionPinSetupPromise=(async()=>{const overlay=$('transaction-pin-overlay'),form=$('transaction-pin-form'),retry=$('retry-transaction-pin-status');overlay.hidden=false;form.hidden=true;retry.hidden=true;message($('transaction-pin-message'),'Checking your transaction PIN security…');try{const result=await invoke({action:'transaction_pin_status'});if(currentSession?.user?.id!==userId)return false;transactionPinCheckedUser=userId;transactionPinHasPin=result.has_pin===true;if(transactionPinHasPin){overlay.hidden=true;form.reset();message($('transaction-pin-message'),'');return true}form.hidden=false;message($('transaction-pin-message'),'Create your four-digit transaction PIN to continue with this VTU purchase.')}catch(error){transactionPinCheckedUser=null;transactionPinHasPin=null;form.hidden=true;retry.hidden=false;message($('transaction-pin-message'),(error.message||'Could not verify your transaction PIN status.')+' Your account remains protected until this check succeeds.',true)}return false})().finally(()=>{transactionPinSetupPromise=null});return transactionPinSetupPromise}
-$('transaction-pin-form').addEventListener('submit',async e=>{e.preventDefault();if(!authClient||!currentSession?.user?.email)return message($('transaction-pin-message'),'Please sign in again to create your transaction PIN.',true);const pin=$('transaction-pin-new').value.trim(),confirmPin=$('transaction-pin-confirm').value.trim(),password=$('transaction-pin-login-password').value;if(!/^[0-9]{4}$/.test(pin))return message($('transaction-pin-message'),'Your transaction PIN must contain exactly four digits.',true);if(pin!==confirmPin)return message($('transaction-pin-message'),'The two PIN entries do not match.',true);if(!password)return message($('transaction-pin-message'),'Enter your PanBill login password to verify your identity.',true);const b=$('save-transaction-pin');b.disabled=true;message($('transaction-pin-message'),'Verifying your PanBill login password…');try{const {data,error}=await authClient.auth.signInWithPassword({email:currentSession.user.email,password});if(error)throw new Error('Your PanBill login password could not be verified. Please check it and try again.');if(!data?.session||!data?.user)throw new Error('Password verification did not return a valid session. Please sign in again.');currentSession=data.session;message($('transaction-pin-message'),'Password verified. Saving your transaction PIN securely…');const result=await invoke({action:'set_transaction_pin',pin});if(result.success===false||result.error)throw new Error(result.message||result.error||'PanBill could not save your transaction PIN.');transactionPinCheckedUser=currentSession.user.id;transactionPinHasPin=true;$('transaction-pin-form').reset();$('transaction-pin-overlay').hidden=true;message($('transaction-pin-message'),'');const nextService=pendingVtuService;pendingVtuService=null;if(nextService)void openService(nextService)}catch(error){message($('transaction-pin-message'),error.message||'Could not create your transaction PIN.',true)}finally{b.disabled=false}});
+$('transaction-pin-form').addEventListener('submit',async e=>{
+ e.preventDefault();
+ if(!authClient||!currentSession?.user?.email)return message($('transaction-pin-message'),'Please sign in again to create your transaction PIN.',true);
+ const pin=$('transaction-pin-new').value.trim();
+ const confirmPin=$('transaction-pin-confirm').value.trim();
+ const password=$('transaction-pin-login-password').value;
+ if(!/^[0-9]{4}$/.test(pin))return message($('transaction-pin-message'),'Your transaction PIN must contain exactly four digits.',true);
+ if(pin!==confirmPin)return message($('transaction-pin-message'),'The two PIN entries do not match.',true);
+ if(!password)return message($('transaction-pin-message'),'Enter your PanBill login password to verify your identity.',true);
+ const b=$('save-transaction-pin');
+ b.disabled=true;
+ message($('transaction-pin-message'),'Verifying your PanBill login password…');
+ try{
+  // Bound password verification so the setup form cannot remain stuck indefinitely.
+  const verification=await Promise.race([
+   authClient.auth.signInWithPassword({email:currentSession.user.email,password}),
+   new Promise((_,reject)=>setTimeout(()=>reject(new Error('Password verification timed out. Please check your internet connection and try again.')),20000))
+  ]);
+  const {data,error}=verification;
+  if(error)throw new Error('Your PanBill login password could not be verified. Please check it and try again.');
+  if(!data?.session?.access_token||!data?.user)throw new Error('Password verification did not return a valid session. Please sign in again.');
+
+  // Keep the freshly verified session and explicitly use its access token for this PIN request.
+  currentSession=data.session;
+  message($('transaction-pin-message'),'Password verified. Saving your transaction PIN securely…');
+  const pinResponse=await authClient.functions.invoke('super-responder',{
+   body:{action:'set_transaction_pin',pin},
+   headers:{Authorization:`Bearer ${data.session.access_token}`}
+  });
+  if(pinResponse.error){
+   let backendMessage='';
+   try{
+    const response=pinResponse.error.context;
+    if(response&&typeof response.json==='function'){
+     const payload=await response.json();
+     backendMessage=payload?.error||payload?.message||'';
+    }
+   }catch{}
+   throw new Error(backendMessage||pinResponse.error.message||'PanBill could not save your transaction PIN. Please try again.');
+  }
+  const result=pinResponse.data||{};
+  if(result.success!==true||result.error)throw new Error(result.message||result.error||'PanBill could not confirm that your Transaction PIN was saved. Please try again.');
+
+  transactionPinCheckedUser=currentSession.user.id;
+  transactionPinHasPin=true;
+  $('transaction-pin-form').reset();
+  $('transaction-pin-overlay').hidden=true;
+  message($('transaction-pin-message'),'');
+  const nextService=pendingVtuService;
+  pendingVtuService=null;
+  if(nextService)void openService(nextService);
+ }catch(error){
+  message($('transaction-pin-message'),error.message||'Could not create your transaction PIN.',true);
+ }finally{
+  b.disabled=false;
+ }
+});
 $('retry-transaction-pin-status').addEventListener('click',async()=>{const ok=await enforceTransactionPinSetup(true);if(ok&&pendingVtuService){const next=pendingVtuService;pendingVtuService=null;void openService(next)}});
 
 async function checkBackend(){try{const r=await authClient.functions.invoke('super-responder',{method:'GET'});if(r.error)throw r.error;message($('panbill-backend-status'),r.data?.authenticated?'Backend connection successful.':'Backend responded; authentication not confirmed.')}catch(e){message($('panbill-backend-status'),'Backend connection failed. Confirm the super-responder function is deployed.',true)}}
