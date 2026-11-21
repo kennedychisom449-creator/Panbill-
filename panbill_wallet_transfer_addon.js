@@ -11,10 +11,26 @@
   ) return;
 
   // =========================================================
+  // MONEY FORMATTER
+  // =========================================================
+
+  function formatMoney(amount) {
+    return new Intl.NumberFormat('en-NG', {
+      maximumFractionDigits: 2,
+      minimumFractionDigits: 0
+    }).format(Number(amount) || 0);
+  }
+
+  function formatNaira(amount) {
+    return '₦' + formatMoney(amount);
+  }
+
+  // =========================================================
   // SEND MONEY BUTTON
   // =========================================================
 
   const button = document.createElement('button');
+
   button.type = 'button';
   button.id = 'panbill-wallet-transfer-button';
   button.innerHTML = '<span class="ico">⇄</span>Send Money';
@@ -45,82 +61,203 @@
         </button>
       </div>
 
-      <p class="muted">
-        Send money securely to another PanBill wallet.
-      </p>
+      <!-- ENTRY SCREEN -->
 
-      <label for="panbill-wallet-transfer-recipient">
-        Recipient account number
-      </label>
+      <div id="panbill-transfer-entry">
 
-      <input
-        id="panbill-wallet-transfer-recipient"
-        inputmode="numeric"
-        autocomplete="off"
-        maxlength="10"
-        placeholder="033XXXXXXXX"
-      >
+        <p class="muted">
+          Send money securely to another PanBill wallet.
+        </p>
 
-      <!-- RECIPIENT VERIFICATION -->
-      <div
-        id="panbill-transfer-recipient-verification"
-        style="
-          display:none;
-          margin:10px 0 16px;
-          padding:12px;
-          border-radius:12px;
-          background:rgba(255,255,255,.06);
-          border:1px solid rgba(255,255,255,.12);
-        ">
+        <label for="panbill-wallet-transfer-recipient">
+          Recipient account number
+        </label>
 
-        <div style="font-size:12px;opacity:.7">
-          Verified Recipient
-        </div>
+        <input
+          id="panbill-wallet-transfer-recipient"
+          inputmode="numeric"
+          autocomplete="off"
+          maxlength="10"
+          placeholder="033XXXXXXXX"
+        >
+
+        <!-- RECIPIENT VERIFICATION -->
 
         <div
-          id="panbill-transfer-recipient-name"
-          style="font-weight:800;margin-top:5px">
+          id="panbill-transfer-recipient-verification"
+          style="
+            display:none;
+            margin:10px 0 16px;
+            padding:12px;
+            border-radius:12px;
+            background:rgba(255,255,255,.06);
+            border:1px solid rgba(255,255,255,.12);
+          ">
+
+          <div style="font-size:12px;opacity:.7">
+            Verified Recipient
+          </div>
+
+          <div
+            id="panbill-transfer-recipient-name"
+            style="font-weight:800;margin-top:5px">
+          </div>
+
+          <div
+            id="panbill-transfer-recipient-verification-status"
+            style="font-size:12px;margin-top:5px">
+          </div>
         </div>
 
-        <div
-          id="panbill-transfer-recipient-verification-status"
-          style="font-size:12px;margin-top:5px">
-        </div>
+        <label for="panbill-wallet-transfer-amount">
+          Amount (₦)
+        </label>
+
+        <input
+          id="panbill-wallet-transfer-amount"
+          type="number"
+          min="1"
+          step="1"
+          inputmode="numeric"
+          placeholder="Enter amount"
+        >
+
+        <button
+          type="button"
+          class="gold-btn"
+          id="panbill-wallet-transfer-review"
+          style="width:100%;margin-top:16px">
+          Review Transfer
+        </button>
+
       </div>
 
-      <label for="panbill-wallet-transfer-amount">
-        Amount (₦)
-      </label>
+      <!-- CONFIRMATION SCREEN -->
 
-      <input
-        id="panbill-wallet-transfer-amount"
-        type="number"
-        min="1"
-        step="1"
-        inputmode="numeric"
-        placeholder="Enter amount"
-      >
+      <div id="panbill-transfer-review" hidden>
 
-      <label for="panbill-wallet-transfer-pin">
-        Transaction PIN
-      </label>
+        <div style="
+          text-align:center;
+          padding:16px 0 20px;
+        ">
 
-      <input
-        id="panbill-wallet-transfer-pin"
-        type="password"
-        inputmode="numeric"
-        autocomplete="off"
-        maxlength="4"
-        placeholder="4-digit PIN"
-      >
+          <div style="font-size:13px;opacity:.7">
+            You are sending
+          </div>
 
-      <button
-        type="button"
-        class="gold-btn"
-        id="panbill-wallet-transfer-submit"
-        style="width:100%;margin-top:16px">
-        Transfer
-      </button>
+          <div
+            id="panbill-transfer-review-amount"
+            style="
+              font-size:30px;
+              font-weight:900;
+              margin-top:8px;
+              word-break:break-word;
+            ">
+          </div>
+
+        </div>
+
+        <div style="
+          border:1px solid rgba(255,255,255,.12);
+          border-radius:14px;
+          padding:14px;
+          margin-bottom:16px;
+        ">
+
+          <div style="font-size:12px;opacity:.65">
+            Recipient
+          </div>
+
+          <div
+            id="panbill-transfer-review-name"
+            style="font-weight:800;margin-top:4px">
+          </div>
+
+          <div
+            id="panbill-transfer-review-account"
+            style="font-size:13px;opacity:.75;margin-top:4px">
+          </div>
+
+          <div style="
+            border-top:1px solid rgba(255,255,255,.12);
+            margin:14px 0;
+          "></div>
+
+          <div style="
+            display:flex;
+            justify-content:space-between;
+            gap:12px;
+            margin-bottom:10px;
+          ">
+            <span>Transfer amount</span>
+
+            <strong id="panbill-transfer-review-subtotal"></strong>
+          </div>
+
+          <div style="
+            display:flex;
+            justify-content:space-between;
+            gap:12px;
+            margin-bottom:10px;
+          ">
+            <span>Transfer fee</span>
+
+            <strong id="panbill-transfer-review-fee">
+              ₦0
+            </strong>
+          </div>
+
+          <div style="
+            border-top:1px solid rgba(255,255,255,.12);
+            margin:14px 0;
+          "></div>
+
+          <div style="
+            display:flex;
+            justify-content:space-between;
+            gap:12px;
+            font-weight:900;
+            font-size:16px;
+          ">
+            <span>Total debit</span>
+
+            <strong id="panbill-transfer-review-total"></strong>
+          </div>
+
+        </div>
+
+        <label for="panbill-wallet-transfer-pin">
+          Transaction PIN
+        </label>
+
+        <input
+          id="panbill-wallet-transfer-pin"
+          type="password"
+          inputmode="numeric"
+          autocomplete="off"
+          maxlength="4"
+          placeholder="Enter your 4-digit PIN"
+        >
+
+        <button
+          type="button"
+          class="gold-btn"
+          id="panbill-wallet-transfer-confirm"
+          style="width:100%;margin-top:16px">
+          Confirm & Transfer
+        </button>
+
+        <button
+          type="button"
+          id="panbill-wallet-transfer-back"
+          style="
+            width:100%;
+            margin-top:10px;
+          ">
+          Back
+        </button>
+
+      </div>
 
       <div
         class="status"
@@ -128,6 +265,7 @@
         role="status"
         aria-live="polite">
       </div>
+
     </section>
   `;
 
@@ -136,6 +274,14 @@
   // =========================================================
   // ELEMENT REFERENCES
   // =========================================================
+
+  const entryScreen = overlay.querySelector(
+    '#panbill-transfer-entry'
+  );
+
+  const reviewScreen = overlay.querySelector(
+    '#panbill-transfer-review'
+  );
 
   const recipientInput = overlay.querySelector(
     '#panbill-wallet-transfer-recipient'
@@ -149,8 +295,16 @@
     '#panbill-wallet-transfer-pin'
   );
 
-  const submit = overlay.querySelector(
-    '#panbill-wallet-transfer-submit'
+  const reviewButton = overlay.querySelector(
+    '#panbill-wallet-transfer-review'
+  );
+
+  const confirmButton = overlay.querySelector(
+    '#panbill-wallet-transfer-confirm'
+  );
+
+  const backButton = overlay.querySelector(
+    '#panbill-wallet-transfer-back'
   );
 
   const status = overlay.querySelector(
@@ -167,6 +321,30 @@
 
   const recipientVerificationStatus = overlay.querySelector(
     '#panbill-transfer-recipient-verification-status'
+  );
+
+  const reviewAmount = overlay.querySelector(
+    '#panbill-transfer-review-amount'
+  );
+
+  const reviewName = overlay.querySelector(
+    '#panbill-transfer-review-name'
+  );
+
+  const reviewAccount = overlay.querySelector(
+    '#panbill-transfer-review-account'
+  );
+
+  const reviewSubtotal = overlay.querySelector(
+    '#panbill-transfer-review-subtotal'
+  );
+
+  const reviewFee = overlay.querySelector(
+    '#panbill-transfer-review-fee'
+  );
+
+  const reviewTotal = overlay.querySelector(
+    '#panbill-transfer-review-total'
   );
 
   // =========================================================
@@ -186,6 +364,9 @@
 
   let verificationTimer = null;
   let verificationRequestNumber = 0;
+
+  let reviewRecipient = '';
+  let reviewAmount = 0;
 
   // =========================================================
   // STATUS HELPERS
@@ -208,8 +389,11 @@
 
   function hideRecipientVerification() {
     recipientVerification.style.display = 'none';
+
     recipientNameDisplay.textContent = '';
+
     recipientVerificationStatus.textContent = '';
+
     recipientVerificationStatus.style.color = '';
 
     verifiedRecipientAccount = '';
@@ -225,6 +409,16 @@
     }
 
     hideRecipientVerification();
+  }
+
+  function showEntryScreen() {
+    entryScreen.hidden = false;
+    reviewScreen.hidden = true;
+  }
+
+  function showReviewScreen() {
+    entryScreen.hidden = true;
+    reviewScreen.hidden = false;
   }
 
   // =========================================================
@@ -296,7 +490,6 @@
       return false;
     }
 
-    // Already verified for this account
     if (
       verifiedRecipientAccount === accountNumber &&
       verifiedRecipientName
@@ -325,7 +518,6 @@
 
       if (error) throw error;
 
-      // Ignore an old verification if the user changed the account
       if (
         currentRequest !== verificationRequestNumber ||
         recipientInput.value.trim() !== accountNumber
@@ -384,7 +576,7 @@
   }
 
   // =========================================================
-  // OPEN / CLOSE TRANSFER
+  // OPEN / CLOSE
   // =========================================================
 
   function openTransfer() {
@@ -398,6 +590,8 @@
 
     hideStatus();
 
+    showEntryScreen();
+
     overlay.hidden = false;
 
     recipientInput.focus();
@@ -409,6 +603,8 @@
     overlay.hidden = true;
 
     pinInput.value = '';
+
+    showEntryScreen();
   }
 
   button.addEventListener('click', openTransfer);
@@ -443,17 +639,14 @@
     }
   });
 
-  recipientInput.addEventListener(
-    'blur',
-    () => {
-      if (verificationTimer) {
-        clearTimeout(verificationTimer);
-        verificationTimer = null;
-      }
-
-      verifyTransferRecipient();
+  recipientInput.addEventListener('blur', () => {
+    if (verificationTimer) {
+      clearTimeout(verificationTimer);
+      verificationTimer = null;
     }
-  );
+
+    verifyTransferRecipient();
+  });
 
   // =========================================================
   // AMOUNT INPUT
@@ -467,21 +660,20 @@
   });
 
   // =========================================================
-  // TRANSFER SUBMISSION
+  // REVIEW TRANSFER
   // =========================================================
 
-  submit.addEventListener('click', async () => {
+  reviewButton.addEventListener('click', async () => {
     if (busy) return;
+
+    hideStatus();
 
     const recipient = recipientInput.value.trim();
 
     const amount = Number(amountInput.value);
 
-    const pin = pinInput.value.trim();
-
     const userId = currentSession?.user?.id;
 
-    // Authentication check
     if (!userId) {
       return showStatus(
         'Your session has expired. Please sign in again.',
@@ -489,7 +681,6 @@
       );
     }
 
-    // Account format check
     if (!/^033\d{7}$/.test(recipient)) {
       return showStatus(
         'Enter a valid 10-digit account number beginning with 033.',
@@ -497,17 +688,20 @@
       );
     }
 
-    // Verify recipient before proceeding
+    if (!Number.isSafeInteger(amount) || amount <= 0) {
+      return showStatus(
+        'Enter a valid positive whole-number amount in naira.',
+        true
+      );
+    }
+
     if (
       verifiedRecipientAccount !== recipient ||
       !verifiedRecipientName
     ) {
-      showStatus(
-        'Verifying recipient account...'
-      );
+      showStatus('Verifying recipient account...');
 
-      const verified =
-        await verifyTransferRecipient();
+      const verified = await verifyTransferRecipient();
 
       if (!verified) {
         return showStatus(
@@ -517,35 +711,15 @@
       }
     }
 
-    // Amount check
-    if (!Number.isSafeInteger(amount) || amount <= 0) {
-      return showStatus(
-        'Enter a valid positive whole-number amount in naira.',
-        true
-      );
-    }
-
-    // PIN check
-    if (!/^\d{4}$/.test(pin)) {
-      return showStatus(
-        'Enter your 4-digit transaction PIN.',
-        true
-      );
-    }
-
     busy = true;
 
-    submit.disabled = true;
+    reviewButton.disabled = true;
 
     recipientInput.disabled = true;
 
     amountInput.disabled = true;
 
-    pinInput.disabled = true;
-
-    showStatus(
-      'Verifying recipient and wallet balance...'
-    );
+    showStatus('Checking wallet balance...');
 
     try {
       const ownAccount =
@@ -554,16 +728,6 @@
       if (recipient === ownAccount) {
         throw new Error(
           'You cannot transfer money to your own PanBill account.'
-        );
-      }
-
-      // Verify recipient again before final processing
-      const verified =
-        await verifyTransferRecipient();
-
-      if (!verified) {
-        throw new Error(
-          'Recipient verification failed. Please check the account number.'
         );
       }
 
@@ -577,7 +741,7 @@
 
       if (!wallet.data) {
         throw new Error(
-          'Your wallet balance could not be found. Please refresh and try again.'
+          'Your wallet balance could not be found. Please refresh your wallet.'
         );
       }
 
@@ -595,13 +759,159 @@
         );
       }
 
+      // Verify recipient once more
+      const verified = await verifyTransferRecipient();
+
+      if (!verified) {
+        throw new Error(
+          'Recipient verification failed. Please check the account number.'
+        );
+      }
+
+      reviewRecipient = recipient;
+      reviewAmount = amount;
+
+      // Format money with thousands separators
+      reviewAmount.textContent = '';
+
+      reviewAmount = amount;
+
+      reviewAmountElement.textContent =
+        formatNaira(amount);
+
+      reviewName.textContent =
+        verifiedRecipientName;
+
+      reviewAccount.textContent =
+        recipient.slice(0, 3) +
+        '****' +
+        recipient.slice(-3);
+
+      reviewSubtotal.textContent =
+        formatNaira(amount);
+
+      reviewFee.textContent = formatNaira(0);
+
+      reviewTotal.textContent =
+        formatNaira(amount);
+
+      pinInput.value = '';
+
+      hideStatus();
+
+      showReviewScreen();
+
+      pinInput.focus();
+
+    } catch (error) {
+      showStatus(
+        error?.message ||
+        'Could not prepare transfer confirmation.',
+        true
+      );
+
+    } finally {
+      busy = false;
+
+      reviewButton.disabled = false;
+
+      recipientInput.disabled = false;
+
+      amountInput.disabled = false;
+    }
+  });
+
+  // =========================================================
+  // BACK TO ENTRY SCREEN
+  // =========================================================
+
+  backButton.addEventListener('click', () => {
+    if (busy) return;
+
+    hideStatus();
+
+    pinInput.value = '';
+
+    showEntryScreen();
+  });
+
+  // =========================================================
+  // CONFIRM TRANSFER
+  // =========================================================
+
+  confirmButton.addEventListener('click', async () => {
+    if (busy) return;
+
+    const recipient = reviewRecipient;
+
+    const amount = reviewAmount;
+
+    const pin = pinInput.value.trim();
+
+    const userId = currentSession?.user?.id;
+
+    if (!userId) {
+      return showStatus(
+        'Your session has expired. Please sign in again.',
+        true
+      );
+    }
+
+    if (!/^033\d{7}$/.test(recipient)) {
+      return showStatus(
+        'Recipient account number is invalid.',
+        true
+      );
+    }
+
+    if (!Number.isSafeInteger(amount) || amount <= 0) {
+      return showStatus(
+        'Transfer amount is invalid.',
+        true
+      );
+    }
+
+    if (!/^\d{4}$/.test(pin)) {
+      return showStatus(
+        'Enter your 4-digit transaction PIN.',
+        true
+      );
+    }
+
+    busy = true;
+
+    confirmButton.disabled = true;
+
+    backButton.disabled = true;
+
+    pinInput.disabled = true;
+
+    showStatus(
+      'Processing transfer securely. Please do not submit again.'
+    );
+
+    try {
+      // Verify account number before final transfer
+      const verified = await verifyTransferRecipient();
+
+      if (!verified || verifiedRecipientAccount !== recipient) {
+        throw new Error(
+          'Recipient verification failed. Please go back and verify the recipient again.'
+        );
+      }
+
+      const ownAccount =
+        await getOwnAccountNumber(userId);
+
+      if (recipient === ownAccount) {
+        throw new Error(
+          'You cannot transfer money to your own PanBill account.'
+        );
+      }
+
       const p_request_id = ensureRequestId(
         recipient,
         amount
-      );
-
-      showStatus(
-        'Processing transfer securely. Please do not submit again.'
       );
 
       const result = await authClient.rpc(
@@ -670,11 +980,9 @@
     } finally {
       busy = false;
 
-      submit.disabled = false;
+      confirmButton.disabled = false;
 
-      recipientInput.disabled = false;
-
-      amountInput.disabled = false;
+      backButton.disabled = false;
 
       pinInput.disabled = false;
     }
