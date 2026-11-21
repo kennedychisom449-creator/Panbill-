@@ -274,6 +274,7 @@ html, body {
   <button class="nav-btn active" data-tab="overview"><span class="nav-icon">▦</span> Overview</button>
   <button class="nav-btn" data-tab="customers"><span class="nav-icon">♙</span> Customers</button>
   <button class="nav-btn" data-tab="transactions"><span class="nav-icon">⇄</span> Transactions</button>
+  <button class="nav-btn super-admin-only hidden" data-tab="disputes"><span class="nav-icon">⚑</span> Transaction Disputes</button>
   <button class="nav-btn" data-tab="pricing"><span class="nav-icon">₦</span> VTU Pricing</button>
   <button class="nav-btn" data-tab="audit"><span class="nav-icon">⌑</span> Audit log</button>
   <button class="nav-btn super-admin-only hidden" data-tab="marketplace"><span class="nav-icon">▣</span> Marketplace Sellers</button>
@@ -355,6 +356,19 @@ html, body {
    </table>
   </div>
   <div class="pagination"><button class="btn" id="transactionsPrev">Previous</button><span id="transactionsPage">Page 1</span><button class="btn" id="transactionsNext">Next</button></div>
+ </div>
+</section>
+
+<section id="disputesTab" class="section">
+ <div class="panel">
+  <div class="panel-head"><div><h2>Transaction disputes</h2><div class="panel-desc">Review customer-submitted disputes and record an administrative decision.</div></div><button class="btn" id="disputesReload">↻ Refresh disputes</button></div>
+  <div class="pricing-actions" style="margin:0 0 15px">
+   <select id="disputeStatusFilter" class="search" aria-label="Filter disputes by status"><option value="all">All statuses</option><option value="open">Open</option><option value="under_review">Under review</option><option value="resolved">Resolved</option><option value="rejected">Rejected</option></select>
+   <input id="disputeSearch" class="search" type="search" placeholder="Search dispute or transaction reference">
+   <span class="panel-desc" id="disputeCount"></span>
+  </div>
+  <div class="table-wrap"><table style="min-width:850px"><thead><tr><th>Submitted</th><th>Dispute reference</th><th>Transaction reference</th><th>Reason</th><th>Status</th><th>Customer ID</th><th></th></tr></thead><tbody id="disputesBody"><tr><td colspan="7" class="loading">Loading disputes...</td></tr></tbody></table></div>
+  <div id="disputesMobile" class="mobile-transaction-list"></div>
  </div>
 </section>
 
@@ -584,6 +598,20 @@ html, body {
  </div>
 </div>
 
+<div id="disputeModal" class="modal hidden">
+ <div class="modal-card" style="max-width:1000px">
+  <button class="btn modal-close" id="closeDisputeModal" type="button">Close</button>
+  <h2>Dispute review</h2><p class="panel-desc">Review the customer's submission and save a status update or response.</p>
+  <div id="disputeDetailContent"></div>
+  <div class="pricing-grid" style="margin-top:15px">
+   <div class="pricing-field"><label for="disputeAdminStatus">Dispute status</label><select id="disputeAdminStatus" class="search" style="width:100%"><option value="open">Open</option><option value="under_review">Under review</option><option value="resolved">Resolved</option><option value="rejected">Rejected</option></select></div>
+   <div class="pricing-field"><label for="disputeAdminResponse">Customer-facing response</label><textarea id="disputeAdminResponse" class="reason-input" rows="4" maxlength="2000" placeholder="A response visible to the customer (optional)"></textarea></div>
+   <div class="pricing-field" style="grid-column:1/-1"><label for="disputeInternalNote">Internal note (not shown to customer)</label><textarea id="disputeInternalNote" class="reason-input" rows="3" maxlength="2000" placeholder="Internal investigation note (optional)"></textarea><div class="pricing-help">The backend records this as an internal update only when no customer-facing response is supplied.</div></div>
+  </div>
+  <div class="pricing-actions"><button class="btn btn-primary" id="saveDisputeUpdate" type="button">Save dispute update</button><span class="panel-desc" id="disputeSaveStatus"></span></div>
+ </div>
+</div>
+
 <script>
 "use strict";
 
@@ -595,6 +623,7 @@ let customerPage=1,transactionPage=1,auditPage=1,activeTab="overview";
 let customersCache=[],transactionsCache=[],transactionTotal=0,auditTotal=0;
 let transactionSearchTimer=null,currentAdminRole=null,isSuperAdmin=false;
 let agentSearchResults=[];
+let disputesCache=[],currentDisputeId=null;
 
 const $=id=>document.getElementById(id);
 
@@ -679,7 +708,7 @@ async function verifyAdminRole(){
 }
 
 function showTab(tab){
- if((tab==="agents"||tab==="fulfillmentAgents"||tab==="marketplace"||tab==="deliveryPricing"||tab==="pickupPoints")&&!isSuperAdmin){
+ if((tab==="disputes"||tab==="agents"||tab==="fulfillmentAgents"||tab==="marketplace"||tab==="deliveryPricing"||tab==="pickupPoints")&&!isSuperAdmin){
   showMessage("Only the Super Admin can access this section.");
   return;
  }
@@ -689,6 +718,7 @@ function showTab(tab){
   overview:"Business Overview",
   customers:"Customer Management",
   transactions:"Transaction Monitoring",
+  disputes:"Transaction Disputes",
   audit:"Administrative Audit Log",
   pricing:"VTU Pricing Management",
   agents:"Agent Management",
@@ -699,7 +729,7 @@ function showTab(tab){
  };
  $("pageTitle").textContent=titles[tab]||"PanBill";
 
- ["overview","customers","transactions","pricing","audit","agents","fulfillmentAgents","marketplace","deliveryPricing","pickupPoints"].forEach(n=>{
+ ["overview","customers","transactions","disputes","pricing","audit","agents","fulfillmentAgents","marketplace","deliveryPricing","pickupPoints"].forEach(n=>{
   $(n+"Tab").classList.toggle("active",n===tab);
  });
 
@@ -954,6 +984,43 @@ async function loadAuditLogs(){
  $("auditNext").disabled=auditPage*50>=auditTotal;
 }
 
+async function disputeRequest(action,extra={}){
+ const {data:{session},error:se}=await client.auth.getSession();
+ if(se)throw se;
+ if(!session)throw new Error("Your session has expired. Please sign in again.");
+ const {data,error}=await client.functions.invoke("transaction-disputes",{body:{action,...extra}});
+ if(error){let m=error.message||"Dispute request failed.";if(error.context&&typeof error.context.json==="function"){try{const d=await error.context.json();if(d.error)m=d.error;}catch(_){}}throw new Error(m);}
+ if(!data||!data.success)throw new Error(data?.error||"Dispute request failed.");
+ return data;
+}
+function disputeStatusClass(status){return status==="resolved"?"successful":status==="rejected"?"failed":status==="open"?"pending":"other";}
+function filteredDisputes(){
+ const status=$("disputeStatusFilter").value,term=$("disputeSearch").value.trim().toLowerCase();
+ return disputesCache.filter(d=>(status==="all"||d.status===status)&&[d.dispute_reference,d.transaction_reference,d.reason,d.user_id,d.description].some(v=>String(v||"").toLowerCase().includes(term)));
+}
+function renderDisputes(){
+ const rows=filteredDisputes();$("disputeCount").textContent=`${rows.length} shown · ${disputesCache.length} loaded`;
+ $("disputesBody").innerHTML=rows.map(d=>`<tr><td>${date(d.created_at)}</td><td>${escapeHTML(d.dispute_reference||d.id||"—")}</td><td>${escapeHTML(d.transaction_reference||"—")}</td><td>${escapeHTML(d.reason||"—")}</td><td><span class="status ${disputeStatusClass(d.status)}">${escapeHTML(String(d.status||"unknown").replaceAll("_"," "))}</span></td><td>${escapeHTML(d.user_id||"—")}</td><td><button class="btn" type="button" data-review-dispute="${escapeHTML(d.id)}">Review</button></td></tr>`).join("")||'<tr><td colspan="7" class="empty">No disputes match this filter.</td></tr>';
+ $("disputesMobile").innerHTML=rows.map(d=>`<article class="mobile-transaction-card"><div class="mobile-transaction-top"><strong>${escapeHTML(d.reason||"Transaction dispute")}</strong><span class="status ${disputeStatusClass(d.status)}">${escapeHTML(d.status||"unknown")}</span></div><div class="mobile-transaction-info"><div><strong>DISPUTE REFERENCE</strong><span>${escapeHTML(d.dispute_reference||d.id||"—")}</span></div><div><strong>TRANSACTION REFERENCE</strong><span>${escapeHTML(d.transaction_reference||"—")}</span></div><div><strong>SUBMITTED</strong><span>${date(d.created_at)}</span></div><div><strong>CUSTOMER ID</strong><span>${escapeHTML(d.user_id||"—")}</span></div></div><button class="btn view-transaction-button" data-review-dispute="${escapeHTML(d.id)}">Review dispute</button></article>`).join("")||'<div class="empty">No disputes match this filter.</div>';
+ document.querySelectorAll("[data-review-dispute]").forEach(b=>b.addEventListener("click",()=>openDisputeReview(b.dataset.reviewDispute)));
+}
+async function loadDisputes(){
+ $("disputesBody").innerHTML='<tr><td colspan="7" class="loading">Loading disputes...</td></tr>';$("disputesMobile").innerHTML='<div class="loading">Loading disputes...</div>';
+ const r=await disputeRequest("admin_disputes",{status:"all"});disputesCache=Array.isArray(r.disputes)?r.disputes:[];renderDisputes();
+}
+async function openDisputeReview(id){
+ const d=disputesCache.find(x=>String(x.id)===String(id));if(!d)return;currentDisputeId=d.id;$("disputeModal").classList.remove("hidden");$("disputeSaveStatus").textContent="";
+ $("disputeDetailContent").innerHTML=`<div class="detail-grid"><div class="detail-item"><strong>DISPUTE REFERENCE</strong><span>${escapeHTML(d.dispute_reference||d.id)}</span></div><div class="detail-item"><strong>TRANSACTION REFERENCE</strong><span>${escapeHTML(d.transaction_reference||"—")}</span></div><div class="detail-item"><strong>CUSTOMER USER ID</strong><span>${escapeHTML(d.user_id||"—")}</span></div><div class="detail-item"><strong>REASON</strong><span>${escapeHTML(d.reason||"—")}</span></div><div class="detail-item"><strong>STATUS</strong><span class="status ${disputeStatusClass(d.status)}">${escapeHTML(d.status||"unknown")}</span></div><div class="detail-item"><strong>SUBMITTED</strong><span>${date(d.created_at)}</span></div><div class="detail-item"><strong>LAST UPDATED</strong><span>${date(d.updated_at)}</span></div><div class="detail-item"><strong>RESOLVED AT</strong><span>${date(d.resolved_at)}</span></div></div><div class="detail-item" style="margin-bottom:12px"><strong>CUSTOMER DESCRIPTION</strong><span style="white-space:pre-wrap">${escapeHTML(d.description||"No description supplied.")}</span></div><div class="detail-item" style="margin-bottom:12px"><strong>CURRENT CUSTOMER-FACING RESPONSE</strong><span style="white-space:pre-wrap">${escapeHTML(d.admin_response||"No response recorded.")}</span></div><div class="detail-item"><strong>ASSIGNED ADMIN</strong><span>${escapeHTML(d.assigned_admin||"Not assigned")}</span></div>`;
+ $("disputeAdminStatus").value=["open","under_review","resolved","rejected"].includes(d.status)?d.status:"open";$("disputeAdminResponse").value="";$("disputeInternalNote").value="";
+}
+async function saveDisputeUpdate(){
+ if(!isSuperAdmin||!currentDisputeId)return;const status=$("disputeAdminStatus").value,response=$("disputeAdminResponse").value.trim(),internal_note=$("disputeInternalNote").value.trim();
+ if(!["open","under_review","resolved","rejected"].includes(status)){showMessage("Select a valid dispute status.");return;}
+ if(response&&internal_note){$("disputeSaveStatus").textContent="Enter either a customer response or an internal note, not both. The backend records one update message per action.";return;}
+ $("saveDisputeUpdate").disabled=true;$("disputeSaveStatus").textContent="Saving update...";
+ try{const r=await disputeRequest("admin_update_dispute",{dispute_id:currentDisputeId,status,admin_response:response,internal_note});const updated=r.dispute;if(updated){const i=disputesCache.findIndex(x=>String(x.id)===String(updated.id));if(i>=0)disputesCache[i]=updated;}renderDisputes();$("disputeSaveStatus").textContent="Update saved.";await openDisputeReview(currentDisputeId);$("disputeSaveStatus").textContent="Update saved successfully.";}catch(e){$("disputeSaveStatus").textContent=e.message;showMessage(e.message);}finally{$("saveDisputeUpdate").disabled=false;}
+}
+
 async function loadCurrentTab(){
  showMessage("");
  $("refreshButton").disabled=true;
@@ -961,6 +1028,7 @@ async function loadCurrentTab(){
   if(activeTab==="overview")await loadOverview();
   if(activeTab==="customers")await loadCustomers();
   if(activeTab==="transactions")await loadTransactions();
+  if(activeTab==="disputes"&&isSuperAdmin)await loadDisputes();
   if(activeTab==="audit")await loadAuditLogs();
   if(activeTab==="pricing")await loadPricing();
   if(activeTab==="agents"&&isSuperAdmin)await loadAgents();
@@ -1969,6 +2037,13 @@ async function initialise(){
 }
 
 initialise();
+
+$("disputesReload").addEventListener("click",()=>loadDisputes().catch(e=>showMessage(e.message)));
+$("disputeStatusFilter").addEventListener("change",renderDisputes);
+$("disputeSearch").addEventListener("input",renderDisputes);
+$("saveDisputeUpdate").addEventListener("click",saveDisputeUpdate);
+$("closeDisputeModal").addEventListener("click",()=>$("disputeModal").classList.add("hidden"));
+$("disputeModal").addEventListener("click",e=>{if(e.target===$("disputeModal"))$("disputeModal").classList.add("hidden");});
 </script>
 </body>
 </html>
