@@ -1043,8 +1043,11 @@ main.wrap[data-view="bill-tools"] #panbill-bill-tools-page{display:block!importa
 </style>
 
 <style id="panbill-separate-subpages-style">
-main.wrap.panbill-subpage-active> :not(#panbill-budget-page):not(#panbill-rewards-panel){display:none!important}
-main.wrap.panbill-subpage-active>#panbill-budget-page,main.wrap.panbill-subpage-active>#panbill-rewards-panel{display:block!important;margin-top:14px!important}
+/* Isolate the two money tools: each page reveals only its own panel. */
+body.panbill-budget-active main.wrap> :not(#panbill-budget-page){display:none!important}
+body.panbill-budget-active main.wrap>#panbill-budget-page{display:block!important;margin-top:14px!important}
+body.panbill-rewards-active main.wrap> :not(#panbill-rewards-panel){display:none!important}
+body.panbill-rewards-active main.wrap>#panbill-rewards-panel{display:block!important;margin-top:14px!important}
 body.panbill-disputes-active main.wrap{display:none!important}
 .panbill-disputes-standalone{width:min(100% - 28px,900px);margin:18px auto 36px}
 .panbill-disputes-standalone #panbill-disputes-page{display:block!important;margin:0!important}
@@ -1830,18 +1833,31 @@ async function loadPanbillRewards(){
  }catch(error){$('panbill-rewards-history').textContent='Could not load rewards: '+(error.message||'Please try again.');}
 }
 function panbillOpenSubpage(pageId){
- if(pageId==='panbill-disputes-page'){const shell=$('panbill-disputes-standalone');document.body.classList.add('panbill-disputes-active');if(shell)shell.hidden=false;$('panbill-disputes-page')?.scrollIntoView({behavior:'instant',block:'start'});return;}
+ if(pageId==='panbill-disputes-page'){
+  const shell=$('panbill-disputes-standalone');
+  document.body.classList.remove('panbill-budget-active','panbill-rewards-active');
+  document.body.classList.add('panbill-disputes-active');
+  if(shell)shell.hidden=false;
+  $('panbill-disputes-page')?.scrollIntoView({behavior:'instant',block:'start'});
+  return;
+ }
  const wrap=document.querySelector('main.wrap');
  const budget=$('panbill-budget-page');
  const rewards=$('panbill-rewards-panel');
- if(!wrap||!$(pageId))return;
+ if(!wrap||!['panbill-budget-page','panbill-rewards-panel'].includes(pageId)||!$(pageId))return;
+ document.body.classList.remove('panbill-disputes-active','panbill-budget-active','panbill-rewards-active');
+ document.body.classList.add(pageId==='panbill-budget-page'?'panbill-budget-active':'panbill-rewards-active');
+ const disputeShell=$('panbill-disputes-standalone');
+ if(disputeShell)disputeShell.hidden=true;
  wrap.classList.add('panbill-subpage-active');
  if(budget)budget.style.display=pageId==='panbill-budget-page'?'block':'none';
- if(rewards){rewards.hidden=pageId!=='panbill-rewards-panel';rewards.style.display=pageId==='panbill-rewards-panel'?'block':'none';}
+ if(rewards){const active=pageId==='panbill-rewards-panel';rewards.hidden=!active;rewards.style.display=active?'block':'none';}
  $(pageId).scrollIntoView({behavior:'instant',block:'start'});
 }
 function panbillCloseSubpage(){
- document.body.classList.remove('panbill-disputes-active');const disputeShell=$('panbill-disputes-standalone');if(disputeShell)disputeShell.hidden=true;
+ document.body.classList.remove('panbill-disputes-active','panbill-budget-active','panbill-rewards-active');
+ const disputeShell=$('panbill-disputes-standalone');
+ if(disputeShell)disputeShell.hidden=true;
  const wrap=document.querySelector('main.wrap');
  wrap?.classList.remove('panbill-subpage-active');
  const budget=$('panbill-budget-page');if(budget)budget.style.display='none';
