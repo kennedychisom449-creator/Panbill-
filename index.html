@@ -1647,7 +1647,7 @@ $('recover-transaction-pin-form').addEventListener('submit',async e=>{
   transactionPinCheckedUser=currentSession.user.id;transactionPinHasPin=true;
   $('recover-transaction-pin-form').reset();
   document.querySelectorAll('#transaction-pin-recovery-settings [data-reveal-target]').forEach(b=>{b.textContent='Show';b.setAttribute('aria-label','Show '+(b.dataset.revealTarget==='recover-pin-login-password'?'login password':b.dataset.revealTarget==='recover-pin-new'?'new PIN':'confirmation PIN'));});
-  message($('recover-transaction-pin-message'),'Your Transaction PIN has been updated successfully.');
+  message($('recover-transaction-pin-message'),'Your Transaction PIN has been updated successfully.');$('security-overlay').hidden=true;message($('wallet-message'),'Your Transaction PIN was verified and updated successfully.');
  }catch(error){message($('recover-transaction-pin-message'),error.message||'Transaction PIN recovery failed. Please try again.',true)}
  finally{button.disabled=false}
 });
