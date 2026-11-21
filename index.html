@@ -1938,7 +1938,9 @@ function renderTransactionHistory(){
   d.addEventListener('click',()=>showTransactionDetails(x));
   const ico=document.createElement('div');ico.className='tx-icon';ico.textContent=x.type==='wallet_funding'?'＋':status==='successful'?'✓':status==='failed'?'!':'↗';
   const info=document.createElement('div');info.className='tx-info';
-  const title=document.createElement('strong');title.textContent=String(x.description||x.type||'Transaction').replace(/wisesub/gi,'PanBill');
+  const title=document.createElement('strong');
+  const transferType=String(x.type||'').toLowerCase();
+  title.textContent=transferType==='wallet_transfer_out'?'Money Sent':transferType==='wallet_transfer_in'?'Money Received':String(x.description||x.type||'Transaction').replace(/wisesub/gi,'PanBill');
   const small=document.createElement('small');small.textContent=(x.reference||'No reference')+' · '+(x.created_at?new Date(x.created_at).toLocaleDateString('en-NG'):'Date unavailable');
   const badge=document.createElement('span');badge.className='tx-status '+status;badge.textContent=(status==='unknown'?'Status unavailable':labels[status]);
   info.append(title,small,badge);
@@ -2047,7 +2049,9 @@ function showTransactionDetails(x){
  const badge=document.createElement('div');badge.className='tx-detail-status tx-status '+status;badge.textContent=statusText;content.append(badge);
  const grid=document.createElement('div');grid.className='tx-detail-grid';
  const add=(label,value)=>{if(value===null||value===undefined||String(value).trim()==='')return;const item=document.createElement('div');item.className='tx-detail-item';const small=document.createElement('small');small.textContent=label;const strong=document.createElement('strong');strong.textContent=String(value);item.append(small,strong);grid.append(item)};
- add('Service',String(x.description||x.type||'Transaction').replace(/wisesub/gi,'PanBill'));
+ const transferType=String(x.type||'').toLowerCase();
+ add('Transaction type',transferType==='wallet_transfer_out'?'Money Sent':transferType==='wallet_transfer_in'?'Money Received':String(x.description||x.type||'Transaction').replace(/wisesub/gi,'PanBill'));
+ add('Service',transferType==='wallet_transfer_out'?'Wallet Transfer (Sent)':transferType==='wallet_transfer_in'?'Wallet Transfer (Received)':String(x.description||x.type||'Transaction').replace(/wisesub/gi,'PanBill'));
  add('Amount',money(x.amount));add('Date and time',x.created_at?new Date(x.created_at).toLocaleString('en-NG'):'Not available');
  add('Transaction reference',x.reference||'Not available');add('Provider','PanBill');
  add('Provider status',x.provider_status||'Not available');add('Provider reference',x.provider_reference||'Not available');
