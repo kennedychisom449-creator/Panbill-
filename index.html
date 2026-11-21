@@ -1033,6 +1033,7 @@ main.wrap[data-view="bill-tools"] #panbill-bill-tools-page{display:block!importa
 
 <style id="panbill-dashboard-shortcuts-style">
 .panbill-dashboard-shortcuts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
+#home-disputes-shortcut{min-height:78px;height:78px;max-height:78px}
 .panbill-compact-shortcut{width:100%;min-width:0;min-height:78px;margin:0!important;padding:11px!important;display:flex!important;flex-direction:row!important;align-items:center;justify-content:flex-start!important;gap:9px!important;text-align:left!important;border-radius:14px}
 .panbill-compact-shortcut .service-icon{flex:0 0 34px;width:34px;height:34px;display:grid;place-items:center}
 .panbill-shortcut-copy{display:block;min-width:0}
@@ -1044,11 +1045,15 @@ main.wrap[data-view="bill-tools"] #panbill-bill-tools-page{display:block!importa
 <style id="panbill-separate-subpages-style">
 main.wrap.panbill-subpage-active> :not(#panbill-budget-page):not(#panbill-rewards-panel){display:none!important}
 main.wrap.panbill-subpage-active>#panbill-budget-page,main.wrap.panbill-subpage-active>#panbill-rewards-panel{display:block!important;margin-top:14px!important}
+body.panbill-disputes-active main.wrap{display:none!important}
+.panbill-disputes-standalone{width:min(100% - 28px,900px);margin:18px auto 36px}
+.panbill-disputes-standalone #panbill-disputes-page{display:block!important;margin:0!important}
+@media(max-width:520px){.panbill-disputes-standalone{width:calc(100% - 20px);margin:12px auto 28px}.panbill-disputes-standalone #panbill-disputes-page{padding:14px!important}}
 #panbill-budget-page .panbill-page-back,#panbill-rewards-panel .panbill-page-back{display:inline-flex;align-items:center;gap:6px}
 </style>
 </head><body>
 <div aria-label="PanBill is loading" aria-live="polite" id="panbill-loading-screen" role="status"><div aria-hidden="true" class="panbill-loader-mark">P</div><div class="panbill-loader-name">PanBill</div><div class="panbill-loader-caption">One app. All your bills.</div><div aria-hidden="true" class="panbill-loader-ring"></div></div>
-<header class="app-header"><div class="brand"><span class="brand-mark">P</span> PanBill</div><div class="header-actions"><span class="muted" hidden="" id="header-user" style="font-size:12px"></span><button class="pill" id="settings-top-button" type="button" aria-label="Open Settings menu" title="Settings">☰</button><button aria-hidden="true" class="pill" hidden="" id="logout-button" type="button">Log out</button></div></header>
+<header class="app-header"><div class="brand"><span class="brand-mark">P</span> PanBill</div><div class="header-actions"><span class="muted" hidden="" id="header-user" style="font-size:12px"></span><button class="pill" id="settings-top-button" type="button" aria-label="Open Settings menu" title="Settings">☰</button><button class="pill" id="notifications-button" type="button" aria-label="Notifications" title="Notifications" hidden style="position:relative">🔔<span id="notifications-badge" hidden style="position:absolute;top:-4px;right:-4px;background:#ff676d;color:#fff;border-radius:99px;min-width:17px;height:17px;padding:0 4px;font-size:10px;display:grid;place-items:center"></span></button><button aria-hidden="true" class="pill" hidden="" id="logout-button" type="button">Log out</button></div></header>
 <main class="wrap"><section class="hero"><div class="hero-copy"><div class="eyebrow">Simple • Secure • Convenient</div><h1>Your bills,<br/><span>beautifully handled.</span></h1><p>Recharge airtime, buy data, pay bills, add money to your wallet, shop and explore the marketplace every day — all in one secure app.</p><div class="trust"><span>✦ Secure account</span><span>✦ Clear transactions</span><span>✦ Fast checkout</span></div></div><div aria-label="PanBill animated seasonal background" class="portrait-card" role="img"></div></section>
 <div class="signed-greeting"><div><div class="eyebrow">YOUR PANBILL DASHBOARD</div><h2 id="greeting">Welcome to PanBill <span aria-hidden="true" class="greeting-spark">✦</span></h2><div class="muted" id="account-status" style="font-size:13px">Sign in to access your wallet.</div></div><span aria-hidden="true" class="greeting-decoration">✧</span><button aria-label="Open account settings" class="outline-btn" id="open-account" type="button" hidden="">Settings</button></div>
 <section aria-label="PanBill dashboard and seasonal message" aria-live="polite" class="seasonal-card" id="dashboard-seasonal-greeting"><div class="seasonal-copy"><div class="dashboard-brand-message"><strong>Your bills, beautifully handled.</strong><span>Recharge airtime, buy data, pay bills, add money, shop and explore — all in one secure app.</span></div><div class="seasonal-kicker" data-season-kicker="">SEASONAL GREETINGS</div><h2 class="seasonal-title" data-season-title="">Wishing you joy</h2><p class="seasonal-message" data-season-message="">Warm wishes from PanBill.</p></div><div aria-hidden="true" class="seasonal-art"><span class="season-main" data-season-art="">✦</span><span class="season-sparkles">✧ ✦</span></div></section>
@@ -1066,7 +1071,8 @@ main.wrap.panbill-subpage-active>#panbill-budget-page,main.wrap.panbill-subpage-
 </section>
 <div id="panbill-dashboard-shortcuts" class="panbill-dashboard-shortcuts">
  <button class="service-card panbill-compact-shortcut" id="home-budget-shortcut" type="button"><span class="service-icon" aria-hidden="true">📊</span><span class="panbill-shortcut-copy"><strong>Spending &amp; Budgets</strong><small>Monthly insights &amp; limits</small></span></button>
- <button class="service-card panbill-compact-shortcut" id="home-referral-shortcut" type="button"><span class="service-icon" aria-hidden="true">🎁</span><span class="panbill-shortcut-copy"><strong>Referral &amp; Rewards</strong><small>Invite friends &amp; earn</small></span></button>
+   <button class="service-card panbill-compact-shortcut" id="home-disputes-shortcut" type="button"><span class="service-icon" aria-hidden="true">🛟</span><span class="panbill-shortcut-copy"><strong>Transaction Disputes</strong><small>Report an issue &amp; track support</small></span></button>
+<button class="service-card panbill-compact-shortcut" id="home-referral-shortcut" type="button"><span class="service-icon" aria-hidden="true">🎁</span><span class="panbill-shortcut-copy"><strong>Referral &amp; Rewards</strong><small>Invite friends &amp; earn</small></span></button>
 </div>
 <section id="panbill-budget-page" class="panel" aria-label="Spending analytics and monthly budgets" style="display:none;margin:12px 0;padding:18px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,#10264a,#0a1b38)">
  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><div class="eyebrow">PANBILL MONEY TOOLS</div><h2 style="margin:5px 0">Spending &amp; budgets</h2><p class="muted" style="font-size:12px;margin:4px 0">Your successful bill payments, grouped by month and service.</p></div><button id="budget-close" class="outline-btn panbill-page-back" type="button">← Back to dashboard</button></div>
@@ -1309,6 +1315,7 @@ main.wrap.panbill-subpage-active>#panbill-budget-page,main.wrap.panbill-subpage-
 
 
 
+
 <div class="two-col" id="history-area"><button aria-label="Back to VTU dashboard" class="history-back-home" id="history-back-home" type="button">← Back to Home</button><section class="panel" id="transaction-panel"><div class="section-head" style="margin-top:0"><h2>Transaction history</h2><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="text-button" id="export-transactions" type="button">Export CSV</button><button class="text-button" id="print-transaction-statement" type="button">Print statement</button><button class="text-button" id="refresh-transactions" type="button">Refresh</button></div></div><div aria-label="Filter transactions" class="tx-filter-bar" id="transaction-filters" role="group">
 <button aria-pressed="true" class="tx-filter" data-tx-filter="all" type="button">All</button>
 <button aria-pressed="false" class="tx-filter" data-tx-filter="successful" type="button">Successful</button>
@@ -1341,6 +1348,23 @@ main.wrap.panbill-subpage-active>#panbill-budget-page,main.wrap.panbill-subpage-
 </div>
 <nav aria-label="Main navigation" class="bottom-nav" hidden><button id="nav-home" type="button"><span>⌂</span>Home</button><button id="nav-services" type="button"><span>▦</span>Services</button><button aria-label="Open marketplace" id="nav-market" type="button"><span>🛍</span>Market</button><button id="nav-wallet" type="button"><span>▣</span>Wallet</button><button id="nav-transactions" type="button"><span>◷</span>History</button><button id="nav-settings" type="button"><span>⚙</span>Settings</button></nav>
 <footer class="footer">PanBill · Add money and pay your bills with ease.<br/>© <span id="year"></span> PanBill. All rights reserved.</footer></main>
+<div id="panbill-disputes-standalone" class="panbill-disputes-standalone" hidden>
+<section class="panel" id="panbill-disputes-page" aria-label="Transaction disputes" style="display:none;margin:12px 0;padding:18px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,#10264a,#0a1b38)">
+ <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><div class="eyebrow">PANBILL CUSTOMER SUPPORT</div><h2 style="margin:5px 0">Transaction disputes</h2><p class="muted" style="font-size:12px;margin:4px 0">Report a transaction problem and follow its progress.</p></div><button id="panbill-disputes-close" class="outline-btn" type="button">← Back to dashboard</button></div>
+ <div class="settings-group" style="margin:15px 0;padding:15px;border:1px solid var(--line);border-radius:14px">
+  <h3 style="margin:0 0 5px">Submit a dispute</h3><p class="muted" style="font-size:12px;margin:0 0 10px">Use the transaction ID shown in your transaction details. Submit one report for each affected transaction.</p>
+  <form id="panbill-dispute-form">
+   <label for="panbill-dispute-transaction">Transaction ID</label><input id="panbill-dispute-transaction" name="transaction_reference" type="text" autocomplete="off" required placeholder="Enter the transaction ID">
+   <label for="panbill-dispute-reason">Reason</label><select id="panbill-dispute-reason" name="reason" required><option value="">Choose a reason</option><option value="Transaction failed but I was charged">Transaction failed but I was charged</option><option value="Service or product was not received">Service or product was not received</option><option value="Incorrect amount or transaction details">Incorrect amount or transaction details</option><option value="Duplicate transaction">Duplicate transaction</option><option value="Other">Other</option></select>
+   <label for="panbill-dispute-description">Describe the issue</label><textarea id="panbill-dispute-description" name="description" rows="4" maxlength="2000" required placeholder="Explain what happened and include any helpful details." style="width:100%;border:1px solid #ffffff28;background:#07152f;color:var(--ink);border-radius:10px;padding:12px;resize:vertical"></textarea>
+   <button id="panbill-dispute-submit" class="gold-btn" type="submit" style="margin-top:12px">Submit dispute</button><p id="panbill-dispute-form-message" class="bill-tools-message" role="status" aria-live="polite"></p>
+  </form>
+ </div>
+ <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:18px 0 8px"><h3 style="margin:0">Your disputes</h3><button id="panbill-disputes-refresh" class="outline-btn" type="button">Refresh</button></div>
+ <p id="panbill-disputes-list-message" class="muted" role="status" aria-live="polite">Sign in to view your disputes.</p><div id="panbill-disputes-list"></div>
+ <div id="panbill-dispute-detail" hidden class="settings-group" style="margin-top:15px;padding:15px;border:1px solid var(--line);border-radius:14px"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 style="margin:0">Dispute details</h3><button id="panbill-dispute-detail-close" class="outline-btn" type="button">Close details</button></div><div id="panbill-dispute-detail-content" style="margin-top:12px"></div></div>
+</section>
+</div>
 
 <div class="auth-layer" id="auth-overlay"><div class="auth-card"><div class="auth-brand"><span class="brand-mark">P</span> PanBill</div><section class="auth-network-promo" aria-label="Mobile network promotion"><div class="auth-promo-heading"><span>NETWORK PROMO</span><strong>10% OFF</strong></div><div class="auth-network-grid"><div class="auth-network-item auth-network-mtn"><img alt="MTN logo" src="https://res.cloudinary.com/dzvqoypcs/image/upload/v1732830456/Backend%20Images/New-mtn-logo_2_bvhptv.png"><span>MTN</span><b>10% OFF</b></div><div class="auth-network-item auth-network-airtel"><img alt="Airtel logo" src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/airtel/default.svg"><span>Airtel</span><b>10% OFF</b></div><div class="auth-network-item auth-network-glo"><img alt="Glo logo" src="https://res.cloudinary.com/dzvqoypcs/image/upload/v1732830463/Backend%20Images/40dd9197247519_1_mcvlhr.png"><span>Glo</span><b>10% OFF</b></div><div class="auth-network-item auth-network-9mobile"><img alt="9mobile logo" src="https://res.cloudinary.com/dzvqoypcs/image/upload/v1732830472/Backend%20Images/344-3443327_9mobile-mtn-glo-airtel-and-9mobile_2_r3eq89.png"><span>9mobile</span><b>10% OFF</b></div></div></section><section class="auth-present-scene" aria-label="Two boys presenting PanBill on a smartphone"><div class="auth-boys"><span class="auth-boy auth-boy-one" aria-hidden="true">👦🏽</span><span class="auth-boy auth-boy-two" aria-hidden="true">👦🏾</span></div><div class="auth-present-copy"><strong>One app. Two experiences.</strong><span>VTU services and Marketplace</span></div><div class="auth-phone" aria-label="PanBill phone preview"><div class="auth-phone-notch"></div><div class="auth-phone-screen"><div class="auth-phone-top"><i>P</i><b>PanBill</b><small>●</small></div><div class="auth-phone-vtu"><strong>VTU Dashboard</strong><span class="auth-phone-balance"></span><div class="auth-phone-shortcuts"><i>▣</i><i>◉</i><i>ϟ</i></div><small>Airtime · Data · Bills</small></div><div class="auth-phone-market"><strong>Marketplace</strong><span class="auth-phone-product"></span><span class="auth-phone-product"></span><small>Shop with PanBill</small></div></div></div></section><p class="auth-app-promise">Pay your bills and do your shopping in one app.</p><h2 id="auth-heading">Welcome back</h2><p class="auth-sub" id="auth-subtitle">Sign in to continue to your account.</p><div class="auth-switch" id="auth-tabs"><p id="signup-switch">Already have a PanBill account? <button class="text-button" id="login-tab" type="button">Log in</button></p><p id="login-switch" hidden>New to PanBill? <button class="text-button" id="signup-tab" type="button">Create account</button></p></div><form id="auth-form"><div class="form-grid signup-name-grid" hidden="" id="name-field">
 <div><label for="first-name">First name</label><input autocomplete="given-name" id="first-name" maxlength="60" placeholder="First name" type="text"/></div>
@@ -1806,6 +1830,7 @@ async function loadPanbillRewards(){
  }catch(error){$('panbill-rewards-history').textContent='Could not load rewards: '+(error.message||'Please try again.');}
 }
 function panbillOpenSubpage(pageId){
+ if(pageId==='panbill-disputes-page'){const shell=$('panbill-disputes-standalone');document.body.classList.add('panbill-disputes-active');if(shell)shell.hidden=false;$('panbill-disputes-page')?.scrollIntoView({behavior:'instant',block:'start'});return;}
  const wrap=document.querySelector('main.wrap');
  const budget=$('panbill-budget-page');
  const rewards=$('panbill-rewards-panel');
@@ -1816,6 +1841,7 @@ function panbillOpenSubpage(pageId){
  $(pageId).scrollIntoView({behavior:'instant',block:'start'});
 }
 function panbillCloseSubpage(){
+ document.body.classList.remove('panbill-disputes-active');const disputeShell=$('panbill-disputes-standalone');if(disputeShell)disputeShell.hidden=true;
  const wrap=document.querySelector('main.wrap');
  wrap?.classList.remove('panbill-subpage-active');
  const budget=$('panbill-budget-page');if(budget)budget.style.display='none';
@@ -1826,7 +1852,7 @@ $('panbill-rewards-refresh')?.addEventListener('click',loadPanbillRewards);
 $('home-referral-shortcut')?.addEventListener('click',()=>{if(!currentSession){$('auth-overlay').hidden=false;$('auth-overlay').scrollIntoView({behavior:'smooth'});return;}panbillOpenSubpage('panbill-rewards-panel');loadPanbillRewards();});
 $('panbill-referral-close')?.addEventListener('click',panbillCloseSubpage);
 $('panbill-copy-referral')?.addEventListener('click',async()=>{const link=$('panbill-referral-link').value;if(!link){$('panbill-referral-message').textContent='Your referral link is not available yet.';return}try{await navigator.clipboard.writeText(link);$('panbill-referral-message').textContent='Referral link copied. Share it with your friends.'}catch(e){$('panbill-referral-link').focus();$('panbill-referral-link').select();$('panbill-referral-message').textContent='Select and copy your referral link.'}});
-function showSignedIn(session){const incoming=session||null;if(incoming?.user&&!(incoming.user.email_confirmed_at||incoming.user.confirmed_at)){currentSession=null;$('auth-overlay').hidden=false;$('wallet-panel').hidden=true;$('transaction-pin-overlay').hidden=true;return}currentSession=incoming;if(!currentSession){panbillCloseSubpage();transactionPinCheckedUser=null;transactionPinHasPin=null;$('transaction-pin-overlay').hidden=true;$('transaction-pin-form').reset();}restoreMarketplaceCartForSession(currentSession);updateMarketplaceCheckoutButton();$('wallet-panel').hidden=!currentSession;$('panbill-rewards-panel').hidden=true;$('auth-overlay').hidden=!!currentSession;$('logout-button').hidden=!currentSession;$('header-user').hidden=!currentSession;$('header-user').textContent=currentSession?(currentSession.user.email||'Account'):'';$('account-status').textContent=currentSession?'Signed in as '+(currentSession.user.email||'Account')+'.':'Sign in to access your wallet and transactions.';const firstName=(currentSession?.user?.user_metadata?.full_name||currentSession?.user?.email?.split('@')[0]||'').trim().split(/\s+/)[0];const hour=new Date().getHours();const timeGreeting=hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';$('greeting').replaceChildren(document.createTextNode((currentSession?timeGreeting+(firstName?', '+firstName:''):'Welcome to PanBill')+' '));const greetingSpark=document.createElement('span');greetingSpark.className='greeting-spark';greetingSpark.setAttribute('aria-hidden','true');greetingSpark.textContent='✦';$('greeting').append(greetingSpark);$('account-email').textContent=currentSession?(currentSession.user.email||'Account'):'You are not signed in.';if(currentSession){loadWallet();loadPanbillRewards();checkBackend();loadSellerApplication();$('my-digital-purchases').hidden=false;loadDigitalPurchases()}else{$('my-digital-purchases').hidden=true;$('seller-marketplace-panel').hidden=true;$('wallet-message').textContent='Sign in to load your wallet.';$('transaction-history').textContent='Sign in to view your transactions.'}}
+function showSignedIn(session){const incoming=session||null;if(incoming?.user&&!(incoming.user.email_confirmed_at||incoming.user.confirmed_at)){currentSession=null;$('auth-overlay').hidden=false;$('wallet-panel').hidden=true;$('transaction-pin-overlay').hidden=true;return}currentSession=incoming;$('notifications-button').hidden=!currentSession;if(!currentSession){const nb=$('notifications-badge');if(nb){nb.hidden=true;nb.textContent=''}panbillCloseSubpage();transactionPinCheckedUser=null;transactionPinHasPin=null;$('transaction-pin-overlay').hidden=true;$('transaction-pin-form').reset();}restoreMarketplaceCartForSession(currentSession);updateMarketplaceCheckoutButton();$('wallet-panel').hidden=!currentSession;$('panbill-rewards-panel').hidden=true;$('auth-overlay').hidden=!!currentSession;$('logout-button').hidden=!currentSession;$('header-user').hidden=!currentSession;$('header-user').textContent=currentSession?(currentSession.user.email||'Account'):'';$('account-status').textContent=currentSession?'Signed in as '+(currentSession.user.email||'Account')+'.':'Sign in to access your wallet and transactions.';const firstName=(currentSession?.user?.user_metadata?.full_name||currentSession?.user?.email?.split('@')[0]||'').trim().split(/\s+/)[0];const hour=new Date().getHours();const timeGreeting=hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';$('greeting').replaceChildren(document.createTextNode((currentSession?timeGreeting+(firstName?', '+firstName:''):'Welcome to PanBill')+' '));const greetingSpark=document.createElement('span');greetingSpark.className='greeting-spark';greetingSpark.setAttribute('aria-hidden','true');greetingSpark.textContent='✦';$('greeting').append(greetingSpark);$('account-email').textContent=currentSession?(currentSession.user.email||'Account'):'You are not signed in.';if(currentSession){loadWallet();loadPanbillRewards();checkBackend();loadSellerApplication();$('my-digital-purchases').hidden=false;loadDigitalPurchases()}else{$('my-digital-purchases').hidden=true;$('seller-marketplace-panel').hidden=true;$('wallet-message').textContent='Sign in to load your wallet.';$('transaction-history').textContent='Sign in to view your transactions.'}}
 async function invoke(body){if(!authClient||!currentSession)throw Error('Please sign in first.');const r=await authClient.functions.invoke('super-responder',{body});if(r.error){let extra='';try{extra=await r.error.context?.json?.().then(x=>x.error||x.message||'').catch(()=> '')}catch{}throw Error(extra||r.data?.error||r.error.message||'Backend request failed.')}if(r.data?.error)throw Error(r.data.error);return r.data||{}}
 async function enforceTransactionPinSetup(force=false){const userId=currentSession?.user?.id;if(!userId)return false;if(!force&&transactionPinCheckedUser===userId&&transactionPinHasPin===true)return true;if(transactionPinSetupPromise)return transactionPinSetupPromise;if(!currentSession||currentSession.user.id!==userId)return false;transactionPinSetupPromise=(async()=>{const overlay=$('transaction-pin-overlay'),form=$('transaction-pin-form'),retry=$('retry-transaction-pin-status');overlay.hidden=false;form.hidden=true;retry.hidden=true;message($('transaction-pin-message'),'Checking your transaction PIN security…');try{const result=await invoke({action:'transaction_pin_status'});if(currentSession?.user?.id!==userId)return false;transactionPinCheckedUser=userId;transactionPinHasPin=result.has_pin===true;if(transactionPinHasPin){overlay.hidden=true;form.reset();message($('transaction-pin-message'),'');return true}form.hidden=false;message($('transaction-pin-message'),'Create your four-digit transaction PIN to continue with this VTU purchase.')}catch(error){transactionPinCheckedUser=null;transactionPinHasPin=null;form.hidden=true;retry.hidden=false;message($('transaction-pin-message'),(error.message||'Could not verify your transaction PIN status.')+' Your account remains protected until this check succeeds.',true)}return false})().finally(()=>{transactionPinSetupPromise=null});return transactionPinSetupPromise}
 $('transaction-pin-form').addEventListener('submit',async e=>{e.preventDefault();if(!currentSession)return message($('transaction-pin-message'),'Please sign in again to create your transaction PIN.',true);const pin=$('transaction-pin-new').value.trim(),confirmPin=$('transaction-pin-confirm').value.trim();if(!/^[0-9]{4}$/.test(pin))return message($('transaction-pin-message'),'Your transaction PIN must contain exactly four digits.',true);if(pin!==confirmPin)return message($('transaction-pin-message'),'The two PIN entries do not match.',true);const b=$('save-transaction-pin');b.disabled=true;message($('transaction-pin-message'),'Saving your transaction PIN securely…');try{const result=await invoke({action:'set_transaction_pin',pin});if(!result.success)throw new Error(result.message||'PanBill could not save your transaction PIN.');transactionPinCheckedUser=currentSession.user.id;transactionPinHasPin=true;$('transaction-pin-form').reset();$('transaction-pin-overlay').hidden=true;message($('transaction-pin-message'),'');const nextService=pendingVtuService;pendingVtuService=null;if(nextService)void openService(nextService)}catch(error){message($('transaction-pin-message'),error.message||'Could not create your transaction PIN.',true)}finally{b.disabled=false}});
@@ -1938,10 +1964,8 @@ function renderTransactionHistory(){
   d.addEventListener('click',()=>showTransactionDetails(x));
   const ico=document.createElement('div');ico.className='tx-icon';ico.textContent=x.type==='wallet_funding'?'＋':status==='successful'?'✓':status==='failed'?'!':'↗';
   const info=document.createElement('div');info.className='tx-info';
-  const title=document.createElement('strong');
-  const transferType=String(x.type||'').toLowerCase();
-  title.textContent=transferType==='wallet_transfer_out'?'Money Sent':transferType==='wallet_transfer_in'?'Money Received':String(x.description||x.type||'Transaction').replace(/wisesub/gi,'PanBill');
-  const small=document.createElement('small');const counterparty=panbillTransferCounterparty(x);const rowTransferType=String(x.type||'').toLowerCase();const counterpartLabel=rowTransferType==='wallet_transfer_out'?'To: '+counterparty.name:rowTransferType==='wallet_transfer_in'?'From: '+counterparty.name:'';small.textContent=(counterpartLabel?counterpartLabel+' · ':'')+(x.reference||'No reference')+' · '+(x.created_at?new Date(x.created_at).toLocaleDateString('en-NG'):'Date unavailable');
+  const title=document.createElement('strong');title.textContent=String(x.description||x.type||'Transaction').replace(/wisesub/gi,'PanBill');
+  const small=document.createElement('small');small.textContent=(x.reference||'No reference')+' · '+(x.created_at?new Date(x.created_at).toLocaleDateString('en-NG'):'Date unavailable');
   const badge=document.createElement('span');badge.className='tx-status '+status;badge.textContent=(status==='unknown'?'Status unavailable':labels[status]);
   info.append(title,small,badge);
   const right=document.createElement('div');right.className='tx-right';const amount=document.createElement('span');amount.className='tx-amount';amount.textContent=money(x.amount);const time=document.createElement('small');time.textContent=x.created_at?new Date(x.created_at).toLocaleTimeString('en-NG',{hour:'2-digit',minute:'2-digit'}):'';right.append(amount,time);
@@ -1979,7 +2003,7 @@ function printPanbillTransactionStatement(){
  const w=window.open('','_blank','width=1000,height=800');
  if(!w){alert('Allow pop-ups to print your PanBill statement.');return;}
  const body=rows.map(x=>'<tr><td>'+esc(x.created_at?new Date(x.created_at).toLocaleString('en-NG'):'')+'</td><td>'+esc(String(x.description||x.type||'Transaction').replace(/wisesub/gi,'PanBill'))+'</td><td>'+esc(x.reference||'')+'</td><td>'+esc(normalizedTransactionStatus(x.status||x.provider_status))+'</td><td class="amount">'+esc(money(x.amount))+'</td></tr>').join('');
- const html=`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PanBill Transaction Statement</title><style>body{font:13px Arial,sans-serif;color:#18243a;margin:28px}header{border-bottom:3px solid #d7a842;padding-bottom:12px}h1{margin:0 0 5px}p{color:#5b6678}.summary{display:flex;gap:24px;flex-wrap:wrap;margin:18px 0}.summary strong{display:block;font-size:18px;margin-top:4px}table{width:100%;border-collapse:collapse}th,td{padding:9px 7px;border-bottom:1px solid #e4e8ee;text-align:left;vertical-align:top}th{background:#f3f5f8}.amount{text-align:right;white-space:nowrap}.note{margin-top:18px;font-size:11px}@media print{body{margin:12mm}button{display:none}}</style></head><body><header><h1>PanBill</h1><strong>Transaction Statement</strong><p>${esc(period)} · ${rows.length} transaction(s)</p></header><div class="summary"><div>Successful transaction volume<strong>${esc(money(successfulTotal))}</strong></div><div>All displayed transaction amounts<strong>${esc(money(total))}</strong></div></div><table><thead><tr><th>Date</th><th>Description</th><th>Reference</th><th>Status</th><th class="amount">Amount</th></tr></thead><tbody>${body}</tbody></table><p class="note">This statement contains only transactions currently loaded in PanBill and matching the active filters. It is an informational record, not a bank-issued statement or proof of settlement.</p></body></html>`;
+ const html=`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PanBill Transaction Statement</title><style>body{font:13px Arial,sans-serif;color:#18243a;margin:28px}header{border-bottom:3px solid #d7a842;padding-bottom:12px}h1{margin:0 0 5px}p{color:#5b6678}.summary{display:flex;gap:24px;flex-wrap:wrap;margin:18px 0}.summary strong{display:block;font-size:18px;margin-top:4px}table{width:100%;border-collapse:collapse}th,td{padding:9px 7px;border-bottom:1px solid #e4e8ee;text-align:left;vertical-align:top}th{background:#f3f5f8}.amount{text-align:right;white-space:nowrap}.note{margin-top:18px;font-size:11px}@media print{body{margin:12mm}button{display:none}}</style></head><body><header><h1>PanBill</h1><strong>Transaction Statement</strong><p>${esc(period)} · ${rows.length} transaction(s)</p></header><div class="summary"><div>Successful transaction volume<strong>${esc(money(successfulTotal))}</strong></div><div>All displayed transaction amounts<strong>${esc(money(total))}</strong></div></div><table><thead><tr><th>Date</th><th>Description</th><th>Reference</th><th>Status</th><th class="amount">Amount</th></tr></thead><tbody>${body}</tbody></table><p class="note">This statement contains only transactions currently loaded in PanBill and matching the active filters. It is an informational record, not a bank-issued statement or proof of settlement.</p><div id="panbill-notifications-overlay" hidden style="position:fixed;inset:0;z-index:10000;background:#0009;align-items:flex-start;justify-content:center;padding:12vh 14px 20px"><section style="width:min(100%,520px);max-height:75vh;overflow:auto;background:#0c2042;border:1px solid #ffffff25;border-radius:20px;padding:18px;box-shadow:0 20px 60px #0008"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><h2 style="margin:0">Notifications</h2><button id="panbill-notifications-close" class="pill" type="button">Close</button></div><div style="display:flex;justify-content:flex-end;margin:12px 0"><button id="panbill-notifications-read-all" class="outline-btn" type="button">Mark all as read</button></div><div id="panbill-notifications-list"><p class="muted">Loading notifications…</p></div></section></div></body></html>`;
  w.document.open();w.document.write(html);w.document.close();w.focus();w.print();
 }
 document.getElementById('print-transaction-statement')?.addEventListener('click',printPanbillTransactionStatement);
@@ -2027,7 +2051,7 @@ async function loadWallet(){
   $('wallet-balance').textContent=balanceVisible?realBalance:'₦••••••';
   $('wallet-message').textContent=w.data?'Your wallet balance is up to date.':'No wallet record found.';
   await loadPanbillAccountNumber();
-  const t=await authClient.from('transactions').select('type,amount,status,reference,description,created_at,provider,provider_status,provider_reference,provider_response,counterparty_name,counterparty_account_number,counterparty_user_id').eq('user_id',uid).order('created_at',{ascending:false}).limit(50);
+  const t=await authClient.from('transactions').select('type,amount,status,reference,description,created_at,provider,provider_status,provider_reference,provider_response').eq('user_id',uid).order('created_at',{ascending:false}).limit(50);
   if(t.error)throw t.error;
   transactionRecords=Array.isArray(t.data)?t.data:[];
   $('load-more-transactions').hidden=transactionRecords.length<50;
@@ -2038,25 +2062,6 @@ async function loadWallet(){
  }finally{$('refresh-wallet').disabled=false;$('refresh-transactions').disabled=false}
 }
 let activeTransactionDetail=null;
-function panbillTransferCounterparty(x){
- const isOut=String(x?.type||'').toLowerCase()==='wallet_transfer_out';
- const isIn=String(x?.type||'').toLowerCase()==='wallet_transfer_in';
- if(!isOut&&!isIn)return {name:'',account:''};
- const root=x?.provider_response&&typeof x.provider_response==='object'?x.provider_response:{};
- const data=root.data&&typeof root.data==='object'?root.data:root;
- const candidates=[data.counterparty,data.recipient,data.sender,data.transfer,data];
- const nameKeys=isOut?['recipient_name','recipientName','counterparty_name','counterpartyName','beneficiary_name','beneficiaryName','name']:['sender_name','senderName','counterparty_name','counterpartyName','name'];
- const accountKeys=isOut?['recipient_account_number','recipientAccountNumber','counterparty_account_number','counterpartyAccountNumber','beneficiary_account_number','beneficiaryAccountNumber','account_number','accountNumber']:['sender_account_number','senderAccountNumber','counterparty_account_number','counterpartyAccountNumber','account_number','accountNumber'];
- let name=String(x?.counterparty_name||'').trim();
- let account=String(x?.counterparty_account_number||'').trim();
- for(const obj of candidates){if(!obj||typeof obj!=='object')continue;
-  if(!name)for(const k of nameKeys){if(obj[k]&&typeof obj[k]==='string'){name=obj[k].trim();break}}
-  if(!account)for(const k of accountKeys){if(obj[k]&&typeof obj[k]==='string'){account=obj[k].trim();break}}
- }
- const digits=account.replace(/\\D/g,'');
- const masked=digits.length>=4?'••••••'+digits.slice(-4):account?'••••':'Not recorded';
- return {name:name||'Not recorded',account:masked};
-}
 function showTransactionDetails(x){
  activeTransactionDetail=x;
  const overlay=$('transaction-detail-overlay'),content=$('transaction-detail-content');content.replaceChildren();
@@ -2068,13 +2073,10 @@ function showTransactionDetails(x){
  const badge=document.createElement('div');badge.className='tx-detail-status tx-status '+status;badge.textContent=statusText;content.append(badge);
  const grid=document.createElement('div');grid.className='tx-detail-grid';
  const add=(label,value)=>{if(value===null||value===undefined||String(value).trim()==='')return;const item=document.createElement('div');item.className='tx-detail-item';const small=document.createElement('small');small.textContent=label;const strong=document.createElement('strong');strong.textContent=String(value);item.append(small,strong);grid.append(item)};
- const transferType=String(x.type||'').toLowerCase();
- add('Transaction type',transferType==='wallet_transfer_out'?'Money Sent':transferType==='wallet_transfer_in'?'Money Received':String(x.description||x.type||'Transaction').replace(/wisesub/gi,'PanBill'));
- add('Service',transferType==='wallet_transfer_out'?'Wallet Transfer (Sent)':transferType==='wallet_transfer_in'?'Wallet Transfer (Received)':String(x.description||x.type||'Transaction').replace(/wisesub/gi,'PanBill'));
- const counterparty=panbillTransferCounterparty(x);if(transferType==='wallet_transfer_out'){add('Recipient name',counterparty.name);add('Recipient account number',counterparty.account)}else if(transferType==='wallet_transfer_in'){add('Sender name',counterparty.name);add('Sender account number',counterparty.account)}
+ add('Service',String(x.description||x.type||'Transaction').replace(/wisesub/gi,'PanBill'));
  add('Amount',money(x.amount));add('Date and time',x.created_at?new Date(x.created_at).toLocaleString('en-NG'):'Not available');
  add('Transaction reference',x.reference||'Not available');add('Provider','PanBill');
- add('Provider status',x.provider_status||statusText||'Not available');add('Provider reference',x.provider_reference||(transferType==='wallet_transfer_out'||transferType==='wallet_transfer_in'?x.reference:'Not available'));
+ add('Provider status',x.provider_status||'Not available');add('Provider reference',x.provider_reference||'Not available');
  add('Package',inner.package||inner.product||'');add('Units',inner.units||'');
  content.append(grid);
  const timeline=document.createElement('div');timeline.className='tx-detail-item';timeline.style.marginTop='10px';
@@ -2098,7 +2100,7 @@ async function refreshActiveTransactionDetail(){
  try{
   const result=await invoke({action:'status',reference:x.reference});
   const query=await authClient.from('transactions')
-   .select('type,amount,status,reference,description,created_at,provider,provider_status,provider_reference,provider_response,counterparty_name,counterparty_account_number,counterparty_user_id')
+   .select('type,amount,status,reference,description,created_at,provider,provider_status,provider_reference,provider_response')
    .eq('user_id',currentSession.user.id).eq('reference',x.reference).maybeSingle();
   if(query.error)throw query.error;
   if(!query.data)throw Error('The transaction record could not be refreshed. Please try again.');
@@ -2125,7 +2127,7 @@ document.getElementById('lookup-transaction-reference')?.addEventListener('click
  const button=$('lookup-transaction-reference');button.disabled=true;status.textContent='Looking up your transaction…';
  try{
   const result=await authClient.from('transactions')
-   .select('type,amount,status,reference,description,created_at,provider,provider_status,provider_reference,provider_response,counterparty_name,counterparty_account_number,counterparty_user_id')
+   .select('type,amount,status,reference,description,created_at,provider,provider_status,provider_reference,provider_response')
    .eq('user_id',currentSession.user.id).eq('reference',reference).maybeSingle();
   if(result.error)throw result.error;
   if(!result.data){status.textContent='No transaction with that exact reference was found in your account.';return;}
@@ -2140,7 +2142,7 @@ document.getElementById('lookup-transaction-reference')?.addEventListener('click
 function printPanbillTransactionRecord(x,status){
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const confirmed=status==='successful';const title=confirmed?'PanBill Payment Receipt':'PanBill Transaction Record';
- const transferType=String(x.type||'').toLowerCase();const counterparty=panbillTransferCounterparty(x);const rows=[['Transaction type',transferType==='wallet_transfer_out'?'Money Sent':transferType==='wallet_transfer_in'?'Money Received':String(x.description||x.type||'Transaction').replace(/wisesub/gi,'PanBill')],['Service',transferType.startsWith('wallet_transfer')?'Wallet Transfer':String(x.description||x.type||'Transaction').replace(/wisesub/gi,'PanBill')],...(transferType==='wallet_transfer_out'?[['Recipient name',counterparty.name],['Recipient account number',counterparty.account]]:transferType==='wallet_transfer_in'?[['Sender name',counterparty.name],['Sender account number',counterparty.account]]:[]),['Amount',money(x.amount)],['Status',({successful:'Successful',pending:'Pending',failed:'Failed',unknown:'Status unavailable'})[status]],['Date and time',x.created_at?new Date(x.created_at).toLocaleString('en-NG'):'Not available'],['Transaction reference',x.reference||'Not available'],['Provider reference',x.provider_reference||(transferType==='wallet_transfer_out'||transferType==='wallet_transfer_in'?x.reference:'Not available')],['Provider status',x.provider_status||'Not available']];
+ const rows=[['Service',String(x.description||x.type||'Transaction').replace(/wisesub/gi,'PanBill')],['Amount',money(x.amount)],['Status',({successful:'Successful',pending:'Pending',failed:'Failed',unknown:'Status unavailable'})[status]],['Date and time',x.created_at?new Date(x.created_at).toLocaleString('en-NG'):'Not available'],['Transaction reference',x.reference||'Not available'],['Provider reference',x.provider_reference||'Not available'],['Provider status',x.provider_status||'Not available']];
  const w=window.open('','_blank','width=720,height=800');if(!w){alert('Allow pop-ups to print or save your PanBill record.');return;}
  const html=`<!doctype html><html><head><meta charset="utf-8"><title>${title}</title><style>body{font:15px Arial,sans-serif;color:#17243a;margin:36px}header{border-bottom:3px solid #dcae48;padding-bottom:16px;margin-bottom:24px}h1{margin:0 0 6px;font-size:26px}p{color:#586579}.status{font-weight:bold;color:${confirmed?'#087443':'#9a5b00'}}table{width:100%;border-collapse:collapse}td{padding:13px 8px;border-bottom:1px solid #e4e8ee}td:first-child{color:#647084;width:38%}.foot{margin-top:30px;font-size:12px;color:#697586}@media print{button{display:none}}</style></head><body><header><h1>PanBill</h1><p>${title}</p></header><table>${rows.map(r=>'<tr><td>'+esc(r[0])+'</td><td class="'+(r[0]==='Status'?'status':'')+'">'+esc(r[1])+'</td></tr>').join('')}</table><p class="foot">${confirmed?'This record reflects a transaction marked successful in PanBill records.':'This is a transaction record, not proof of successful payment. Check PanBill for the latest status before taking further action.'}</p></body></html>`;
  w.document.open();w.document.write(html);w.document.close();w.focus();w.print();
@@ -2152,7 +2154,7 @@ $('load-more-transactions')?.addEventListener('click',async()=>{
  const button=$('load-more-transactions');transactionLoadMoreBusy=true;button.disabled=true;button.textContent='Loading…';
  try{
   const start=transactionRecords.length,end=start+49;
-  const result=await authClient.from('transactions').select('type,amount,status,reference,description,created_at,provider,provider_status,provider_reference,provider_response,counterparty_name,counterparty_account_number,counterparty_user_id').eq('user_id',currentSession.user.id).order('created_at',{ascending:false}).range(start,end);
+  const result=await authClient.from('transactions').select('type,amount,status,reference,description,created_at,provider,provider_status,provider_reference,provider_response').eq('user_id',currentSession.user.id).order('created_at',{ascending:false}).range(start,end);
   if(result.error)throw result.error;
   const older=Array.isArray(result.data)?result.data:[];
   transactionRecords=transactionRecords.concat(older);
@@ -2188,7 +2190,22 @@ function panbillSeasonForDate(date){const y=date.getFullYear(),m=date.getMonth()
 function updatePanbillSeasonalGreetings(){const season=panbillSeasonForDate(new Date());const card=$('dashboard-seasonal-greeting');if(!card)return;card.dataset.theme=season.theme;const kicker=card.querySelector('[data-season-kicker]'),title=card.querySelector('[data-season-title]'),messageEl=card.querySelector('[data-season-message]'),art=card.querySelector('[data-season-art]');if(kicker)kicker.textContent=season.kicker;if(title)title.textContent=season.title;if(messageEl)messageEl.textContent=season.message;if(art)art.textContent=season.art}
 updatePanbillSeasonalGreetings();setInterval(updatePanbillSeasonalGreetings,60*60*1000);
 
-async function init(){try{if(!window.supabase){authMessage('Supabase library failed to load. Check your connection.');return}authClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{experimental:{passkey:true}}});updatePasskeyAvailability();loadCustomerMarketplace();loadMarketplacePickupPoints();authClient.auth.onAuthStateChange((_event,session)=>{showSignedIn(session);if(session&&(new URLSearchParams(location.search).has('reference')||new URLSearchParams(location.search).has('trxref')))void handlePaystackReturn()});let r=await withPanbillTimeout(authClient.auth.getSession(),8000,'PanBill could not restore your session in time. You can still try signing in.');if(r.error)throw r.error;showSignedIn(r.data.session);if(r.data.session)await handlePaystackReturn();else if(location.search.includes('reference=')||location.search.includes('trxref=')){authMessage(new URLSearchParams(location.search).get('marketplace_payment')==='1'?'Log in to verify your marketplace payment.':'Log in to verify your payment and refresh your wallet.');}const {data:{subscription}}=authClient.auth.onAuthStateChange((event)=>{if(event==='PASSWORD_RECOVERY'){$('reset-overlay').hidden=false;$('reset-title').textContent='Choose a new password';$('reset-description').textContent='Enter a new password for your account.';$('reset-email-field').hidden=true;$('reset-email').required=false;$('new-password-field').hidden=false;$('new-password').required=true;$('reset-submit').textContent='Update password';message($('reset-message'),'')}})}catch(error){authMessage(error?.message||'PanBill could not finish loading. Refresh the page and try again.')}finally{hidePanbillSplash()}}setAuthMode('login');init();
+
+async function panbillLoadNotifications(){
+ const list=$('panbill-notifications-list'),badge=$('notifications-badge');
+ if(!list||!badge||!currentSession||!authClient)return;
+ try{const result=await authClient.from('panbill_notifications').select('id,notification_type,title,message,reference,amount,is_read,created_at').eq('user_id',currentSession.user.id).order('created_at',{ascending:false}).limit(50);if(result.error)throw result.error;
+ const rows=result.data||[],unread=rows.filter(x=>!x.is_read).length;badge.hidden=unread===0;badge.textContent=unread>99?'99+':String(unread);list.replaceChildren();
+ if(!rows.length){const empty=document.createElement('p');empty.className='muted';empty.textContent='You have no notifications yet.';list.append(empty);return}
+ rows.forEach(row=>{const card=document.createElement('article');card.style.cssText='padding:13px 10px;border-bottom:1px solid #ffffff20;'+(row.is_read?'opacity:.72':'');const title=document.createElement('strong');title.textContent=row.title||'Notification';const msg=document.createElement('p');msg.style.cssText='margin:5px 0;color:#c4d1e5';msg.textContent=row.message||'';const time=document.createElement('small');time.style.color='#9fb0cb';time.textContent=new Date(row.created_at).toLocaleString();card.append(title,msg,time);if(!row.is_read){const mark=document.createElement('button');mark.type='button';mark.className='outline-btn';mark.textContent='Mark read';mark.style.cssText='padding:5px 9px;margin-top:8px;font-size:12px';mark.addEventListener('click',async()=>{const u=await authClient.from('panbill_notifications').update({is_read:true}).eq('id',row.id).eq('user_id',currentSession.user.id);if(!u.error)panbillLoadNotifications()});card.append(mark)}list.append(card)});
+ }catch(e){list.textContent='Could not load notifications. '+(e.message||'Please try again.')}
+}
+function panbillOpenNotifications(){const overlay=$('panbill-notifications-overlay');if(!overlay)return;overlay.hidden=false;overlay.style.display='flex';panbillLoadNotifications()}
+$('notifications-button')?.addEventListener('click',panbillOpenNotifications);
+$('panbill-notifications-close')?.addEventListener('click',()=>{const o=$('panbill-notifications-overlay');o.hidden=true;o.style.display='none'});
+$('panbill-notifications-overlay')?.addEventListener('click',e=>{if(e.target.id==='panbill-notifications-overlay'){e.currentTarget.hidden=true;e.currentTarget.style.display='none'}});
+$('panbill-notifications-read-all')?.addEventListener('click',async()=>{if(!currentSession)return;const r=await authClient.from('panbill_notifications').update({is_read:true}).eq('user_id',currentSession.user.id).eq('is_read',false);if(!r.error)panbillLoadNotifications()});
+async function init(){try{if(!window.supabase){authMessage('Supabase library failed to load. Check your connection.');return}authClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{experimental:{passkey:true}}});updatePasskeyAvailability();loadCustomerMarketplace();loadMarketplacePickupPoints();authClient.auth.onAuthStateChange((_event,session)=>{showSignedIn(session);if(session)void panbillLoadNotifications();else{const b=$('notifications-badge');if(b){b.hidden=true;b.textContent=''}}if(session&&(new URLSearchParams(location.search).has('reference')||new URLSearchParams(location.search).has('trxref')))void handlePaystackReturn()});let r=await withPanbillTimeout(authClient.auth.getSession(),8000,'PanBill could not restore your session in time. You can still try signing in.');if(r.error)throw r.error;showSignedIn(r.data.session);if(r.data.session)await handlePaystackReturn();else if(location.search.includes('reference=')||location.search.includes('trxref=')){authMessage(new URLSearchParams(location.search).get('marketplace_payment')==='1'?'Log in to verify your marketplace payment.':'Log in to verify your payment and refresh your wallet.');}const {data:{subscription}}=authClient.auth.onAuthStateChange((event)=>{if(event==='PASSWORD_RECOVERY'){$('reset-overlay').hidden=false;$('reset-title').textContent='Choose a new password';$('reset-description').textContent='Enter a new password for your account.';$('reset-email-field').hidden=true;$('reset-email').required=false;$('new-password-field').hidden=false;$('new-password').required=true;$('reset-submit').textContent='Update password';message($('reset-message'),'')}})}catch(error){authMessage(error?.message||'PanBill could not finish loading. Refresh the page and try again.')}finally{hidePanbillSplash()}}setAuthMode('login');init();
 </script><script>
 /* Keep provider tiles readable if a remote brand asset is temporarily unavailable. */
 document.querySelectorAll('.provider-mark.logo-mark img').forEach(function(img){img.addEventListener('error',function(){var mark=img.closest('.provider-mark');if(mark){mark.classList.remove('logo-mark');mark.textContent=img.alt.replace(/ original logo| logo/i,'');}} ,{once:true});});
@@ -4333,5 +4350,90 @@ main.wrap[data-view="services"] .services .service-card small{display:block!impo
   }
 </style>
 
-<script src="./panbill_wallet_transfer_addon.js"></script>
+<script id="panbill-customer-disputes-integration">
+(()=>{
+ const $d=id=>document.getElementById(id);
+ const setText=(id,value)=>{const el=$d(id);if(el)el.textContent=value||''};
+ const statusLabel=value=>String(value||'submitted').replace(/[_-]+/g,' ').replace(/\\b\\w/g,c=>c.toUpperCase());
+ const dateLabel=value=>{if(!value)return '—';const d=new Date(value);return Number.isNaN(d.getTime())?String(value):d.toLocaleString()};
+ const safe=(value)=>String(value??'');
+ async function request(body){
+  if(typeof authClient==='undefined'||!authClient||typeof currentSession==='undefined'||!currentSession)throw new Error('Please sign in again to manage your disputes.');
+  const {data,error}=await authClient.functions.invoke('transaction-disputes',{body});
+  if(error){let detail='';try{detail=await error.context?.json?.().then(x=>x.error||x.message||'').catch(()=> '')}catch{}throw new Error(detail||data?.error||error.message||'The dispute service could not be reached.');}
+  if(data?.success===false||data?.error)throw new Error(data.error||data.message||'The request could not be completed.');
+  return data||{};
+ }
+ function addDetailRow(host,label,value){
+  const row=document.createElement('div');row.style.cssText='padding:9px 0;border-bottom:1px solid #ffffff18';
+  const strong=document.createElement('strong');strong.textContent=label+': ';
+  const span=document.createElement('span');span.textContent=safe(value)||'—';span.style.overflowWrap='anywhere';
+  row.append(strong,span);host.append(row);
+ }
+ function renderList(data){
+  const host=$d('panbill-disputes-list');host.replaceChildren();
+  const rows=Array.isArray(data)?data:(data.disputes||data.data||[]);
+  if(!rows.length){setText('panbill-disputes-list-message','You have not submitted any disputes yet.');return;}
+  setText('panbill-disputes-list-message',rows.length+' dispute(s) found.');
+  rows.forEach(item=>{
+   const card=document.createElement('article');card.style.cssText='padding:13px 12px;margin:9px 0;border:1px solid #ffffff20;border-radius:12px;background:#ffffff06';
+   const top=document.createElement('div');top.style.cssText='display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap';
+   const title=document.createElement('strong');title.textContent='Dispute '+safe(item.dispute_number||item.id||'');
+   const state=document.createElement('span');state.textContent=statusLabel(item.status);state.style.cssText='color:#ffe4a0;font-size:12px;font-weight:800';
+   top.append(title,state);
+   const desc=document.createElement('p');desc.style.cssText='margin:7px 0;color:#c4d1e5;font-size:12px';desc.textContent=safe(item.reason||item.description||'Transaction issue');
+   const time=document.createElement('small');time.style.color='#9fb0cb';time.textContent='Submitted: '+dateLabel(item.created_at);
+   const view=document.createElement('button');view.type='button';view.className='outline-btn';view.textContent='View details';view.style.cssText='margin-top:9px;padding:7px 10px;font-size:12px';
+   view.addEventListener('click',()=>loadDetail(item.id));
+   card.append(top,desc,time,view);host.append(card);
+  });
+ }
+ async function loadList(){
+  if(typeof currentSession==='undefined'||!currentSession){setText('panbill-disputes-list-message','Sign in to view your disputes.');return;}
+  setText('panbill-disputes-list-message','Loading your disputes…');
+  try{renderList(await request({action:'my_disputes'}));}
+  catch(e){setText('panbill-disputes-list-message',e.message||'Could not load your disputes.');}
+ }
+ async function loadDetail(id){
+  const box=$d('panbill-dispute-detail'),host=$d('panbill-dispute-detail-content');box.hidden=false;host.textContent='Loading dispute details…';
+  try{
+   const result=await request({action:'dispute_details',dispute_id:id});
+   const item=result.dispute||result.data||result;
+   host.replaceChildren();
+   addDetailRow(host,'Status',statusLabel(item.status));
+   addDetailRow(host,'Reason',item.reason);
+   addDetailRow(host,'Description',item.description);
+   addDetailRow(host,'Transaction reference',item.transaction_reference);
+   addDetailRow(host,'Submitted',dateLabel(item.created_at));
+   addDetailRow(host,'Last updated',dateLabel(item.updated_at));
+   const updates=Array.isArray(result.updates)?result.updates:(Array.isArray(item.updates)?item.updates:[]);
+   const heading=document.createElement('h4');heading.textContent='Updates from PanBill support';heading.style.margin='15px 0 6px';host.append(heading);
+   if(!updates.length){const p=document.createElement('p');p.className='muted';p.textContent='No support updates have been posted yet.';host.append(p);}
+   updates.forEach(update=>{const p=document.createElement('p');p.style.cssText='padding:10px;border:1px solid #ffffff18;border-radius:10px;color:#dce5f4;white-space:pre-wrap';p.textContent=safe(update.message||update.note||update.response||'Update')+' · '+dateLabel(update.created_at);host.append(p)});
+  }catch(e){host.textContent=e.message||'Could not load dispute details.';}
+ }
+ $d('home-disputes-shortcut')?.addEventListener('click',()=>{
+  if(typeof currentSession==='undefined'||!currentSession){$d('auth-overlay').hidden=false;return;}
+  panbillOpenSubpage('panbill-disputes-page');$d('panbill-dispute-detail').hidden=true;loadList();
+ });
+ $d('panbill-disputes-close')?.addEventListener('click',window.panbillCloseSubpage);
+ $d('panbill-disputes-refresh')?.addEventListener('click',loadList);
+ $d('panbill-dispute-detail-close')?.addEventListener('click',()=>{$d('panbill-dispute-detail').hidden=true});
+ $d('panbill-dispute-form')?.addEventListener('submit',async event=>{
+  event.preventDefault();
+  const button=$d('panbill-dispute-submit');button.disabled=true;setText('panbill-dispute-form-message','Submitting your dispute…');
+  try{
+   const transaction_reference=$d('panbill-dispute-transaction').value.trim();
+   const reason=$d('panbill-dispute-reason').value;
+   const description=$d('panbill-dispute-description').value.trim();
+   const result=await request({action:'submit_dispute',transaction_reference,reason,description});
+   $d('panbill-dispute-form').reset();
+   setText('panbill-dispute-form-message',result.message||'Your dispute has been submitted successfully.');
+   await loadList();
+  }catch(e){setText('panbill-dispute-form-message',e.message||'Could not submit your dispute.');}
+  finally{button.disabled=false;}
+ });
+})();
+</script>
+\n<script src="./panbill_wallet_transfer_addon.js"></script>
 </body></html>
