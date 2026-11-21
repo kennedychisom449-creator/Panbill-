@@ -1043,22 +1043,57 @@ main.wrap[data-view="bill-tools"] #panbill-bill-tools-page{display:block!importa
 </style>
 
 <style id="panbill-separate-subpages-style">
-/* Isolate the two money tools: each page reveals only its own panel. */
-body.panbill-budget-active main.wrap> :not(#panbill-budget-page){display:none!important}
-body.panbill-budget-active main.wrap>#panbill-budget-page{display:block!important;margin-top:14px!important}
-body.panbill-rewards-active main.wrap> :not(#panbill-rewards-panel){display:none!important}
-body.panbill-rewards-active main.wrap>#panbill-rewards-panel{display:block!important;margin-top:14px!important}
+main.wrap.panbill-subpage-active> :not(#panbill-budget-page):not(#panbill-rewards-panel){display:none!important}
+main.wrap.panbill-subpage-active>#panbill-budget-page,main.wrap.panbill-subpage-active>#panbill-rewards-panel{display:block!important;margin-top:14px!important}
 body.panbill-disputes-active main.wrap{display:none!important}
 .panbill-disputes-standalone{width:min(100% - 28px,900px);margin:18px auto 36px}
 .panbill-disputes-standalone #panbill-disputes-page{display:block!important;margin:0!important}
 @media(max-width:520px){.panbill-disputes-standalone{width:calc(100% - 20px);margin:12px auto 28px}.panbill-disputes-standalone #panbill-disputes-page{padding:14px!important}}
 #panbill-budget-page .panbill-page-back,#panbill-rewards-panel .panbill-page-back{display:inline-flex;align-items:center;gap:6px}
 </style>
+
+<style id="panbill-contained-notifications-style">
+main.wrap[data-view="notifications"]{max-width:900px;min-height:calc(100vh - 150px);padding-top:14px}
+main.wrap[data-view="notifications"]> :not(#panbill-notifications-page){display:none!important}
+main.wrap[data-view="notifications"] #panbill-notifications-page{display:block!important}
+.panbill-notifications-page{width:100%;max-width:100%;box-sizing:border-box;margin:0 auto 24px;padding:18px;border:1px solid #ffffff2b;border-radius:20px;background:linear-gradient(145deg,#10264a,#091a35);color:#fff;overflow:hidden}
+.panbill-notifications-page[hidden]{display:none!important}
+.panbill-notifications-page-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.panbill-notifications-page-head>div{flex:1 1 160px;min-width:0}
+.panbill-notifications-page-head h2{margin:10px 0 3px;font-size:25px}
+.panbill-notifications-page-head p{margin:0;font-size:12px}
+.panbill-notifications-list{width:100%;max-height:none;overflow:visible}
+.panbill-notifications-item{display:block;width:100%;max-width:100%;box-sizing:border-box;text-align:left;padding:15px 12px;margin:0;border:0;border-bottom:1px solid #ffffff20;border-radius:0;background:transparent;color:inherit;cursor:pointer;white-space:normal;overflow-wrap:anywhere}
+.panbill-notifications-item.unread{background:#ffffff09}
+.panbill-notifications-item:focus-visible{outline:2px solid #f4c65e;outline-offset:-2px}
+.panbill-notifications-item strong{display:block;font-size:14px;line-height:1.4;overflow-wrap:anywhere}
+.panbill-notifications-item p{margin:6px 0;color:#c4d1e5;font-size:13px;line-height:1.5;overflow-wrap:anywhere}
+.panbill-notifications-item small{display:block;color:#9fb0cb;font-size:11px}
+.panbill-notifications-empty{padding:16px 4px;color:#b7c6dc;font-size:13px}
+.panbill-notification-detail{padding:14px 0}
+.panbill-notification-detail h3{font-size:20px;margin:18px 0 8px;overflow-wrap:anywhere}
+.panbill-notification-detail p{line-height:1.6;overflow-wrap:anywhere}
+.panbill-notification-detail time{display:block;color:#9fb0cb;font-size:12px;margin-top:12px}
+@media(max-width:520px){.panbill-notifications-page{padding:13px;border-radius:16px}.panbill-notifications-page-head{align-items:flex-start}.panbill-notifications-page-head h2{font-size:22px}}
+</style>
+
 </head><body>
 <div aria-label="PanBill is loading" aria-live="polite" id="panbill-loading-screen" role="status"><div aria-hidden="true" class="panbill-loader-mark">P</div><div class="panbill-loader-name">PanBill</div><div class="panbill-loader-caption">One app. All your bills.</div><div aria-hidden="true" class="panbill-loader-ring"></div></div>
 <header class="app-header"><div class="brand"><span class="brand-mark">P</span> PanBill</div><div class="header-actions"><span class="muted" hidden="" id="header-user" style="font-size:12px"></span><button class="pill" id="settings-top-button" type="button" aria-label="Open Settings menu" title="Settings">☰</button><button class="pill" id="notifications-button" type="button" aria-label="Notifications" title="Notifications" hidden style="position:relative">🔔<span id="notifications-badge" hidden style="position:absolute;top:-4px;right:-4px;background:#ff676d;color:#fff;border-radius:99px;min-width:17px;height:17px;padding:0 4px;font-size:10px;display:grid;place-items:center"></span></button><button aria-hidden="true" class="pill" hidden="" id="logout-button" type="button">Log out</button></div></header>
 <main class="wrap"><section class="hero"><div class="hero-copy"><div class="eyebrow">Simple • Secure • Convenient</div><h1>Your bills,<br/><span>beautifully handled.</span></h1><p>Recharge airtime, buy data, pay bills, add money to your wallet, shop and explore the marketplace every day — all in one secure app.</p><div class="trust"><span>✦ Secure account</span><span>✦ Clear transactions</span><span>✦ Fast checkout</span></div></div><div aria-label="PanBill animated seasonal background" class="portrait-card" role="img"></div></section>
 <div class="signed-greeting"><div><div class="eyebrow">YOUR PANBILL DASHBOARD</div><h2 id="greeting">Welcome to PanBill <span aria-hidden="true" class="greeting-spark">✦</span></h2><div class="muted" id="account-status" style="font-size:13px">Sign in to access your wallet.</div></div><span aria-hidden="true" class="greeting-decoration">✧</span><button aria-label="Open account settings" class="outline-btn" id="open-account" type="button" hidden="">Settings</button></div>
+<section id="panbill-notifications-page" class="panbill-notifications-page" aria-label="Notifications" hidden>
+ <div class="panbill-notifications-page-head">
+  <button id="panbill-notifications-close" class="outline-btn" type="button">← Back to dashboard</button>
+  <div><h2>Notifications</h2><p id="panbill-notifications-count" class="muted">Your latest account updates</p></div>
+  <button id="panbill-notifications-read-all" class="outline-btn" type="button">Mark all as read</button>
+ </div>
+ <section id="panbill-notification-detail" class="panbill-notification-detail" hidden aria-live="polite">
+  <button id="panbill-notification-detail-back" class="outline-btn" type="button">← All notifications</button>
+  <div id="panbill-notification-detail-content"></div>
+ </section>
+ <div id="panbill-notifications-list" class="panbill-notifications-list" aria-live="polite"><p class="muted">Your notifications will appear here.</p></div>
+</section>
 <section aria-label="PanBill dashboard and seasonal message" aria-live="polite" class="seasonal-card" id="dashboard-seasonal-greeting"><div class="seasonal-copy"><div class="dashboard-brand-message"><strong>Your bills, beautifully handled.</strong><span>Recharge airtime, buy data, pay bills, add money, shop and explore — all in one secure app.</span></div><div class="seasonal-kicker" data-season-kicker="">SEASONAL GREETINGS</div><h2 class="seasonal-title" data-season-title="">Wishing you joy</h2><p class="seasonal-message" data-season-message="">Warm wishes from PanBill.</p></div><div aria-hidden="true" class="seasonal-art"><span class="season-main" data-season-art="">✦</span><span class="season-sparkles">✧ ✦</span></div></section>
 <section class="panel wallet" hidden="" id="wallet-panel"><div class="wallet-top"><span class="wallet-label">AVAILABLE WALLET BALANCE</span><button aria-label="Hide balance" class="pill" id="toggle-balance" style="color:#101b30;border-color:#07152f30" type="button">◉</button></div><div class="balance" id="wallet-balance">₦••••••</div><div class="panbill-account-number-card" id="panbill-account-number-card"><div><span class="panbill-account-number-label">YOUR PANBILL ACCOUNT NUMBER</span><strong id="panbill-account-number-value" aria-live="polite">Loading account number…</strong><small>Share this number to receive money from other PanBill users.</small></div><button type="button" id="panbill-copy-account-number" class="panbill-copy-account-number" disabled>Copy</button></div><div class="wallet-actions"><button id="fund-wallet-button" type="button"><span class="ico">＋</span>Add Money</button><button id="wallet-history-button" type="button"><span class="ico">↗</span>Transactions</button><button id="refresh-wallet" type="button"><span class="ico">⟳</span>Refresh</button></div><div id="wallet-message" style="font-size:12px;margin-top:12px;position:relative;z-index:1">Wallet information loads after sign-in.</div></section>
 <section class="panel" id="panbill-rewards-panel" hidden style="margin:12px 0;border:1px solid #e9bb5850;background:linear-gradient(145deg,#10264a,#0a1b38)">
@@ -1833,31 +1868,18 @@ async function loadPanbillRewards(){
  }catch(error){$('panbill-rewards-history').textContent='Could not load rewards: '+(error.message||'Please try again.');}
 }
 function panbillOpenSubpage(pageId){
- if(pageId==='panbill-disputes-page'){
-  const shell=$('panbill-disputes-standalone');
-  document.body.classList.remove('panbill-budget-active','panbill-rewards-active');
-  document.body.classList.add('panbill-disputes-active');
-  if(shell)shell.hidden=false;
-  $('panbill-disputes-page')?.scrollIntoView({behavior:'instant',block:'start'});
-  return;
- }
+ if(pageId==='panbill-disputes-page'){const shell=$('panbill-disputes-standalone');document.body.classList.add('panbill-disputes-active');if(shell)shell.hidden=false;$('panbill-disputes-page')?.scrollIntoView({behavior:'instant',block:'start'});return;}
  const wrap=document.querySelector('main.wrap');
  const budget=$('panbill-budget-page');
  const rewards=$('panbill-rewards-panel');
- if(!wrap||!['panbill-budget-page','panbill-rewards-panel'].includes(pageId)||!$(pageId))return;
- document.body.classList.remove('panbill-disputes-active','panbill-budget-active','panbill-rewards-active');
- document.body.classList.add(pageId==='panbill-budget-page'?'panbill-budget-active':'panbill-rewards-active');
- const disputeShell=$('panbill-disputes-standalone');
- if(disputeShell)disputeShell.hidden=true;
+ if(!wrap||!$(pageId))return;
  wrap.classList.add('panbill-subpage-active');
  if(budget)budget.style.display=pageId==='panbill-budget-page'?'block':'none';
- if(rewards){const active=pageId==='panbill-rewards-panel';rewards.hidden=!active;rewards.style.display=active?'block':'none';}
+ if(rewards){rewards.hidden=pageId!=='panbill-rewards-panel';rewards.style.display=pageId==='panbill-rewards-panel'?'block':'none';}
  $(pageId).scrollIntoView({behavior:'instant',block:'start'});
 }
 function panbillCloseSubpage(){
- document.body.classList.remove('panbill-disputes-active','panbill-budget-active','panbill-rewards-active');
- const disputeShell=$('panbill-disputes-standalone');
- if(disputeShell)disputeShell.hidden=true;
+ document.body.classList.remove('panbill-disputes-active');const disputeShell=$('panbill-disputes-standalone');if(disputeShell)disputeShell.hidden=true;
  const wrap=document.querySelector('main.wrap');
  wrap?.classList.remove('panbill-subpage-active');
  const budget=$('panbill-budget-page');if(budget)budget.style.display='none';
@@ -2019,7 +2041,7 @@ function printPanbillTransactionStatement(){
  const w=window.open('','_blank','width=1000,height=800');
  if(!w){alert('Allow pop-ups to print your PanBill statement.');return;}
  const body=rows.map(x=>'<tr><td>'+esc(x.created_at?new Date(x.created_at).toLocaleString('en-NG'):'')+'</td><td>'+esc(String(x.description||x.type||'Transaction').replace(/wisesub/gi,'PanBill'))+'</td><td>'+esc(x.reference||'')+'</td><td>'+esc(normalizedTransactionStatus(x.status||x.provider_status))+'</td><td class="amount">'+esc(money(x.amount))+'</td></tr>').join('');
- const html=`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PanBill Transaction Statement</title><style>body{font:13px Arial,sans-serif;color:#18243a;margin:28px}header{border-bottom:3px solid #d7a842;padding-bottom:12px}h1{margin:0 0 5px}p{color:#5b6678}.summary{display:flex;gap:24px;flex-wrap:wrap;margin:18px 0}.summary strong{display:block;font-size:18px;margin-top:4px}table{width:100%;border-collapse:collapse}th,td{padding:9px 7px;border-bottom:1px solid #e4e8ee;text-align:left;vertical-align:top}th{background:#f3f5f8}.amount{text-align:right;white-space:nowrap}.note{margin-top:18px;font-size:11px}@media print{body{margin:12mm}button{display:none}}</style></head><body><header><h1>PanBill</h1><strong>Transaction Statement</strong><p>${esc(period)} · ${rows.length} transaction(s)</p></header><div class="summary"><div>Successful transaction volume<strong>${esc(money(successfulTotal))}</strong></div><div>All displayed transaction amounts<strong>${esc(money(total))}</strong></div></div><table><thead><tr><th>Date</th><th>Description</th><th>Reference</th><th>Status</th><th class="amount">Amount</th></tr></thead><tbody>${body}</tbody></table><p class="note">This statement contains only transactions currently loaded in PanBill and matching the active filters. It is an informational record, not a bank-issued statement or proof of settlement.</p><div id="panbill-notifications-overlay" hidden style="position:fixed;inset:0;z-index:10000;background:#0009;align-items:flex-start;justify-content:center;padding:12vh 14px 20px"><section style="width:min(100%,520px);max-height:75vh;overflow:auto;background:#0c2042;border:1px solid #ffffff25;border-radius:20px;padding:18px;box-shadow:0 20px 60px #0008"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><h2 style="margin:0">Notifications</h2><button id="panbill-notifications-close" class="pill" type="button">Close</button></div><div style="display:flex;justify-content:flex-end;margin:12px 0"><button id="panbill-notifications-read-all" class="outline-btn" type="button">Mark all as read</button></div><div id="panbill-notifications-list"><p class="muted">Loading notifications…</p></div></section></div></body></html>`;
+ const html=`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PanBill Transaction Statement</title><style>body{font:13px Arial,sans-serif;color:#18243a;margin:28px}header{border-bottom:3px solid #d7a842;padding-bottom:12px}h1{margin:0 0 5px}p{color:#5b6678}.summary{display:flex;gap:24px;flex-wrap:wrap;margin:18px 0}.summary strong{display:block;font-size:18px;margin-top:4px}table{width:100%;border-collapse:collapse}th,td{padding:9px 7px;border-bottom:1px solid #e4e8ee;text-align:left;vertical-align:top}th{background:#f3f5f8}.amount{text-align:right;white-space:nowrap}.note{margin-top:18px;font-size:11px}@media print{body{margin:12mm}button{display:none}}</style></head><body><header><h1>PanBill</h1><strong>Transaction Statement</strong><p>${esc(period)} · ${rows.length} transaction(s)</p></header><div class="summary"><div>Successful transaction volume<strong>${esc(money(successfulTotal))}</strong></div><div>All displayed transaction amounts<strong>${esc(money(total))}</strong></div></div><table><thead><tr><th>Date</th><th>Description</th><th>Reference</th><th>Status</th><th class="amount">Amount</th></tr></thead><tbody>${body}</tbody></table><p class="note">This statement contains only transactions currently loaded in PanBill and matching the active filters. It is an informational record, not a bank-issued statement or proof of settlement.</p></body></html>`;
  w.document.open();w.document.write(html);w.document.close();w.focus();w.print();
 }
 document.getElementById('print-transaction-statement')?.addEventListener('click',printPanbillTransactionStatement);
@@ -2207,20 +2229,84 @@ function updatePanbillSeasonalGreetings(){const season=panbillSeasonForDate(new 
 updatePanbillSeasonalGreetings();setInterval(updatePanbillSeasonalGreetings,60*60*1000);
 
 
-async function panbillLoadNotifications(){
- const list=$('panbill-notifications-list'),badge=$('notifications-badge');
- if(!list||!badge||!currentSession||!authClient)return;
- try{const result=await authClient.from('panbill_notifications').select('id,notification_type,title,message,reference,amount,is_read,created_at').eq('user_id',currentSession.user.id).order('created_at',{ascending:false}).limit(50);if(result.error)throw result.error;
- const rows=result.data||[],unread=rows.filter(x=>!x.is_read).length;badge.hidden=unread===0;badge.textContent=unread>99?'99+':String(unread);list.replaceChildren();
- if(!rows.length){const empty=document.createElement('p');empty.className='muted';empty.textContent='You have no notifications yet.';list.append(empty);return}
- rows.forEach(row=>{const card=document.createElement('article');card.style.cssText='padding:13px 10px;border-bottom:1px solid #ffffff20;'+(row.is_read?'opacity:.72':'');const title=document.createElement('strong');title.textContent=row.title||'Notification';const msg=document.createElement('p');msg.style.cssText='margin:5px 0;color:#c4d1e5';msg.textContent=row.message||'';const time=document.createElement('small');time.style.color='#9fb0cb';time.textContent=new Date(row.created_at).toLocaleString();card.append(title,msg,time);if(!row.is_read){const mark=document.createElement('button');mark.type='button';mark.className='outline-btn';mark.textContent='Mark read';mark.style.cssText='padding:5px 9px;margin-top:8px;font-size:12px';mark.addEventListener('click',async()=>{const u=await authClient.from('panbill_notifications').update({is_read:true}).eq('id',row.id).eq('user_id',currentSession.user.id);if(!u.error)panbillLoadNotifications()});card.append(mark)}list.append(card)});
- }catch(e){list.textContent='Could not load notifications. '+(e.message||'Please try again.')}
+let panbillNotificationsRows=[];
+function panbillShowNotificationList(){
+ const list=$('panbill-notifications-list'),detail=$('panbill-notification-detail');
+ if(list)list.hidden=false;if(detail)detail.hidden=true;
 }
-function panbillOpenNotifications(){const overlay=$('panbill-notifications-overlay');if(!overlay)return;overlay.hidden=false;overlay.style.display='flex';panbillLoadNotifications()}
+async function panbillLoadNotifications(){
+ const list=$('panbill-notifications-list'),badge=$('notifications-badge'),count=$('panbill-notifications-count');
+ if(!list||!badge||!currentSession||!authClient)return;
+ try{
+  const result=await authClient.from('panbill_notifications')
+   .select('id,notification_type,title,message,reference,amount,is_read,created_at')
+   .eq('user_id',currentSession.user.id).order('created_at',{ascending:false}).limit(50);
+  if(result.error)throw result.error;
+  const rows=result.data||[];panbillNotificationsRows=rows;
+  const unread=rows.filter(x=>!x.is_read).length;
+  badge.hidden=unread===0;badge.textContent=unread>99?'99+':String(unread);
+  if(count)count.textContent=rows.length?`${unread} unread · ${rows.length} recent`:'Your latest account updates';
+  list.replaceChildren();
+  if(!rows.length){
+   const empty=document.createElement('p');empty.className='panbill-notifications-empty';
+   empty.textContent='You have no notifications yet.';list.append(empty);return;
+  }
+  rows.forEach(row=>{
+   const item=document.createElement('button');item.type='button';
+   item.className='panbill-notifications-item'+(!row.is_read?' unread':'');
+   item.setAttribute('aria-label',(row.title||'Notification')+'. Open notification');
+   const title=document.createElement('strong');title.textContent=(row.title||'Notification')+(!row.is_read?'  • NEW':'');
+   const msg=document.createElement('p');msg.textContent=row.message||'Tap to view this notification.';
+   const time=document.createElement('small');time.textContent=new Date(row.created_at).toLocaleString();
+   item.append(title,msg,time);
+   item.addEventListener('click',()=>panbillOpenNotificationDetail(row));
+   list.append(item);
+  });
+ }catch(e){list.textContent='Could not load notifications. '+(e.message||'Please try again.');}
+}
+async function panbillOpenNotificationDetail(row){
+ const list=$('panbill-notifications-list'),detail=$('panbill-notification-detail'),content=$('panbill-notification-detail-content');
+ if(!detail||!content)return;
+ content.replaceChildren();
+ const title=document.createElement('h3');title.textContent=row.title||'Notification';
+ const message=document.createElement('p');message.textContent=row.message||'No additional details are available.';
+ const time=document.createElement('time');time.textContent=new Date(row.created_at).toLocaleString();
+ content.append(title,message,time);
+ if(row.reference){const ref=document.createElement('p');ref.textContent='Reference: '+row.reference;content.append(ref);}
+ if(row.amount!==null&&row.amount!==undefined){const amount=document.createElement('p');amount.textContent='Amount: ₦'+Number(row.amount).toLocaleString();content.append(amount);}
+ list.hidden=true;detail.hidden=false;
+ if(!row.is_read){
+  const update=await authClient.from('panbill_notifications').update({is_read:true})
+   .eq('id',row.id).eq('user_id',currentSession.user.id);
+  if(!update.error){row.is_read=true;await panbillLoadNotifications();detail.hidden=false;list.hidden=true;}
+ }
+}
+function panbillOpenNotifications(){
+ const main=document.querySelector('main.wrap'),page=$('panbill-notifications-page'),button=$('notifications-button');
+ if(!main||!page)return;
+ main.dataset.previousView=main.dataset.view||'home';
+ main.dataset.view='notifications';page.hidden=false;
+ button?.setAttribute('aria-expanded','true');
+ panbillShowNotificationList();panbillLoadNotifications();
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+$('notifications-button')?.setAttribute('aria-controls','panbill-notifications-page');
+$('notifications-button')?.setAttribute('aria-expanded','false');
 $('notifications-button')?.addEventListener('click',panbillOpenNotifications);
-$('panbill-notifications-close')?.addEventListener('click',()=>{const o=$('panbill-notifications-overlay');o.hidden=true;o.style.display='none'});
-$('panbill-notifications-overlay')?.addEventListener('click',e=>{if(e.target.id==='panbill-notifications-overlay'){e.currentTarget.hidden=true;e.currentTarget.style.display='none'}});
-$('panbill-notifications-read-all')?.addEventListener('click',async()=>{if(!currentSession)return;const r=await authClient.from('panbill_notifications').update({is_read:true}).eq('user_id',currentSession.user.id).eq('is_read',false);if(!r.error)panbillLoadNotifications()});
+$('panbill-notifications-close')?.addEventListener('click',()=>{
+ const main=document.querySelector('main.wrap'),page=$('panbill-notifications-page');
+ if(page)page.hidden=true;
+ if(main)main.dataset.view=main.dataset.previousView||'home';
+ $('notifications-button')?.setAttribute('aria-expanded','false');
+ window.scrollTo({top:0,behavior:'smooth'});
+});
+$('panbill-notification-detail-back')?.addEventListener('click',panbillShowNotificationList);
+$('panbill-notifications-read-all')?.addEventListener('click',async()=>{
+ if(!currentSession)return;
+ const r=await authClient.from('panbill_notifications').update({is_read:true})
+  .eq('user_id',currentSession.user.id).eq('is_read',false);
+ if(!r.error)panbillLoadNotifications();
+});
 async function init(){try{if(!window.supabase){authMessage('Supabase library failed to load. Check your connection.');return}authClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{experimental:{passkey:true}}});updatePasskeyAvailability();loadCustomerMarketplace();loadMarketplacePickupPoints();authClient.auth.onAuthStateChange((_event,session)=>{showSignedIn(session);if(session)void panbillLoadNotifications();else{const b=$('notifications-badge');if(b){b.hidden=true;b.textContent=''}}if(session&&(new URLSearchParams(location.search).has('reference')||new URLSearchParams(location.search).has('trxref')))void handlePaystackReturn()});let r=await withPanbillTimeout(authClient.auth.getSession(),8000,'PanBill could not restore your session in time. You can still try signing in.');if(r.error)throw r.error;showSignedIn(r.data.session);if(r.data.session)await handlePaystackReturn();else if(location.search.includes('reference=')||location.search.includes('trxref=')){authMessage(new URLSearchParams(location.search).get('marketplace_payment')==='1'?'Log in to verify your marketplace payment.':'Log in to verify your payment and refresh your wallet.');}const {data:{subscription}}=authClient.auth.onAuthStateChange((event)=>{if(event==='PASSWORD_RECOVERY'){$('reset-overlay').hidden=false;$('reset-title').textContent='Choose a new password';$('reset-description').textContent='Enter a new password for your account.';$('reset-email-field').hidden=true;$('reset-email').required=false;$('new-password-field').hidden=false;$('new-password').required=true;$('reset-submit').textContent='Update password';message($('reset-message'),'')}})}catch(error){authMessage(error?.message||'PanBill could not finish loading. Refresh the page and try again.')}finally{hidePanbillSplash()}}setAuthMode('login');init();
 </script><script>
 /* Keep provider tiles readable if a remote brand asset is temporarily unavailable. */
