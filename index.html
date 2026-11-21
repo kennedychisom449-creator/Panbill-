@@ -2027,7 +2027,7 @@ async function loadWallet(){
   $('wallet-balance').textContent=balanceVisible?realBalance:'₦••••••';
   $('wallet-message').textContent=w.data?'Your wallet balance is up to date.':'No wallet record found.';
   await loadPanbillAccountNumber();
-  const t=await authClient.from('transactions').select('type,amount,status,reference,description,created_at,provider,provider_status,provider_reference,provider_response').eq('user_id',uid).order('created_at',{ascending:false}).limit(50);
+  const t=await authClient.from('transactions').select('type,amount,status,reference,description,created_at,provider,provider_status,provider_reference,provider_response,counterparty_name,counterparty_account_number,counterparty_user_id').eq('user_id',uid).order('created_at',{ascending:false}).limit(50);
   if(t.error)throw t.error;
   transactionRecords=Array.isArray(t.data)?t.data:[];
   $('load-more-transactions').hidden=transactionRecords.length<50;
@@ -2047,13 +2047,13 @@ function panbillTransferCounterparty(x){
  const candidates=[data.counterparty,data.recipient,data.sender,data.transfer,data];
  const nameKeys=isOut?['recipient_name','recipientName','counterparty_name','counterpartyName','beneficiary_name','beneficiaryName','name']:['sender_name','senderName','counterparty_name','counterpartyName','name'];
  const accountKeys=isOut?['recipient_account_number','recipientAccountNumber','counterparty_account_number','counterpartyAccountNumber','beneficiary_account_number','beneficiaryAccountNumber','account_number','accountNumber']:['sender_account_number','senderAccountNumber','counterparty_account_number','counterpartyAccountNumber','account_number','accountNumber'];
- let name='',account='';
+ let name=String(x?.counterparty_name||'').trim();
+ let account=String(x?.counterparty_account_number||'').trim();
  for(const obj of candidates){if(!obj||typeof obj!=='object')continue;
   if(!name)for(const k of nameKeys){if(obj[k]&&typeof obj[k]==='string'){name=obj[k].trim();break}}
   if(!account)for(const k of accountKeys){if(obj[k]&&typeof obj[k]==='string'){account=obj[k].trim();break}}
  }
- // Account numbers are always masked before being shown in history/details/receipts.
- const digits=account.replace(/\D/g,'');
+ const digits=account.replace(/\\D/g,'');
  const masked=digits.length>=4?'••••••'+digits.slice(-4):account?'••••':'Not recorded';
  return {name:name||'Not recorded',account:masked};
 }
@@ -2074,7 +2074,7 @@ function showTransactionDetails(x){
  const counterparty=panbillTransferCounterparty(x);if(transferType==='wallet_transfer_out'){add('Recipient name',counterparty.name);add('Recipient account number',counterparty.account)}else if(transferType==='wallet_transfer_in'){add('Sender name',counterparty.name);add('Sender account number',counterparty.account)}
  add('Amount',money(x.amount));add('Date and time',x.created_at?new Date(x.created_at).toLocaleString('en-NG'):'Not available');
  add('Transaction reference',x.reference||'Not available');add('Provider','PanBill');
- add('Provider status',x.provider_status||'Not available');add('Provider reference',x.provider_reference||'Not available');
+ add('Provider status',x.provider_status||statusText||'Not available');add('Provider reference',x.provider_reference||'Not available');
  add('Package',inner.package||inner.product||'');add('Units',inner.units||'');
  content.append(grid);
  const timeline=document.createElement('div');timeline.className='tx-detail-item';timeline.style.marginTop='10px';
@@ -2098,7 +2098,7 @@ async function refreshActiveTransactionDetail(){
  try{
   const result=await invoke({action:'status',reference:x.reference});
   const query=await authClient.from('transactions')
-   .select('type,amount,status,reference,description,created_at,provider,provider_status,provider_reference,provider_response')
+   .select('type,amount,status,reference,description,created_at,provider,provider_status,provider_reference,provider_response,counterparty_name,counterparty_account_number,counterparty_user_id')
    .eq('user_id',currentSession.user.id).eq('reference',x.reference).maybeSingle();
   if(query.error)throw query.error;
   if(!query.data)throw Error('The transaction record could not be refreshed. Please try again.');
@@ -2125,7 +2125,7 @@ document.getElementById('lookup-transaction-reference')?.addEventListener('click
  const button=$('lookup-transaction-reference');button.disabled=true;status.textContent='Looking up your transaction…';
  try{
   const result=await authClient.from('transactions')
-   .select('type,amount,status,reference,description,created_at,provider,provider_status,provider_reference,provider_response')
+   .select('type,amount,status,reference,description,created_at,provider,provider_status,provider_reference,provider_response,counterparty_name,counterparty_account_number,counterparty_user_id')
    .eq('user_id',currentSession.user.id).eq('reference',reference).maybeSingle();
   if(result.error)throw result.error;
   if(!result.data){status.textContent='No transaction with that exact reference was found in your account.';return;}
@@ -2152,7 +2152,7 @@ $('load-more-transactions')?.addEventListener('click',async()=>{
  const button=$('load-more-transactions');transactionLoadMoreBusy=true;button.disabled=true;button.textContent='Loading…';
  try{
   const start=transactionRecords.length,end=start+49;
-  const result=await authClient.from('transactions').select('type,amount,status,reference,description,created_at,provider,provider_status,provider_reference,provider_response').eq('user_id',currentSession.user.id).order('created_at',{ascending:false}).range(start,end);
+  const result=await authClient.from('transactions').select('type,amount,status,reference,description,created_at,provider,provider_status,provider_reference,provider_response,counterparty_name,counterparty_account_number,counterparty_user_id').eq('user_id',currentSession.user.id).order('created_at',{ascending:false}).range(start,end);
   if(result.error)throw result.error;
   const older=Array.isArray(result.data)?result.data:[];
   transactionRecords=transactionRecords.concat(older);
